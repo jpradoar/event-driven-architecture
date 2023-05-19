@@ -7,6 +7,9 @@ on:
       - '03-producer/**' # Any change in this path, make trigger build action.
       - '.github/workflows/producer-ci.yaml'
 
+env:
+  APP: 'mqtt-producer'
+
 jobs:
   build_producer_container:
     runs-on: ubuntu-latest 
@@ -31,5 +34,5 @@ jobs:
       with:
         context: ./03-producer
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/mqtt-producer:0.0.1
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.CLUSTER_NAME }}:$(date +%s)
 
