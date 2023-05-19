@@ -30,9 +30,9 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    # - name: Generate tag ID
-    #   id: tag_id
-    #   run: echo "::set-output name=IMAGE_TAG::$(date +%s)"
+    - name: Generate tag ID
+      id: tag_id
+      run: echo "::set-output name=IMAGE_TAG::$(date +%s)"
 
 
     - name: Build and push
@@ -40,5 +40,5 @@ jobs:
       with:
         context: ./03-producer
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.CLUSTER_NAME }}:1.0.0  #${{ steps.tag_id.outputs.IMAGE_TAG }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }}
 
