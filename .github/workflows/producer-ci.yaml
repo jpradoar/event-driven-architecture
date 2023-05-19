@@ -9,10 +9,6 @@ on:
 
 env:
   REPO_APP: 'mqtt-producer'
-  # for future Semantic Releases 
-  MAJOR: '0'
-  MINOR: '0'
-  PATCH: '0'
 
 jobs:
   Producer-CI_build-docker-image:
