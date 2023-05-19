@@ -1,17 +1,17 @@
-name: DBWriter-CI
+name: webserver-CI
 on:
   push:
     branches:
       - main
     paths:
-      - '05-dbwriter/**' # Any change in this path, make trigger build action.
-      - '.github/workflows/dbwriter-ci.yaml'
+      - '12-k8s-event-exporter/**' # Any change in this path, make trigger build action.
+      - '.github/workflows/k8s-event-exporter-ci.yaml'
 
 env:
-  REPO_APP: 'mqtt-dbwriter'
+  REPO_APP: 'k8s-event-exporter'
 
 jobs:
-  DBWriter-CI_build-docker-image:
+  k8s-event-exporter-CI_build-docker-image:
     runs-on: ubuntu-latest 
     
     steps:
@@ -35,7 +35,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
-        context: ./05-dbwriter
+        context: ./12-k8s-event-exporter
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }}
 

@@ -57,5 +57,5 @@ spec:
     spec:
       containers:
         - name: webserver
-          image: jpradoar/mqtt-webserver:tagname
+          image: jpradoar/mqtt-webserver:2023.05
           imagePullPolicy: Always       

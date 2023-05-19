@@ -44,8 +44,8 @@ metadata:
     app: k8s-event-exporter
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
+    app.owner: 'jpradoar'
+    app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 spec:
   replicas: 1
   selector:
@@ -61,7 +61,7 @@ spec:
       serviceAccountName: k8s-event-exporter-sa
       containers:
       - name: k8s-event-exporter
-        image: jpradoar/k8s-event-exporter:latest
+        image: jpradoar/k8s-event-exporter:2023.05
         imagePullPolicy: Always     
 #-----------------------------------------          
         resources:
