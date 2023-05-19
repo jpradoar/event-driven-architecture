@@ -6,5 +6,4 @@ RUN apk update \
 && chmod +x kubectl \
 && mv kubectl  /usr/local/bin/
 
-#ENTRYPOINT ["/bin/sh","-c","kubectl get events -Aw"]
-ENTRYPOINT ["/usr/local/bin/kubectl get events -Aw"]
+ENTRYPOINT ["/bin/sh","-c","kubectl get events -Aw"]
