@@ -1,6 +1,7 @@
 FROM alpine:3.17.0
 
 WORKDIR /app
+ADD ./sub.py /app/sub.py
 RUN apk update; apk add curl wget unzip python3 py3-pip aws-cli && pip3 install flask pika pymsteams prometheus_client && \
 wget -nv https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz && \
 tar -xzf helm-v3.10.1-linux-amd64.tar.gz && \

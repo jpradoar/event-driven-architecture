@@ -1,0 +1,74 @@
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: default
+  name: TEMPLATE-internal-service
+  labels:
+    app: TEMPLATE
+    environment: development
+  annotations:
+    app: TEMPLATE
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+    #app.owner: 'jpradoar'
+    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
+spec:
+  selector:
+    app: TEMPLATE
+  ports:
+    - protocol: TCP
+      port: 80 
+      targetPort: 5678
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: TEMPLATE
+  namespace: default
+  labels:
+    app: TEMPLATE
+    environment: development
+  annotations:
+    prometheus.io/scrape: 'true'
+    filter.by.port.name: 'true'
+    app: TEMPLATE
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+    #app.owner: 'jpradoar'
+    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: TEMPLATE
+  template:
+    metadata:
+      labels:
+        app: TEMPLATE
+    spec:
+      containers:
+      - name: TEMPLATE
+        image: CONTAINER-IMAGE
+        imagePullPolicy: Always     
+#-----------------------------------------          
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi          
+          limits:
+            cpu: 150m
+            memory: 150Mi
+#-----------------------------------------            
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true  
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+
