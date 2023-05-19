@@ -13,8 +13,6 @@ metadata:
     app: mariadb
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 data:
   dump.sql: |-
       SET NAMES utf8;
@@ -69,8 +67,6 @@ metadata:
     app: mariadb
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 spec:
   selector:
     app: mariadb
@@ -95,8 +91,6 @@ metadata:
     app: mariadb
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 spec:
   replicas: 1
   selector:

@@ -13,8 +13,6 @@ metadata:
     app.mqtt.event.trigger: '1234567890'
     prometheus.io/scrape: 'true'
     filter.by.port.name: 'true'
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 spec: 
   selector:
     app: rabbitmq
@@ -66,8 +64,6 @@ metadata:
     app: rabbitmq
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 data:
   10-defaults.conf: |-
     #/etc/rabbitmq/conf.d/10-defaults.conf
@@ -101,8 +97,6 @@ metadata:
     app: rabbitmq
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 data:
   definitions.json: |-
       {
@@ -155,8 +149,6 @@ metadata:
     app: rabbitmq
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 data:
   enabled_plugins: |-
     [
@@ -193,8 +185,6 @@ metadata:
     app: rabbitmq
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 spec:
   replicas: 1
   selector:
