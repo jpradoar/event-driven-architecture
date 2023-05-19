@@ -35,7 +35,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
-        context: ./04-producer
+        context: ./04-consumer
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }}
 
