@@ -29,8 +29,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
-        context: 03-producer/
-        file: ./Dockerfile
+        context: ./03-producer
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/mqtt-producer:0.0.1
 
