@@ -32,12 +32,13 @@ jobs:
 
     - name: Generate tag ID
       id: tag_id
-      run: echo $(date +%s) > $IMAGE_TAG
+      run: echo "::set-output name=IMAGE_TAG::$(date +%s)"
+      
 
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
         context: ./03-producer
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.CLUSTER_NAME }}:${{ steps.tag_id.outputs.stdout }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.CLUSTER_NAME }}:${{ steps.tag_id.outputs.IMAGE_TAG }}
 
