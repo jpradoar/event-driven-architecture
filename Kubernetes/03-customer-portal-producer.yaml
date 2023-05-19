@@ -9,14 +9,12 @@ metadata:
     app.depends: rabbitmq     
     environment: development
   annotations:
-    #prometheus.io/scrape: 'true'
-    #filter.by.port.name: 'true'
+    prometheus.io/scrape: 'true'
+    filter.by.port.name: 'true'
     app: producer
     app.depends: rabbitmq     
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 spec:
   selector:
     app: producer
@@ -37,14 +35,15 @@ metadata:
     app: producer
     environment: development
     app.depends: rabbitmq    
+    prometheus.io/scrape: 'true'
   annotations:
-    #prometheus.io/scrape: 'true'
+    prometheus.io/scrape: 'true'
     app: producer
     app.depends: rabbitmq  
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    #app.owner: 'jpradoar'
-    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
+    app.owner: 'jpradoar'
+    app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/mqtt-producer/'   
 spec:
   replicas: 1
   selector:
@@ -57,7 +56,7 @@ spec:
     spec:
       containers:
         - name: producer
-          image: jpradoar/mqtt-producer:latest
+          image: jpradoar/mqtt-producer:2023.05
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -72,21 +71,4 @@ spec:
             value: "admin" 
           - name: queue
             value: "clients"              
-      #     volumeMounts:
-      #       - name: index-html
-      #         mountPath: /root/templates/index.html
-      #         subPath: index.html
-      #       - name: apiproducer
-      #         mountPath: /root/api.py
-      #         subPath: api.py                
-      # volumes:
-      #   - name: index-html
-      #     configMap:
-      #       name: index-html
-      #   - name: apiproducer
-      #     configMap:
-      #       name: apiproducer
-
-
-
-            
+          
