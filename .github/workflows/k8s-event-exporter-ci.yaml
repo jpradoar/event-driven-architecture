@@ -1,4 +1,4 @@
-name: webserver-CI
+name: k8s-event-exporter-CI
 on:
   push:
     branches:
