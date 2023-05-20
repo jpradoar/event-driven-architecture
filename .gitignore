@@ -1,0 +1,6 @@
+**.log
+**/*_bkp
+**/*_tmp
+**/*.ignore
+temp/
+
