@@ -45,7 +45,13 @@ My standard (input/output) will be  [JSON](https://www.json.org/json-en.html)  b
 
 <br><hr><br>
 
-# Json data model (example)
+# Architecture design
+<br>
+<img src="img/event-driven-architecture.jpg">
+
+<br>
+
+### Json data model (example)
     {                                              /* Posible Inputs */ 
     "client":"Client-01",                          /* Client Name / Identification */ 
     "namespace":"Client-01",                       /* kubernetes namespace = client */
@@ -69,23 +75,23 @@ My standard (input/output) will be  [JSON](https://www.json.org/json-en.html)  b
       } 
     } 
 
-
-# Architecture design
-<br>
-<img src="img/event-driven-architecture.jpg">
-
 <br>
 
-
-
-# Screenshots
+### Producer (client portal)
 <br>
 <img src="img/producer.png">
+<br>
+
+### DBClients UI (webserver)
+<br>
+<img src="img/webserver.png">
 <br>
 
 ### Kubernetes Logs
 <br>
 <img src="img/consumer-logs.png">
+<br>
+<img src="img/full-log.png">
 <br>
 
 ### Alerts and Messages
