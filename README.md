@@ -90,7 +90,7 @@ My standard (input/output) will be  [JSON](https://www.json.org/json-en.html)  b
 
 ### Alerts and Messages
 <br>
-<img src="img/cslack-build-msg.png">
+<img src="img/slack-build-msg.png">
 <br>
 
 
