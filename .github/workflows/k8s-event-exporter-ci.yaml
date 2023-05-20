@@ -14,7 +14,7 @@ env:
   BUILD_CONTEXT: './12-k8s-event-exporter'
 
 jobs:
-  Build-Docker-images:
+  Build-Docker-image:
     runs-on: ubuntu-latest 
     
     steps:
