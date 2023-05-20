@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: mqtt-poc
+  namespace: default
   name: external-service-mqtt-poc
   labels:
     app: mqtt

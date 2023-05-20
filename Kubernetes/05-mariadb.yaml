@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata: 
   name: dbdump
-  namespace: mqtt-poc
+  namespace: default
   labels:
     app: mariadb
     environment: development
@@ -57,7 +57,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mariadb
-  namespace: mqtt-poc
+  namespace: default
   labels:
     app: mariadb
     environment: development
@@ -76,13 +76,12 @@ spec:
       port: 3306        
       targetPort: 3306
 
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mariadb
-  namespace: mqtt-poc
+  namespace: default
   labels:
     app: mariadb
     environment: development

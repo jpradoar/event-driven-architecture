@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: rabbitmq
-  namespace: mqtt-poc
+  namespace: default
   labels:
     app: rabbitmq
     environment: development
@@ -56,7 +56,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata: 
   name: rabbit-default-conf
-  namespace: mqtt-poc
+  namespace: default
   labels:
     app: rabbitmq
     environment: development
@@ -89,7 +89,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata: 
   name: rabbit-definitions-conf
-  namespace: mqtt-poc
+  namespace: default
   labels:
     app: rabbitmq
     environment: development
@@ -141,7 +141,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata: 
   name: rabbit-plugin-config
-  namespace: mqtt-poc
+  namespace: default
   labels:
     app: rabbitmq
     environment: development
@@ -177,7 +177,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rabbitmq
-  namespace: mqtt-poc
+  namespace: default
   labels:
     app: rabbitmq
     environment: development
