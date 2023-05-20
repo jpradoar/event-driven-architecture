@@ -80,7 +80,6 @@ body {
 .table tbody tr:last-of-type {
     border-bottom: 2px solid #3383FF;
 }
-
 </style>
 <head>
   <meta charset="UTF-8">
@@ -99,8 +98,9 @@ body {
   <th scope="col"> Deployed</th>
   <th scope="col"> License type</th>
 </tr>
-<?php 
+<?php
 if ($stmt->execute()) {
+    // Fetch the results
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { ?>
   <tr>
   <td><?php echo $row['id']; ?></td>
@@ -109,14 +109,15 @@ if ($stmt->execute()) {
   <td><?php echo $row['hardware']; ?></td>    
   <td><?php echo $row['product']; ?></td>  
   <td><?php echo $row['xdate']; ?></td>
-  <td><?php echo $row['license']; ?></td>           
-  </tr>
-<?php   
-  }
+  <td><?php echo $row['license']; ?></td>    
+<?php  
+    }
 } else {
-    echo "Query execution failed."; 
+    // Handle query execution error
+    echo "Query execution failed.";
 }
-?>
+?>       
+  </tr>
 </table>                        
 </div>
 </body>
