@@ -62,5 +62,43 @@ try {
       <?php } ?>
     </table>                        
   </div>
+
+  <style>
+    #messages {
+      border: 1px solid black;
+      padding: 10px;
+      margin-top: auto;
+      max-height: auto;
+      overflow: auto;
+    }
+  </style>  
+  <br><br><h3>DEPLOYMENT REAL TIME STATUS</h3>
+  <ul id="messages"></ul>
+  <script>
+    // Conexión a RabbitMQ
+    const QUEUE_NAME = 'event-status';
+    const AMQP_URL = 'ws://rabbitmq:15674/ws'; // Reemplazar con la URL de conexión a RabbitMQ
+
+    const client = Stomp.client(AMQP_URL);
+    client.connect('admin', 'admin', onConnect, onError);
+
+    function onConnect() {
+      console.log('Conectado a RabbitMQ');
+      client.subscribe(QUEUE_NAME, onMessageReceived);
+    }
+
+    function onError(error) {
+      console.error('Error de conexión a RabbitMQ:', error);
+    }
+
+    function onMessageReceived(message) {
+      const body = JSON.parse(message.body);
+      console.log('Mensaje recibido:', body);
+      const li = document.createElement('li');
+      li.innerText = JSON.stringify(body);
+      document.getElementById('messages').appendChild(li);
+    }
+  </script>
+
 </body>
 </html>

@@ -58,3 +58,5 @@ spec:
         - name: webserver
           image: jpradoar/mqtt-webserver:2023.05
           imagePullPolicy: Always
+          ports:
+            - containerPort: 80          
