@@ -1,5 +1,5 @@
 <?php
-$db_host = "mariadb";
+/*$db_host = "mariadb";
 $db_name = "clients";
 $db_user = "admin";
 $db_pass = "admin";
@@ -11,7 +11,27 @@ catch(PDOException $e){
   echo $e->getMessage();
 }
 $stmt = $db_con->prepare("SELECT * FROM clients");
-$stmt->execute();
+$stmt->execute();*/
+
+
+$servername = "mariadb";
+$username = "admin";
+$password = "admin";
+$dbname = "clients";
+
+try {
+    $db_con = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    $db_con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Prepare and execute the query
+    $stmt = $db_con->prepare("SELECT * FROM clients");
+    $stmt->execute();
+    
+    // Further code to handle the query results...
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -79,7 +99,9 @@ body {
   <th scope="col"> Deployed</th>
   <th scope="col"> License type</th>
 </tr>
-<?php while($row=$stmt->fetch(PDO::FETCH_ASSOC)) { ?>
+<?php 
+if ($stmt->execute()) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { ?>
   <tr>
   <td><?php echo $row['id']; ?></td>
   <td><?php echo $row['client']; ?></td>
@@ -89,9 +111,13 @@ body {
   <td><?php echo $row['xdate']; ?></td>
   <td><?php echo $row['license']; ?></td>           
   </tr>
-<?php   }   $stmt = null; ?>
+<?php   
+  }
+} else {
+    echo "Query execution failed."; 
+}
+?>
 </table>                        
 </div>
-
 </body>
 </html>
