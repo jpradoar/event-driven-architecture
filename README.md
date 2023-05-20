@@ -72,7 +72,7 @@ My standard (input/output) will be  [JSON](https://www.json.org/json-en.html)  b
 
 # Architecture design
 <br>
-...
+<img src="img/event-driven-architecture.jpg">
 
 <br>
 
@@ -81,9 +81,17 @@ My standard (input/output) will be  [JSON](https://www.json.org/json-en.html)  b
 # Screenshots
 <br>
 <img src="img/producer.png">
-
 <br>
 
 ### Kubernetes Logs
 <br>
 <img src="img/consumer-logs.png">
+<br>
+
+### Alerts and Messages
+<br>
+<img src="img/cslack-build-msg.png">
+<br>
+
+
+
