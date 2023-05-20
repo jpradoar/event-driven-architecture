@@ -1,8 +1,8 @@
 <?php
-$servername   = "mariadb";
-$username     = "admin";
-$password     = "admin";
-$dbname       = "clients";
+$servername = "mariadb";
+$username   = "admin";
+$password   = "admin";
+$dbname     = "clients";
 
 try {
     $db_con = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8mb4", $username, $password);
