@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - '05-webserver/**' # Any change in this path, make trigger build action.
+      - '06-webserver/**' # Any change in this path, make trigger build action.
       - '.github/workflows/webserver-ci.yaml'
 
 env:
@@ -35,7 +35,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
-        context: ./05-webserver
+        context: ./06-webserver
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }}
 
