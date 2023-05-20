@@ -39,3 +39,14 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }}
 
+    - name: Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_CHANNEL: builds-and-ci
+        SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
+        SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png?size=48
+        SLACK_MSG_AUTHOR: 
+        SLACK_MESSAGE: 'k8s-event-exporter-CI create new docker image ${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }}'
+        SLACK_TITLE: k8s-event-exporter-CI
+        SLACK_USERNAME: jpradoar
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
