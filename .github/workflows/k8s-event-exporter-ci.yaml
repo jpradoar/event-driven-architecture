@@ -46,7 +46,7 @@ jobs:
         SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
         #SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png?size=48
         SLACK_MSG_AUTHOR: 
-        SLACK_MESSAGE: 'New docker image was created: *${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }}*'
-        SLACK_TITLE: k8s-event-exporter-CI
-        SLACK_USERNAME: GithubAction
+        SLACK_MESSAGE: 'New docker image was created: *${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }} on:  https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}/tags?page=1&ordering=last_updated*'
+        SLACK_TITLE: ':rocket: GithubAction Build docker image'
+        #SLACK_USERNAME: GithubAction
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
