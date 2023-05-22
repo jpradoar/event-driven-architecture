@@ -139,8 +139,12 @@ def my_form():
       #
       return "<b>Data sent to mqtt:</b> <br><br> [msg] : " + data + "<br><br> <a href='/'><button>Back</button></a> <meta http-equiv='refresh' content='3;url=/' />"
 
-# En general cuando uso docker-compose o kubernetes suele pasar que este servicio levanta antes que Rabbit.
-# Por tal motivo valido si el Rabbit esta listo, sino espero 5 segundos. 
+
+# Genero un bucle en el cual, si conecta con el rabbit inicia la app,
+# de lo contrario muestar el mensaje de error y espera 5 seg para reintentar.
+# de esta manera me aseguroq que si por alguna razón el rabbit se cae
+# no se ve afectado este servicio a modo de cascada.
+# la caida de uno no implica la caida del otro. 
 def main():
   while True:
       try:
@@ -148,16 +152,18 @@ def main():
           channel = connection.channel()
           sendmsg("  *[Producer] Started and connected to queue [ " + destination_queue +" ]")
           app.run(host='0.0.0.0', port=5000, debug=False)
-      # Si no me puedo conectar al rabbit, espero y reintento luego.
       except:
           sendmsg("  *[Producer] No se puede conectar a RabbitMQ, esperando 5 segundos para reconectar...")
           time.sleep(5)  
 
+# Funcion para exponer metricas custom de esta app.
 def monitoring():
   start_http_server(metrics_port)
   metrics_info()
   
 
 if __name__ == '__main__':
+  # El objetivo del thead es que los hilos corran cada uno independiente del otro.
+  # No confundir con procesos separados. 
     Thread(target = main).start()
     Thread(target = monitoring).start()
