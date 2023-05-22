@@ -81,10 +81,11 @@ def send_mqtt_msg(queue, routing_key, data):
 def generate_trace_id():
   return str(uuid.uuid4())
 
-@app.route('/card', methods=['GET','POST'])
-def card():
-  if request.method == 'GET':
-      return render_template('card.html')
+# Pendiente de implementar. 
+# @app.route('/card', methods=['GET','POST'])
+# def card():
+#   if request.method == 'GET':
+#       return render_template('card.html')
 
 # Si es un GET, claramente esta accediendo al formulario para crear un nuevo recurso
 # Si es un POST capturo la data del formulario y genero un json para enviarlo a una cola de RabbitMQ
@@ -109,7 +110,7 @@ def my_form():
         "MessageAttributes": { \
             "event_type": { \
                 "Type": "String", \
-                "Value": "mycompany.producer.event.'+client+'.published" \
+                "Value": "mycompany.'+myname+'.event.'+client+'.published" \
             }, \
           "published_on": "'+dateformat+'", \
           "trace_id": "'+generate_trace_id()+'", \
@@ -118,7 +119,7 @@ def my_form():
         "Metadata": { \
           "host": "'+hostname+'", \
           "origing": "Cloud",      \
-          "publisher": "producer" \
+          "publisher": "'+myname+'" \
         } \
       }'   
       send_mqtt_msg(destination_queue, destination_RK, data)  
@@ -142,9 +143,11 @@ def validateMQTTConnection():
           channel = connection.channel()
           sendmsg("  *[Producer] Started and connected to queue [ " + destination_queue +" ]")
           break
-      except pika.exceptions.AMQPConnectionError:
+      # Si no me puedo conectar al rabbit, espero y reintento luego.
+      except:
           sendmsg("  *[Producer] No se puede conectar a RabbitMQ, esperando 5 segundos para reconectar...")
-          time.sleep(5)   
+          time.sleep(5)  
+
 
 def main():
   validateMQTTConnection()
