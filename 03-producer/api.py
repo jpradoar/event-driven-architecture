@@ -12,7 +12,7 @@ import socket                                   # para obtener el hostname del c
 import logging                                  # para recopilar metricas de monitoreo y logs
 from prometheus_client import start_http_server # para levantar el http_server
 from prometheus_client import Info              # para prometheus
-from threading import Thread                    # para multitrheding metrics + main
+from threading import Thread                    # para ejecutan algunas cunciones en hilos separados
 
 
 # Para prometheus 

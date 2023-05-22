@@ -75,7 +75,7 @@ spec:
           - name: queue
             value: "infra"
           - name: mqttport
-            value: 5672      
+            value: "5672"      
           - name: destination_queue
             value: "infra"
           - name: destination_RK
