@@ -22,6 +22,15 @@ services:
         image: jpradoar/mqtt-producer:2023.05
         container_name: producer
         restart: always
+        environment:
+          mqtthost: rabbitmq
+          mqttvhost: /
+          mqttuser: admin
+          mqttpass: admin
+          queue: infra
+          mqttport: 5672
+          destination_queue: infra
+          destination_RK: infra
         ports:
           - 5000:5000   
           - 9091  
@@ -29,6 +38,51 @@ services:
           - rabbitmq
         networks:
           - infra       
+#--------------------------------------------
+    consumer:
+        image: jpradoar/mqtt-consumer:2023.05
+        container_name: consumer
+        restart: always
+        environment:
+          mqtthost: rabbitmq
+          mqttvhost: /
+          mqttuser: admin
+          mqttpass: admin
+          queue: infra
+          mqttport: 5672      
+        ports:
+          - 9090        # /metrics                
+        depends_on: 
+          - rabbitmq
+          - producer
+        networks:
+          - infra
+#--------------------------------------------
+    dbwriter:
+      image: jpradoar/mqtt-dbwriter:2023.05
+      container_name: dbwriter
+      restart: always       
+      environment:
+        mqtthost: rabbitmq
+        mqttvhost: /
+        mqttuser: admin
+        mqttpass: admin
+        mqttport: 5672     
+        queue: clients   
+        #
+        mysql_host: mariadb
+        mysql_user: admin
+        mysql_pass: admin
+        mysql_db: clients
+      ports:
+        - 9090          
+      depends_on: 
+        - rabbitmq
+        - producer
+        - consumer          
+        - mariadb          
+      networks:
+        - infra    
 #--------------------------------------------
     mariadb:
       image: mariadb:10.9.4
@@ -58,41 +112,7 @@ services:
       depends_on: 
          - mariadb          
       networks:
-        - infra              
-#--------------------------------------------
-    consumer:
-        image: jpradoar/mqtt-consumer:2023.05
-        container_name: consumer
-        restart: always
-        environment:
-          mqttuser: admin
-          mqttpass: admin          
-        ports:
-          - 9090        # /metrics                
-        depends_on: 
-          - rabbitmq
-          - producer
-        networks:
-          - infra
-      
-#--------------------------------------------
-    dbwriter:
-      image: jpradoar/mqtt-dbwriter:2023.05
-      container_name: dbwriter
-      restart: always       
-      environment:
-        mqttuser: admin
-        mqttpass: admin    
-        queue: clients     
-      ports:
-        - 9090          
-      depends_on: 
-        - rabbitmq
-        - producer
-        - consumer          
-        - mariadb          
-      networks:
-        - infra         
+        - infra                   
 #----------------------------------------------------------------
 networks:
   infra:
