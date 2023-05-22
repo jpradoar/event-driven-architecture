@@ -12,10 +12,12 @@ import socket                                   # para obtener el hostname del c
 import logging                                  # para recopilar metricas de monitoreo y logs
 from prometheus_client import start_http_server # para levantar el http_server
 from prometheus_client import Info              # para prometheus
+from threading import Thread                    # para multitrheding metrics + main
+
 
 # Para prometheus 
-#metric_info     = Info('producer_version', 'build version of producer')
-#metrics_port    = 9091
+metric_info     = Info('producer_version', 'build version of producer')
+metrics_port    = 9090
 
 # Variables globales
 mqtthost            = os.environ.get('mqtthost')  #"rabbitmq"
@@ -43,8 +45,9 @@ credentials = pika.PlainCredentials(mqttuser, mqttpass)
 #parameters  = pika.ConnectionParameters(host=mqtthost,port=5672,virtual_host=mqttvhost,credentials=credentials,ssl_options=pika.SSLOptions(context) )
 parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials )
 
-#def metrics_info():
-#    metric_info.info({'name':'producer', 'version': '1.0.0', 'owner': 'jpradoar',})
+def metrics_info():
+    metric_info.info({'name':'producer', 'version': '1.0.0', 'owner': 'jpradoar',})
+
 
 # Genero una función para reciclar el envío de mensajes, notificaciones y logs.
 def sendmsg(message):
@@ -138,22 +141,23 @@ def my_form():
 
 # En general cuando uso docker-compose o kubernetes suele pasar que este servicio levanta antes que Rabbit.
 # Por tal motivo valido si el Rabbit esta listo, sino espero 5 segundos. 
-def validateMQTTConnection():
+def main():
   while True:
       try:
           connection = pika.BlockingConnection(parameters)
           channel = connection.channel()
           sendmsg("  *[Producer] Started and connected to queue [ " + destination_queue +" ]")
-          break
+          app.run(host='0.0.0.0', port=5000, debug=False)
       # Si no me puedo conectar al rabbit, espero y reintento luego.
       except:
           sendmsg("  *[Producer] No se puede conectar a RabbitMQ, esperando 5 segundos para reconectar...")
           time.sleep(5)  
 
-
-def main():
-  validateMQTTConnection()
-  app.run(host='0.0.0.0', port=5000, debug=False)
+def monitoring():
+  start_http_server(metrics_port)
+  metrics_info()
+  
 
 if __name__ == '__main__':
- main()
+    Thread(target = main).start()
+    Thread(target = monitoring).start()

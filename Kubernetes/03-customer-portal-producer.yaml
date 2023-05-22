@@ -23,6 +23,10 @@ spec:
       protocol: TCP     
       port: 5000        
       targetPort: 5000
+    - name: monitoring
+      protocol: TCP     
+      port: 9090        
+      targetPort: 9090
 
 ---
 apiVersion: apps/v1
@@ -69,5 +73,10 @@ spec:
           - name: mqttpass
             value: "admin" 
           - name: queue
-            value: "clients"              
-          
+            value: "infra"
+          - name: mqttport
+            value: 5672      
+          - name: destination_queue
+            value: "infra"
+          - name: destination_RK
+            value: "infra"
