@@ -13,12 +13,12 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 metric_info     = Info('consumer_version', 'build version of consumer')
 metrics_port    = 9090
 
-mqtthost    = "rabbitmq"
-mqttvhost   = "/"
-mqttuser    = "admin"
-mqttpass    = "admin"
-mqttport    = 5672
-queue       = "infra"
+mqtthost    = os.environ.get('mqtthost')  #"rabbitmq"
+mqttvhost   = os.environ.get('mqttvhost')  #"/"
+mqttuser    = os.environ.get('mqttuser')  #"admin"
+mqttpass    = os.environ.get('mqttpass')  #"admin"
+mqttport    = os.environ.get('mqttport')  #5672
+queue       = os.environ.get('queue')  #"infra"
 
 
 # Abro una conexión con el rabbit para enviar y recibir los mensajes. 

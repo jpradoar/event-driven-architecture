@@ -6,6 +6,7 @@ import json                                     # Para manejar los json
 import pika                                     # para RabbitMQ
 #import ssl                                      # Opcional solo para los casos que la conexión requiera ssl  (EJ RabbitMQ de AWS )
 import datetime, time                           # manejo del tiempo
+import os
 import uuid                                     # para generar un hash unico que luego sera usado en los mensajes de MQTT
 import socket                                   # para obtener el hostname del contenedor
 import logging                                  # para recopilar metricas de monitoreo y logs
@@ -17,17 +18,18 @@ from prometheus_client import Info              # para prometheus
 #metrics_port    = 9091
 
 # Variables globales
-mqtthost            = "rabbitmq" # when use docker run rabbitmq
-mqttport            = 5672
-mqttvhost           = "/"
-mqttuser            = "admin"
-mqttpass            = "admin"   
+mqtthost            = os.environ.get('mqtthost')  #"rabbitmq"
+mqttvhost           = os.environ.get('mqttvhost') #"/"
+mqttuser            = os.environ.get('mqttuser')  #"admin"
+mqttpass            = os.environ.get('mqttpass')  #"admin"
+queue               = os.environ.get('queue')     #"infra"
+mqttport            = os.environ.get('mqttport')  # 5672
 now                 = datetime.datetime.now()
 dateformat          = now.strftime("%Y-%m-%d")      
 myname              = socket.gethostname()
 hostname            = str(myname+"@"+socket.gethostbyname(myname))
-destination_queue   = "infra"
-destination_RK      = "infra"
+destination_queue   = os.environ.get('destination_queue') # "infra"
+destination_RK      = os.environ.get('destination_RK') #"infra"
 
 # Genero una app en flask utilizando unos templates de html que estan alojados en templates/*
 app = Flask(__name__, static_folder="templates")

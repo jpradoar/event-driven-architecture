@@ -16,20 +16,20 @@ metric_info     = Info('dbwriter_version', 'build version of dbwriter')
 metrics_port    = 9090
 
 # RABBIT
-mqtthost    = "rabbitmq" 
-mqttvhost   = "/"
+mqtthost    = os.environ.get('mqtthost') #"rabbitmq" 
+mqttvhost   = os.environ.get('mqttvhost') #"/"
 mqttuser    = os.environ.get('mqttuser') #"admin"
 mqttpass    = os.environ.get('mqttpass') #"admin"
-mqttport    = 5672
+mqttport    = os.environ.get('mqttport') #
 queue       = os.environ.get('queue') #"clients"
 credentials = pika.PlainCredentials(mqttuser, mqttpass)
 parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials)
 
 # DATABASE
-mysql_host  = "mariadb"  
-mysql_user  = "admin"
-mysql_pass  = "admin"
-mysql_db    = "clients"
+mysql_host  = os.environ.get('mysql_host') #"mariadb"  
+mysql_user  = os.environ.get('mysql_user') #"admin"
+mysql_pass  = os.environ.get('mysql_pass') #"admin"
+mysql_db    = os.environ.get('mysql_db')   #"clients"
 
 # TIEMPO
 now         = datetime.datetime.now()
