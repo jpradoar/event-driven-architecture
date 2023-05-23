@@ -9,15 +9,12 @@ import datetime, time                           # manejo del tiempo
 import os
 import uuid                                     # para generar un hash unico que luego sera usado en los mensajes de MQTT
 import socket                                   # para obtener el hostname del contenedor
+from socket import gaierror
 import logging                                  # para recopilar metricas de monitoreo y logs
 from prometheus_client import start_http_server # para levantar el http_server
 from prometheus_client import Info              # para prometheus
 from threading import Thread                    # para ejecutan algunas cunciones en hilos separados
 
-
-# Para prometheus 
-metric_info     = Info('producer_version', 'build version of producer')
-metrics_port    = 9090
 
 # Variables globales
 mqtthost            = os.environ.get('mqtthost')  #"rabbitmq"
@@ -32,26 +29,22 @@ myname              = socket.gethostname()
 hostname            = str(myname+"@"+socket.gethostbyname(myname))
 destination_queue   = os.environ.get('destination_queue') # "infra"
 destination_RK      = os.environ.get('destination_RK') #"infra"
+credentials         = pika.PlainCredentials(mqttuser, mqttpass)
 
-# Genero una app en flask utilizando unos templates de html que estan alojados en templates/*
-app = Flask(__name__, static_folder="templates")
 
 # Log formato FECHA - MENSAJE
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
-credentials = pika.PlainCredentials(mqttuser, mqttpass)
-#context     = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-# If you need SSL use it: 
-#parameters  = pika.ConnectionParameters(host=mqtthost,port=5672,virtual_host=mqttvhost,credentials=credentials,ssl_options=pika.SSLOptions(context) )
-parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials )
-
-def metrics_info():
-    metric_info.info({'name':'producer', 'version': '1.0.0', 'owner': 'jpradoar',})
-
-
-# Genero una función para reciclar el envío de mensajes, notificaciones y logs.
+# Genero una función para reciclar el envío de mensajes, notificaciones, etc.
 def sendmsg(message):
   logging.info(message)
+
+# Genero un uudi para usarlo en trazas y mensajes de rabbitmq
+def generate_trace_id():
+  return str(uuid.uuid4())
+
+# Genero una app en flask utilizando unos templates de html que estan alojados en templates/*
+app = Flask(__name__, static_folder="templates")
 
 # Validacion y autenticacion
 # PENDIENTE DE VALIDAR CONTRA KEYCLOAK
@@ -72,27 +65,7 @@ def requires_auth(f):
       return f(*args, **kwargs)
   return decorated
 
-# Me conecto al Rabbit y envio el mensaje que fue creado en el formulario. 
-def send_mqtt_msg(queue, routing_key, data):
-  connection  = pika.BlockingConnection(parameters)
-  channel     = connection.channel()
-  channel.queue_declare(queue=queue, durable=True) # Declaro y creo la queue si no existe
-  channel.basic_publish(exchange='', routing_key=routing_key, body=data)
-  connection.close() 
-  message = '  *[Producer] Data sent to queue: %s", destination_queue '
-  sendmsg(message)
-
-# Genero un uudi para usarlo en trazas y mensajes de rabbitmq
-def generate_trace_id():
-  return str(uuid.uuid4())
-
-# Pendiente de implementar. 
-# @app.route('/card', methods=['GET','POST'])
-# def card():
-#   if request.method == 'GET':
-#       return render_template('card.html')
-
-# Si es un GET, claramente esta accediendo al formulario para crear un nuevo recurso
+# Si es un GET esta accediendo al formulario para crear un nuevo recurso
 # Si es un POST capturo la data del formulario y genero un json para enviarlo a una cola de RabbitMQ
 @app.route('/', methods=['GET','POST'])
 def my_form():
@@ -101,7 +74,7 @@ def my_form():
   else:
       client      = request.form['client']
       namespace   = client+"-ns"   #request.form['namespace']
-      environment     = request.form['environment']
+      environment = request.form['environment']
       archtype    = request.form['archtype']
       hardware    = request.form['hardware']
       product     = request.form['product']
@@ -133,37 +106,38 @@ def my_form():
       send_mqtt_msg("event-status", "event-status", msginfo)
 
       # El return lo genero para que devuelva el json que envia y luego de 3 segundos vuelva al index original.
-      # para fines de la demo quiero que se vea que en este punto se genera el json que se envia al MQTT
-      # y que el trace_id se mantiene durante todo el proceso de deployment.
+      # para fines de la demo quiero que se vea que se genera el json que se envia al MQTT y que el 
+      # trace_id se mantiene durante todo el proceso de deployment. 
       # Esto resulta muy útil cuando tengo que trackear un mensaje o troubleshootear un workflow completo. !!!!!
-      #
       return "<b>Data sent to mqtt:</b> <br><br> [msg] : " + data + "<br><br> <a href='/'><button>Back</button></a> <meta http-equiv='refresh' content='3;url=/' />"
 
 
-# Genero un bucle en el cual, si conecta con el rabbit inicia la app,
-# de lo contrario muestar el mensaje de error y espera 5 seg para reintentar.
-# de esta manera me aseguroq que si por alguna razón el rabbit se cae
-# no se ve afectado este servicio a modo de cascada.
-# la caida de uno no implica la caida del otro. 
-def main():
-  while True:
-      try:
-          connection = pika.BlockingConnection(parameters)
-          channel = connection.channel()
-          sendmsg("  *[Producer] Started and connected to queue [ " + destination_queue +" ]")
-          app.run(host='0.0.0.0', port=5000, debug=False)
-      except:
-          sendmsg("  *[Producer] No se puede conectar a RabbitMQ, esperando 5 segundos para reconectar...")
-          time.sleep(5)  
+# Me conecto al Rabbit y envio el mensaje que fue creado en el formulario, cierro la conexión y envio un mensaje.
+def send_mqtt_msg(queue, routing_key, data):
+  redentials  = pika.PlainCredentials(mqttuser, mqttpass)
+  parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials )
+  connection  = pika.BlockingConnection(parameters)
+  channel     = connection.channel()
+  channel.queue_declare(queue=queue, durable=True)
+  channel.basic_publish(exchange='', routing_key=routing_key, body=data)
+  connection.close() 
+  sendmsg('  *[Producer] Data sent to queue: '+queue)
+
 
 # Funcion para exponer metricas custom de esta app.
 def monitoring():
-  start_http_server(metrics_port)
-  metrics_info()
+  metric_info = Info('producer_version', 'build version of producer')
+  metric_info.info({'name':'producer', 'version': '1.0.0', 'owner': 'jpradoar',})
+  start_http_server(9090)
+
+
+def main():
+  sendmsg('  *[Producer] Started')
+  app.run(host='0.0.0.0', port=5000, debug=False)
   
 
+
 if __name__ == '__main__':
-  # El objetivo del thead es que los hilos corran cada uno independiente del otro.
-  # No confundir con procesos separados. 
-    Thread(target = main).start()
-    Thread(target = monitoring).start()
+  # uso el trheading para exponer cada funcion en un hilo separado. 
+  Thread(target = main).start()
+  Thread(target = monitoring).start()
