@@ -31,11 +31,11 @@ services:
           mqttport: 5672
           destination_queue: infra
           destination_RK: infra
+        #volumes: 
+        #  - /tmp/event-driven-infrastructure/03-producer/api.py:/app/api.py
         ports:
           - 5000:5000   
-          - 9091  
-        depends_on:
-          - rabbitmq
+          - 9090
         networks:
           - infra       
 #--------------------------------------------
@@ -51,10 +51,7 @@ services:
           queue: infra
           mqttport: 5672      
         ports:
-          - 9090        # /metrics                
-        depends_on: 
-          - rabbitmq
-          - producer
+          - 9090
         networks:
           - infra
 #--------------------------------------------
@@ -73,13 +70,10 @@ services:
         mysql_host: mariadb
         mysql_user: admin
         mysql_pass: admin
-        mysql_db: clients
+        mysql_db: clients   
       ports:
-        - 9090          
+        - 9090
       depends_on: 
-        - rabbitmq
-        - producer
-        - consumer          
         - mariadb          
       networks:
         - infra    
@@ -94,10 +88,7 @@ services:
         MARIADB_PASSWORD: admin
         MARIADB_DATABASE: clients
       volumes: 
-        - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro
-      depends_on: 
-       - rabbitmq
-       - producer        
+        - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro   
       ports:
         - 3306        
       networks:

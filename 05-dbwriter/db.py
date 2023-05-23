@@ -23,7 +23,7 @@ mqttpass    = os.environ.get('mqttpass') #"admin"
 mqttport    = os.environ.get('mqttport') #
 queue       = os.environ.get('queue') #"clients"
 credentials = pika.PlainCredentials(mqttuser, mqttpass)
-parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials)
+parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials,connection_attempts=5, retry_delay=5)
 
 # DATABASE
 mysql_host  = os.environ.get('mysql_host') #"mariadb"  

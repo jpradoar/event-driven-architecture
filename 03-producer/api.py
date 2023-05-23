@@ -115,7 +115,7 @@ def my_form():
 # Me conecto al Rabbit y envio el mensaje que fue creado en el formulario, cierro la conexión y envio un mensaje.
 def send_mqtt_msg(queue, routing_key, data):
   redentials  = pika.PlainCredentials(mqttuser, mqttpass)
-  parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials )
+  parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials,connection_attempts=5, retry_delay=5)
   connection  = pika.BlockingConnection(parameters)
   channel     = connection.channel()
   channel.queue_declare(queue=queue, durable=True)
