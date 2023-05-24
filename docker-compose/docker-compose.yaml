@@ -18,6 +18,15 @@ services:
         networks:
           - infra
 #--------------------------------------------
+    customer-portal:
+        image: web-test:latest
+        container_name: customer-portal
+        restart: always
+        ports:
+          - 5001:80
+        networks:
+          - infra    
+#--------------------------------------------
     producer:
         image: jpradoar/mqtt-producer:2023.05
         container_name: producer

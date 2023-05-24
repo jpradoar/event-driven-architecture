@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pixel Quality Products</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    .product {
+      margin-bottom: 10px;
+      margin: auto;
+      width: 50%;
+    }
+    .btn-comprar {
+      margin: auto;
+      width: 50%;
+      padding: 10px;
+    }
+    #total {
+      font-weight: bold;
+      margin: auto;
+      width: 50%;
+      padding: 10px;
+    }
+    img {
+      margin-left: auto;
+      margin-right: auto;
+      width: 20%;
+    }    
+  </style>
+ <script>
+    $(document).ready(function() {
+      // Función para calcular el precio total y mostrar la lista de productos seleccionados
+      function actualizarLista() {
+        var total = 0;
+        var listaProductos = "";
+        
+        $('.product input:checked').each(function() {
+          var nombre = $(this).data('name');
+          var precio = parseFloat($(this).data('price'));
+          var cantidad = parseFloat($(this).data('count'));
+          
+          listaProductos += nombre + " - $" + precio.toFixed(2) + "<br>";
+          total += precio;
+        });
+        
+        $('#lista-productos').html(listaProductos);
+        $('#total').text('Total: $' + total.toFixed(2));
+      }
+      
+      // Evento para calcular el precio total y mostrar la lista de productos seleccionados
+      $('.product input').change(function() {
+        actualizarLista();
+      });
+      
+      // Evento al hacer clic en el botón "Comprar"
+      $('#btn-comprar').click(function() {
+        // Obtener los productos seleccionados
+        var seleccionados = $('.product input:checked').map(function() {
+          return {
+            name: $(this).attr('name'),
+            value: $(this).val()
+          };
+        }).get();
+        
+        // Crear un formulario virtual para enviar los datos
+        var form = $('<form></form>');
+        form.attr('method', 'post');
+        form.attr('action', '/');
+        
+        // Agregar los campos al formulario
+        $.each(seleccionados, function(index, field) {
+          var input = $('<input />');
+          input.attr('type', 'hidden');
+          input.attr('name', field.name);
+          input.attr('value', field.value);
+          form.append(input);
+        });
+        
+        // Agregar el formulario al cuerpo del documento y enviarlo
+        $(document.body).append(form);
+        form.submit();
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Pixel Quality Products</h1>
+
+  <table style="width:100%" border="1">
+    <tr>
+      <th>Comida</th>
+      <th>Bebida</th>
+      <th>Cafeteria</th>
+    </tr>
+    <tr>
+      <td>
+        <div class="product">
+          <label>
+            <img src="img/Pizza.png">
+            <input type="checkbox" name="Producto1" data-name="Pizza" data-price="20.00">$20.00
+          </label>
+        </div>    
+      </td>
+      <td>
+        <div class="product">
+          <label>
+            <img src="img/SodaCan.png">
+            <input type="checkbox" name="Producto2" data-name="SodaCan" data-price="20.25">$11.00
+          </label>
+        </div>   
+      </td>
+      <td>
+      <div class="product">
+        <label>
+          <img src="img/Coffeemug.png">
+          <input type="checkbox" name="Producto3" data-name="Coffee" data-price="20.25">$12.00
+        </label>
+      </div>  
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div class="product">
+        <label>
+          <img src="img/Hamburger.png">
+          <input type="checkbox" name="Producto4" data-name="Hamburger" data-price="20.00">$10.00
+        </label>
+        </div> 
+      </td>
+      <td>
+        <div class="product">
+          <label>
+            <img src="img/Beer.png">
+            <input type="checkbox" name="Producto5" data-name="Beer" data-price="20.25">$6.50
+          </label>
+        </div>     
+      </td>
+      <td>
+        <div class="product">
+          <label>
+            <img src="img/Donut.png">
+            <input type="checkbox" name="Producto6" data-name="Donut" data-price="20.25">$16.00
+          </label>
+        </div>      
+      </td>
+    </tr>
+  </table>
+
+  <div id="lista-productos"></div>
+  <div id="total"></div>
+  <br>
+  <button id="btn-comprar" class="btn-comprar">Comprar</button>
+
+</body>
+</html>
