@@ -79,27 +79,44 @@ def my_form():
       hardware    = request.form['hardware']
       product     = request.form['product']
       data = '{\
-        "client":"'+client+'", \
-        "namespace":"'+namespace+'", \
-        "environment":"'+environment+'", \
-        "archtype":"'+archtype+'", \
-        "hardware":"'+hardware+'", \
-        "product":"'+product+'", \
-        "MessageAttributes": { \
-            "event_type": { \
-                "Type": "String", \
-                "Value": "mycompany.'+myname+'.event.'+client+'.published" \
-            }, \
-          "published_on": "'+dateformat+'", \
-          "trace_id": "'+generate_trace_id()+'", \
-          "retrace_intent": "0" \
-        }, \
-        "Metadata": { \
-          "host": "'+hostname+'", \
-          "origing": "Cloud",      \
-          "publisher": "'+myname+'" \
-        } \
-      }'   
+      "client":"'+client+'",\
+      "namespace":"'+namespace+'",\
+      "environment":"'+environment+'",\
+      "archtype":"'+archtype+'",\
+      "hardware":"'+hardware+'",\
+      "product":"'+product+'",\
+      "clientInfo": {\
+          "billingAddress": {\
+              "fname": "fname",\
+              "email": "email",\
+              "address": "address",\
+              "city": "city",\
+              "state": "state",\
+              "zip": "zip"\
+              },\
+          "Payment": {\
+              "cardname": "cardname",\
+              "cardnumber": "cardnumber",\
+              "cardexpmonth": "cardexpmonth",\
+              "cardexpyear": "cardexpyear",\
+              "cardcvv": "cardcvv" \
+          },\
+      "MessageAttributes": {\
+          "event_type": {\
+              "Type": "String",\
+              "Value": "mycompany.'+myname+'.event.'+client+'.published"},\
+              "published_on": "'+dateformat+'",\
+              "trace_id": "'+generate_trace_id()+'",\
+              "retrace_intent": "0"\
+              },\
+      "Metadata": {\
+          "host": "'+hostname+'",\
+          "origing": "Cloud",\
+          "publisher": "'+myname+'"\
+          }\
+       }\
+     }'\
+
       send_mqtt_msg(destination_queue, destination_RK, data)  
       sendmsg("  *[Producer] " + data)  
       msginfo='{"client":"'+client+'","status":"Provisioning","product":"'+product+'"}'
