@@ -72,12 +72,23 @@ def my_form():
   if request.method == 'GET':
       return render_template('index.html')
   else:
-      client      = request.form['client']
-      namespace   = client+"-ns"   #request.form['namespace']
-      environment = request.form['environment']
-      archtype    = request.form['archtype']
-      hardware    = request.form['hardware']
-      product     = request.form['product']
+      client        = request.form['client']
+      namespace     = client+"-ns"   #request.form['namespace']
+      environment   = request.form['environment']
+      archtype      = request.form['archtype']
+      hardware      = request.form['hardware']
+      product       = request.form['product']
+      fname         = request.form['fname']
+      email         = request.form['email']
+      address       = request.form['address']
+      city          = request.form['city']
+      state         = request.form['state']
+      zipcode       = request.form['zipcode']
+      cardname      = request.form['cardname']
+      cardnumber    = request.form['cardnumber']
+      cardexpmonth  = request.form['cardexpmonth']
+      cardexpyear   = request.form['cardexpyear']
+      cardcvv       = request.form['cardcvv']
       data = '{\
       "client":"'+client+'",\
       "namespace":"'+namespace+'",\
@@ -87,19 +98,19 @@ def my_form():
       "product":"'+product+'",\
       "clientInfo": {\
           "billingAddress": {\
-              "fname": "fname",\
-              "email": "email",\
-              "address": "address",\
-              "city": "city",\
-              "state": "state",\
-              "zip": "zip"\
+              "fname": "'+fname+'",\
+              "email": "'+email+'",\
+              "address": "'+address+'",\
+              "city": "'+city+'",\
+              "state": "'+state+'",\
+              "zipcode": "'+zipcode+'",\
               },\
           "Payment": {\
-              "cardname": "cardname",\
-              "cardnumber": "cardnumber",\
-              "cardexpmonth": "cardexpmonth",\
-              "cardexpyear": "cardexpyear",\
-              "cardcvv": "cardcvv" \
+              "cardname": "'+cardname+'",\
+              "cardnumber": "'+cardnumber+'",\
+              "cardexpmonth": "'+cardexpmonth+'",\
+              "cardexpyear": "'+cardexpyear+'",\
+              "cardcvv": "'+cardcvv+'",\
           },\
       "MessageAttributes": {\
           "event_type": {\

@@ -136,7 +136,7 @@ span.price {
                     <option value="wordpress">Product-B (Wordpress)</option>
                     <option value="grafana">Product-C (Grafana)</option>
                     </select>
-            <label for="fname"><i class="fa fa-sitemap"></i> Environment</label><select id="environment" name="environment"  class="select">
+            <label for="environment"><i class="fa fa-sitemap"></i> Environment</label><select id="environment" name="environment"  class="select">
                     <option value="development">Development</option>
                     <option value="stage">Stage</option>
                     <option value="production">Production</option>
@@ -156,33 +156,33 @@ span.price {
         <div class="row">
           <div class="col-50">
             <h3>Billing Address</h3>
-            <label for="fname"><i class="fa fa-user"></i> Full Name</label><input type="text" id="fname" name="firstname" placeholder="Ned Flanders" required="required">
-            <label for="email"><i class="fa fa-envelope"></i> Email</label><input type="text" id="email" name="email" placeholder="nedf@businessmail.com" required="required">
-            <label for="address"><i class="fa fa-address-card-o"></i> Address</label><input type="text" id="address" name="address" placeholder="Avenida Siempreviva 744" required="required">
-            <label for="city"><i class="fa fa-institution"></i> City</label><input type="text" id="city" name="city" placeholder="Springfield" required="required">
+            <label for="fname"><i class="fa fa-user"></i> Full Name</label><input type="text" id="fname" name="fname" placeholder="Ned Flanders" required="required">
+            <label for="email"><i class="fa fa-envelope"></i> Email</label><input type="text" id="email" name="email" placeholder="nedf@businessmail.com" >
+            <label for="address"><i class="fa fa-address-card-o"></i> Address</label><input type="text" id="address" name="address" placeholder="Avenida Siempreviva 744" >
+            <label for="city"><i class="fa fa-institution"></i> City</label><input type="text" id="city" name="city" placeholder="Springfield">
 
             <div class="row">
               <div class="col-50">
-                <label for="state">State</label><input type="text" id="state" name="state" placeholder="LA" required="required">
+                <label for="state">State</label><input type="text" id="state" name="state" placeholder="LA">
               </div>
               <div class="col-50">
-                <label for="zip">Zip</label><input type="text" id="zip" name="zip" placeholder="10001" required="required">
+                <label for="zipcode">Zip</label><input type="text" id="zipcode" name="zipcode" placeholder="10001">
               </div>
             </div>
           </div>
 
           <div class="col-50">
             <h3>Payment</h3>
-            <label for="fname">Accepted Cards</label>
+            <label for="cards">Accepted Cards</label>
             <div class="icon-container">
               <i class="fa fa-cc-visa" style="color:navy;"></i>
               <i class="fa fa-cc-amex" style="color:blue;"></i>
               <i class="fa fa-cc-mastercard" style="color:red;"></i>
               <i class="fa fa-cc-discover" style="color:orange;"></i>
             </div>
-            <label for="cardname">Name on Card</label><input type="text" id="cardname" name="cardname" placeholder="Ned Flanders" required="required">
-            <label for="cardnumber">Credit card number</label><input type="text" id="cardnumber" name="cardnumber" placeholder="1111-2222-3333-4444" required="required">
-            <label for="cardexpmonth">Exp Month</label><select class="select" id="cardexpmonth" name="cardexpmonth" required="required">
+            <label for="cardname">Name on Card</label><input type="text" id="cardname" name="cardname" placeholder="Ned Flanders">
+            <label for="cardnumber">Credit card number</label><input type="text" id="cardnumber" name="cardnumber" placeholder="1111-2222-3333-4444">
+            <label for="cardexpmonth">Exp Month</label><select class="select" id="cardexpmonth" name="cardexpmonth">
               <option value="">month</option>
               <option value="01">January</option>
               <option value="02">February</option>
@@ -199,7 +199,7 @@ span.price {
             </select>
             <div class="row">
               <div class="col-50">
-                <label for="cardexpyear">Exp Year</label><select class="select" id="cardexpyear" name="cardexpyear" required="required">
+                <label for="cardexpyear">Exp Year</label><select class="select" id="cardexpyear" name="cardexpyear">
                   <option value="">year</option>
                   <option value="1940">1940</option>
                   <option value="1941">1941</option>
@@ -289,7 +289,7 @@ span.price {
               </div>
               <div class="col-50">
                 <label for="cardcvv">CVV</label>
-                <input type="text" id="cardcvv" name="cardcvv" placeholder="666" required="required">
+                <input type="text" id="cardcvv" name="cardcvv" placeholder="666">
               </div>
             </div>
           </div>

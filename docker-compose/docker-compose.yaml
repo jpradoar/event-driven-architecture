@@ -28,7 +28,7 @@ services:
 #           - infra    
 #--------------------------------------------
     producer:
-        image: test-producer:latest #jpradoar/mqtt-producer:2023.05
+        image: jpradoar/mqtt-producer:2023.05
         container_name: producer
         restart: always
         environment:
@@ -40,8 +40,9 @@ services:
           mqttport: 5672
           destination_queue: infra
           destination_RK: infra
-        #volumes: 
-        #  - /tmp/event-driven-infrastructure/03-producer/api.py:/app/api.py
+        # volumes: 
+        #   - /tmp/event-driven-infrastructure/03-producer/api.py:/app/api.py
+        #   - /tmp/event-driven-infrastructure/03-producer/templates/index.html:/app/templates/index.html
         ports:
           - 5000:5000   
           - 9090
