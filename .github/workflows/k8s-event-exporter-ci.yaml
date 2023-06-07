@@ -12,7 +12,8 @@ env:
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   BUILD_CONTEXT: './12-k8s-event-exporter'
-
+  VULN_SEVERITY: 'CRITICAL'
+  
 jobs:
   Build-Docker-image:
     runs-on: ubuntu-latest 
@@ -64,10 +65,11 @@ jobs:
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
+        hide-progress: true
         format: 'table'
         ignore-unfixed: true
         vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH'
+        severity: ${{ env.VULN_SEVERITY }}
         #exit-code: '1'              
 
     - name: Slack Notification

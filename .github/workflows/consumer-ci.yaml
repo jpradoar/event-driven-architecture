@@ -12,6 +12,7 @@ env:
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   BUILD_CONTEXT: './04-consumer'
+  VULN_SEVERITY: 'CRITICAL'
 
 jobs:
   Consumer-CI_build-docker-image:
@@ -31,25 +32,44 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Generate tag ID
-      id: tag_id
-      run: echo "::set-output name=IMAGE_TAG::$(date +%Y.%m)"
+    - name: Generate new version with Semantic-Version
+      id: nversion
+      run: |
+        commit_message=$(git log --format=%B -n 1 ${{ github.sha }})
+        version=$(curl -s "https://hub.docker.com/v2/repositories/jpradoar/${{ env.REPO_APP }}/tags/?page_size=5" | jq -r '.results[].name'|sort -M|grep -v latest|tail -1)
+        X=$(echo $version|cut -d. -f1)
+        Y=$(echo $version|cut -d. -f2)
+        Z=$(echo $version|cut -d. -f3)
+        custom_version=$(echo $X.$Y.$Z)
+        if [[ $commit_message == *major:* ]]; then
+          echo "version actual:" $version
+          NuevaVersion=$(($X+1)).0.0
+        elif [[ $commit_message == *minor:* ]]; then
+          NuevaVersion=$X.$(($Y+1)).0
+        elif [[ $commit_message == *patch:* ]]; then
+          NuevaVersion=$X.$Y.$(($Z+1))
+        else
+          echo "es una beta"
+          echo $custom_version-test
+        fi
+        echo "NEW_VERSION=$NuevaVersion " >> "$GITHUB_OUTPUT"  
 
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
         context: ${{ env.BUILD_CONTEXT }}
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}
         
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }}'
+        image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
+        hide-progress: true
         format: 'table'
         ignore-unfixed: true
         vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH'
+        severity: ${{ env.VULN_SEVERITY }}
         #exit-code: '1'              
 
     - name: Slack Notification
@@ -58,5 +78,5 @@ jobs:
         SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
         SLACK_COLOR: ${{ env.SLACK_MSG_COLOR }}
         SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}'
-        SLACK_TITLE: ':rocket: GithubAction Build docker image: [ ${{ env.REPO_APP }}:${{ steps.tag_id.outputs.IMAGE_TAG }} ]'
+        SLACK_TITLE: ':rocket: GithubAction Build docker image: [ ${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }} ]'
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

@@ -6,9 +6,8 @@
 :rocket:  <b> Build Status:
 <p></b>
 
-![](https://badgen.net/badge/Status/PoC/blue)
 ![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/producer-ci.yaml/badge.svg) 
-![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/consumer-ci.yaml/badge.svg) <br>
+![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/consumer-ci.yaml/badge.svg)
 ![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/dbwriter-ci.yaml/badge.svg) 
 ![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/webserver-ci.yaml/badge.svg) 
 ![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/k8s-event-exporter-ci.yaml/badge.svg) 
@@ -29,6 +28,7 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 💀 I need to manage a lot inputs, all of them, will be to do different tasks, like messages, deployments, and more.  Obvioulsly I will re-use data to make another jobs generate custom events, and finally ,will be use Grafana to see some analysis and tendences.<br>
 💀 Some apps have to get information but a common problem is have or develop lot of products in with different technologies like,  NodeJs,Python,Php.<br>
 💀 I would like to have a shared origin to get data and avoid RE-build or make connectors or apis for connect different components in different tech/languages
+💀 All developers need to know what version must be fixed, or I need a human resource to manage version number.  (I would like avoid manage it manually)
 
 
 <br>
@@ -43,6 +43,13 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 <br>:heavy_check_mark: Generate a big scalability and security isolating each tasks in small actions/calls.
 <br>:heavy_check_mark: Avoid tech dependences or "human-tech dependence". Each human can enjoy his own Tech/Language  *(...No, no java, please!  :joy: )*.
 <br>:heavy_check_mark: The standard (input/output) will be  [JSON](https://www.json.org/json-en.html) because its an open standard and is easy to implement and easy to parse.	<br>
+<br>:heavy_check_mark: To manage version numbers I will use [Semantinc Version](https://semver.org/)   <br>
+<br>
+
+### Extra features 
+<br><b>Agnostic vendor:</b>I prefer that this infrastructure can be used and implemented in any cloud provider that runs a kubernetes cluster, in an "on-premise" environment  or even in a development environment like my laptop.
+<br>My apps use secrets, and I need to manage them safely and then I need to commit all data without leaking my secrets.   ;) 
+
 
 <br><hr><br>
 
