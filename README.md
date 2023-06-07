@@ -15,8 +15,6 @@
 <hr>
 
 
-
-
 ### :bulb: My idea
 A simple excuse learn and use Python as Pub/Sub and a message broker, in this case RabbitMQ,  to provisioning infrastructure triggered by event like "buy a small module" and finally monitoring all infrastructure. <br>
 I love IoT, for this reason, this PoC is designed to simulate a  "SasS Product". <br>
@@ -25,11 +23,10 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 <br>
 
 ### :fire: Supposed problem
-💀 I need to manage a lot inputs, all of them, will be to do different tasks, like messages, deployments, and more.  Obvioulsly I will re-use data to make another jobs generate custom events, and finally ,will be use Grafana to see some analysis and tendences.<br>
-💀 Some apps have to get information but a common problem is have or develop lot of products in with different technologies like,  NodeJs,Python,Php.<br>
-💀 I would like to have a shared origin to get data and avoid RE-build or make connectors or apis for connect different components in different tech/languages
-💀 All developers need to know what version must be fixed, or I need a human resource to manage version number.  (I would like avoid manage it manually)
-
+💀 I need to manage a lot inputs, all of them, will be to do different tasks, like messages, deployments, and more.  Obvioulsly I will re-use data to make another jobs generate custom events, and finally ,will be use Grafana to see some analysis and tendences.
+<br>💀 Some apps have to get information but a common problem is have or develop lot of products in with different technologies like,  NodeJs,Python,Php.
+<br>💀 I would like to have a shared origin to get data and avoid RE-build or make connectors or apis for connect different components in different tech/languages
+<br>💀 All developers need to know what version must be fixed, or I need a human resource to manage version number.  (I would like avoid manage it manually)
 
 <br>
 
@@ -42,14 +39,13 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 <br>:heavy_check_mark: Automate All tasks via microservice API-CALL environments.
 <br>:heavy_check_mark: Generate a big scalability and security isolating each tasks in small actions/calls.
 <br>:heavy_check_mark: Avoid tech dependences or "human-tech dependence". Each human can enjoy his own Tech/Language  *(...No, no java, please!  :joy: )*.
-<br>:heavy_check_mark: The standard (input/output) will be  [JSON](https://www.json.org/json-en.html) because its an open standard and is easy to implement and easy to parse.	<br>
-<br>:heavy_check_mark: To manage version numbers I will use [Semantinc Version](https://semver.org/)   <br>
-<br>
+<br>:heavy_check_mark: The standard (input/output) will be  [JSON](https://www.json.org/json-en.html) because its an open standard and is easy to implement and easy to parse.
+<br>:heavy_check_mark: To manage version numbers I will use [Semantic Version](https://semver.org/)  
+
 
 ### Extra features 
-<br><b>Agnostic vendor:</b>I prefer that this infrastructure can be used and implemented in any cloud provider that runs a kubernetes cluster, in an "on-premise" environment  or even in a development environment like my laptop.
-<br>My apps use secrets, and I need to manage them safely and then I need to commit all data without leaking my secrets.   ;) 
-
+:heavy_check_mark: My apps use secrets, and I need to manage them safely and then I need to commit all data without leaking my secrets.   ;) 
+<br>:heavy_check_mark: <b>Vendor lock-in</b>: In my case, I prefer have a infrastructure can be used and implemented in any cloud provider that runs a kubernetes cluster, in an "on-premise" client environment or even in a development environment like my laptop.
 
 <br><hr><br>
 
