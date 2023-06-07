@@ -78,3 +78,4 @@ jobs:
         SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}'
         SLACK_TITLE: ':rocket: GithubAction Build docker image: [ ${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }} ]'
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  
