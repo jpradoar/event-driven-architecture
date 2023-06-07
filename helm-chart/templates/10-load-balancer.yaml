@@ -1,0 +1,41 @@
+{{ if eq .Values.producer.LoadBalancer.enabled "true" }}
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service-{{ .Values.ClientName }}
+  labels:
+    app: {{ .Release.Name }}-lb
+    environment: {{ .Values.environment }}
+    app.business.client: {{ .Values.ClientName }}
+  annotations:
+    prometheus.io/scrape: 'true'
+    app: {{ .Release.Name }}-lb
+    app.depends: {{ .Release.Name }}-rabbitmq   
+    app.business.client: {{ .Values.ClientName }}
+    app.mqtt.event.trigger: {{ .Values.traceID }}
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "environment={{ .Values.environment }},project={{ .Release.Name }},traceid={{ .Values.traceID }},client={{ .Values.ClientName }}"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "3"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "3"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "10"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "10"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "TCP"
+spec:
+  type: LoadBalancer
+  ports:
+  - name: webserver
+    port: 8080
+    targetPort: 8080
+  - name: consumer
+    port: 5000
+    targetPort: 5000
+  selector:
+    environment: {{ .Values.environment }}
+    app.business.client: {{ .Values.ClientName }}
+
+{{ end }}

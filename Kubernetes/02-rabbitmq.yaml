@@ -1,0 +1,225 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: default
+  labels:
+    app: rabbitmq
+    environment: development
+  annotations:
+    app: rabbitmq
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'
+    prometheus.io/scrape: 'true'
+    filter.by.port.name: 'true'
+spec: 
+  selector:
+    app: rabbitmq
+  ports:
+    - name: http
+      protocol: TCP     
+      port: 15672        
+      targetPort: 15672
+    - name: admin
+      protocol: TCP     
+      port: 5672        
+      targetPort: 5672      
+    - name: metrics
+      protocol: TCP
+      port: 15692
+      targetPort: 15692
+    - name: clustering
+      protocol: TCP
+      port: 25672
+      targetPort: 25672
+    - name: http-web-mqtt
+      protocol: TCP
+      port: 15675
+      targetPort: 15675
+    - name: mqtt
+      protocol: TCP
+      port: 1883
+      targetPort: 1883      
+    - name: stomp
+      protocol: TCP
+      port: 15674
+      targetPort: 15674      
+#    - name: stompssl
+#      protocol: TCP
+#      port: 15673
+#      targetPort: 15673    
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: rabbit-default-conf
+  namespace: default
+  labels:
+    app: rabbitmq
+    environment: development
+  annotations:
+    app: rabbitmq
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+data:
+  10-defaults.conf: |-
+    #/etc/rabbitmq/conf.d/10-defaults.conf
+    ## DEFAULT SETTINGS ARE NOT MEANT TO BE TAKEN STRAIGHT INTO PRODUCTION
+    ## see https://www.rabbitmq.com/configure.html for further information
+    ## on configuring RabbitMQ
+
+    ## allow access to the guest user from anywhere on the network
+    ## https://www.rabbitmq.com/access-control.html#loopback-users
+    ## https://www.rabbitmq.com/production-checklist.html#users
+    loopback_users.guest = false
+
+    ## Send all logs to stdout/TTY. Necessary to see logs when running via
+    ## a container
+    log.console = true
+
+    ##
+    management.load_definitions = /etc/rabbitmq/definitions.json
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: rabbit-definitions-conf
+  namespace: default
+  labels:
+    app: rabbitmq
+    environment: development
+  annotations:
+    app: rabbitmq
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+data:
+  definitions.json: |-
+      {
+        "rabbit_version": "3.11.3",
+        "rabbitmq_version": "3.11.3",
+        "product_name": "RabbitMQ",
+        "product_version": "3.11.3",
+        "users": [
+          {"name": "admin",     "password_hash": "aiW2BXO5wmA0tfeYsjgoPcKhVOWe28hv9TXSfSi+B5CmKya8","hashing_algorithm": "rabbit_password_hashing_sha256","tags": ["administrator"],"limits": {} },
+          {"name": "management","password_hash": "wQd8CIJgaSazRhLuPeqBJWSqMAG7AG/o376GCH2wCBIxwViA","hashing_algorithm": "rabbit_password_hashing_sha256","tags": ["management"]   ,"limits": {} },
+          {"name": "monitoring","password_hash": "bOcDZzNh7D7vNahqoN7WmTZ1J58LFGVss5tzbXcS5WZ9Emd6","hashing_algorithm": "rabbit_password_hashing_sha256","tags": ["monitoring"]   ,"limits": {} }
+        ],
+        "vhosts": [
+          {"name": "/"}
+        ],
+        "permissions": [
+          {"user": "admin","vhost": "/","configure": ".*","write": ".*","read": ".*"},
+          {"user": "monitoring","vhost": "/","configure": ".*","write": ".*","read": ".*"},
+          {"user": "management","vhost": "/","configure": ".*","write": ".*","read": ".*"}
+        ],
+        "topic_permissions": [
+          {"user": "management","vhost": "/","exchange": "","write": ".*","read": ".*"},
+          {"user": "monitoring","vhost": "/","exchange": "","write": ".*","read": ".*"}
+        ],
+        "parameters": [],
+        "global_parameters": [
+          {"name": "internal_cluster_id","value": "rabbitmq-cluster-id-xxxxxxxxxxxxxxxxxxxxxx"}
+        ],
+        "policies": [],
+        "queues": [
+          {"name": "event-audit","vhost": "/","durable": true,"auto_delete": false,"arguments": {  "x-queue-type": "classic"} },
+          {"name": "event-status","vhost": "/","durable": true,"auto_delete": false,"arguments": {  "x-queue-type": "classic"} }
+        ],
+        "exchanges": [],
+        "bindings": []
+      }
+
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: rabbit-plugin-config
+  namespace: default
+  labels:
+    app: rabbitmq
+    environment: development
+  annotations:
+    app: rabbitmq
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+data:
+  enabled_plugins: |-
+    [
+    rabbitmq_management,
+    rabbitmq_management_agent,
+    rabbitmq_web_stomp,
+    rabbitmq_web_stomp_examples,    
+    rabbitmq_mqtt,
+    rabbitmq_prometheus,
+    rabbitmq_top,
+    rabbitmq_web_dispatch,
+    rabbitmq_web_mqtt,
+    rabbitmq_event_exchange,
+    rabbitmq_amqp1_0,
+    rabbitmq_peer_discovery_k8s,
+    rabbitmq_tracing,
+    rabbitmq_stomp,
+    rabbitmq_peer_discovery_aws,
+    rabbitmq_federation,
+    rabbitmq_federation_management
+    ].
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: default
+  labels:
+    app: rabbitmq
+    environment: development
+  annotations:
+    app: rabbitmq
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3-management        
+          #env:
+          #- name: RABBITMQ_DEFAULT_USER  # las credenciales estan hasheadas en definitions.json
+          #  value: "admin"
+          #- name: RABBITMQ_DEFAULT_PASS  # las credenciales estan hasheadas en definitions.json
+          #  value: "admin"          
+          volumeMounts:
+            - name: rabbit-definitions-conf
+              mountPath: /etc/rabbitmq/definitions.json
+              subPath: definitions.json
+            - name: rabbit-default-conf
+              mountPath: /etc/rabbitmq/conf.d/10-defaults.conf
+              subPath: 10-defaults.conf
+            - name: rabbit-plugin-config
+              mountPath: /etc/rabbitmq/enabled_plugins
+              subPath: enabled_plugins                           
+      volumes:
+        - name: rabbit-definitions-conf
+          configMap:
+            name: rabbit-definitions-conf
+        - name: rabbit-default-conf
+          configMap:
+            name: rabbit-default-conf 
+        - name: rabbit-plugin-config
+          configMap:
+            name: rabbit-plugin-config

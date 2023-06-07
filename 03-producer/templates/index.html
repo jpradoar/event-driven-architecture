@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Driven Infrastructure</title>
+</head>
+<style>
+body {
+    background-image: url("https://www.analyticsinsight.net/wp-content/uploads/2020/11/IoT111-1024x576.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: "Lucida Console", "Courier New", monospace;
+}
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+input[type=submit] {
+  width: 100%;
+  background-color: #3383FF;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+div {
+  border-radius: 5px;
+  color: white;
+  padding: 4%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+h1 {
+  color: white;
+  text-align: center;
+}
+</style>
+<body>
+<h1>Event Driven Architecture</h1>
+<div>
+  <form action="" method="post" class="" id="formulario" >
+    <label for="client" >Client Name</label><input type="text" id="client" name="client" placeholder="" required="required">
+    <label for="product">Product</label>
+        <select id="product" name="product">
+            <option value="nginx">Product-A </option>
+            <option value="wordpress">Product-B (Wordpress)</option>
+            <option value="grafana">Product-C (Grafana)</option>
+        </select>
+    <label for="environment">environment</label>
+        <select id="environment" name="environment">
+            <option value="development">Development</option>
+            <option value="stage">Stage</option>
+            <option value="production">Production</option>
+        </select>
+    <label for="archtype">Architecture Type</label>
+      <select id="archtype" name="archtype">
+          <option value="saas">Software as a Service (SaaS)</option>
+          <option value="edge">Edge</option>
+          <option value="classic">Classic Old (Like On-Prem)</option>
+      </select>
+    <label for="hardware">Hardware</label>
+      <select id="hardware" name="hardware">
+          <option value="shared">Hardware Classic (Shared - No extra cost allocated)</option>
+          <option value="dedicated">Hardware Dedicated (Extra cost allocated)</option>
+      </select>
+    <input type="submit" value="Submit">
+  </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+#
+# helm upgrade -i --create-namespace -n default  mqtt .
+#
+#
+# helm delete mqtt && kubectl delete pvc data-mqtt-rabbitmq-0
+#
+
+ClientName: nones
+environment: development
+traceID: nones0123
+
+rabbitmq:
+  auth:
+    username: admin
+    tls:
+      enabled: false
+  extraPlugins: "rabbitmq_management rabbitmq_management_agent rabbitmq_web_stomp rabbitmq_web_stomp_examples rabbitmq_mqtt rabbitmq_prometheus rabbitmq_top rabbitmq_web_dispatch rabbitmq_web_mqtt rabbitmq_event_exchange rabbitmq_amqp1_0 rabbitmq_peer_discovery_k8s rabbitmq_tracing rabbitmq_stomp rabbitmq_peer_discovery_aws rabbitmq_federation rabbitmq_federation_management"
+
+
+producer:
+  image: jpradoar/mqtt-producer
+  tag: 2023.06
+  imagePullPolicy: Always
+  LoadBalancer: 
+    enabled: false # If true. it will create a LB to internet access
+
+
+consumer:
+  image: jpradoar/mqtt-consumer
+  tag: 2023.06
+  imagePullPolicy: Always
+
+
+dbwriter:
+  image: jpradoar/mqtt-dbwriter
+  tag: 2023.05
+  imagePullPolicy: Always
+
+mariadb:
+  image: mariadb
+  tag: 10.9.4
+  imagePullPolicy: Always
+
+
+webserver:
+  image: jpradoar/mqtt-webserver
+  tag: 2023.05
+  imagePullPolicy: Always
+
+
+eventexporter:
+  image: jpradoar/k8s-event-exporter
+  tag: 2023.05
+  imagePullPolicy: Always

@@ -1,0 +1,91 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: producer
+  labels:
+    app: {{ .Release.Name }}-producer
+    environment: {{ .Values.environment }}
+    app.business.client: {{ .Values.ClientName }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "9090"    
+    filter.by.port.name: "true"
+    app: {{ .Release.Name }}-producer
+    app.depends: {{ .Release.Name }}-rabbitmq   
+    app.business.client: {{ .Values.ClientName }}
+    app.mqtt.event.trigger: {{ .Values.traceID }}
+spec:
+  selector:
+    app: {{ .Release.Name }}-producer
+  ports:
+    - name: http
+      protocol: TCP     
+      port: 5000        
+      targetPort: 5000
+    - name: monitoring
+      protocol: TCP     
+      port: 9090        
+      targetPort: 9090
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  labels:
+    app: {{ .Release.Name }}-producer
+    environment: {{ .Values.environment }}
+    app.business.client: {{ .Values.ClientName }}
+  annotations:
+    prometheus.io/scrape: 'true'
+    app: {{ .Release.Name }}-producer
+    app.depends: {{ .Release.Name }}-rabbitmq
+    app.business.client: {{ .Values.ClientName }}
+    app.mqtt.event.trigger: {{ .Values.traceID }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-producer
+      environment: {{ .Values.environment }}
+      app.business.client: {{ .Values.ClientName }}      
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-producer
+        environment: {{ .Values.environment }}
+        app.business.client: {{ .Values.ClientName }}
+      annotations:
+        prometheus.io/scrape: 'true'
+        app: {{ .Release.Name }}-producer
+        app.version: {{ .Values.producer.image }}:{{ .Values.producer.tag }}
+        app.depends: {{ .Release.Name }}-rabbitmq
+        app.business.client: {{ .Values.ClientName }}
+        app.mqtt.event.trigger: {{ .Values.traceID }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-producer
+          image: {{ .Values.producer.image }}:{{ .Values.producer.tag }}
+          imagePullPolicy: {{ .Values.producer.imagePullPolicy }}
+          env:
+          - name: mqtthost
+            value: {{ .Release.Name }}-rabbitmq
+          - name: mqttvhost
+            value: "/"
+          - name: queue
+            value: "infra"
+          # - name: mqttport
+          #   value: "'5672'"      
+          - name: destination_queue
+            value: "infra"
+          - name: destination_RK
+            value: "infra"
+          - name: mqttuser
+            value: "admin"
+          - name: mqttpass
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-rabbitmq
+                key: rabbitmq-password

@@ -1,0 +1,9 @@
+**/*.log
+**/*_bkp
+**/*_tmp
+**/*.ignore
+**/*.key
+**/*.pem
+**/*.secure
+temp/
+tmp/

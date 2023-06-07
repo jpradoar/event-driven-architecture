@@ -1,0 +1,23 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cmd-job
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: cmd-job
+        image: alpine:latest
+        env:
+          - name: XVAR
+            value: xvalue    
+          - name: SLACKWEBHOOKURL
+            valueFrom:
+              secretKeyRef:
+                name: infra-secrets
+                key: slack_webhook_url
+        command: ["/bin/sh"]
+        args: ["-c", "apk update; apk add curl; curl -sX POST -H 'Content-type: application/json' --data '{\"text\":\"Hello, World!\"}' $(echo $SLACKWEBHOOKURL)" ]
+      restartPolicy: Never 

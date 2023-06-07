@@ -1,0 +1,111 @@
+version: "3"
+services:
+#--------------------------------------------  
+    rabbitmq:
+        container_name: rabbitmq
+        image: rabbitmq:management-alpine
+        restart: always
+        volumes:
+          - $PWD/rabbitmq:/etc/rabbitmq/
+        ports:
+          - 15672:15672   # http (web admin)
+          - 5672:5672     # amqp 
+          - 15692         # url/:15692/metrics  (prometheus metrics)
+          - 25672         # clustering
+          - 15675         # http/web-mqtt
+          - 1883          # mqtt
+          - 61613         # stomp
+        networks:
+          - infra
+#--------------------------------------------
+    producer:
+        image: jpradoar/mqtt-producer:2023.05
+        container_name: producer
+        restart: always
+        environment:
+          mqtthost: rabbitmq
+          mqttvhost: /
+          mqttuser: admin
+          mqttpass: admin
+          queue: infra
+          mqttport: 5672
+          destination_queue: infra
+          destination_RK: infra
+        #volumes: 
+        #  - /tmp/event-driven-infrastructure/03-producer/api.py:/app/api.py
+        ports:
+          - 5000:5000   
+          - 9090
+        networks:
+          - infra       
+#--------------------------------------------
+    consumer:
+        image: jpradoar/mqtt-consumer:2023.05
+        container_name: consumer
+        restart: always
+        environment:
+          mqtthost: rabbitmq
+          mqttvhost: /
+          mqttuser: admin
+          mqttpass: admin
+          queue: infra
+          mqttport: 5672      
+        ports:
+          - 9090
+        networks:
+          - infra
+#--------------------------------------------
+    dbwriter:
+      image: jpradoar/mqtt-dbwriter:2023.05
+      container_name: dbwriter
+      restart: always       
+      environment:
+        mqtthost: rabbitmq
+        mqttvhost: /
+        mqttuser: admin
+        mqttpass: admin
+        mqttport: 5672     
+        queue: clients   
+        #
+        mysql_host: mariadb
+        mysql_user: admin
+        mysql_pass: admin
+        mysql_db: clients   
+      ports:
+        - 9090
+      depends_on: 
+        - mariadb          
+      networks:
+        - infra    
+#--------------------------------------------
+    mariadb:
+      image: mariadb:10.9.4
+      container_name: mariadb
+      restart: always
+      environment:
+        MARIADB_ROOT_PASSWORD: xadmin
+        MARIADB_USER: admin
+        MARIADB_PASSWORD: admin
+        MARIADB_DATABASE: clients
+      volumes: 
+        - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro   
+      ports:
+        - 3306        
+      networks:
+        - infra         
+#--------------------------------------------          
+    webserver:
+      image: jpradoar/mqtt-webserver:2023.05
+      container_name: webserver
+      restart: always   
+      ports:
+         - 8080:80
+      depends_on: 
+         - mariadb          
+      networks:
+        - infra                   
+#----------------------------------------------------------------
+networks:
+  infra:
+    driver: bridge 
+

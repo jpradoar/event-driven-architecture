@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: consumer
+  namespace: default
+  labels:
+    app: consumer
+    app.depends: rabbitmq
+    environment: development
+  annotations:
+    prometheus.io/scrape: 'true'
+    filter.by.port.name: 'true'
+    app: consumer
+    app.depends: rabbitmq
+    depends_on: rabbitmq     
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+spec:
+  selector:
+    app: consumer
+  ports:
+    - name: metrics
+      protocol: TCP     
+      port: 9090 
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: consumer-sa
+  namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: consumer-cr
+  namespace: default
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: consumer-cr-binding
+subjects:
+- kind: ServiceAccount
+  name: consumer-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: consumer-cr
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  namespace: default
+  labels:
+    app: consumer
+    app.depends: rabbitmq
+    environment: development
+  annotations:
+    prometheus.io/scrape: 'true'
+    app: consumer
+    app.depends: rabbitmq
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+    app.owner: 'jpradoar'
+    app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/mqtt-consumer'   
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      serviceAccountName: consumer-sa
+      containers:
+        - name: consumer
+          image: jpradoar/mqtt-consumer:2023.05
+          imagePullPolicy: Always
+          env:
+          - name: mqtthost
+            value: "rabbitmq"          
+          - name: mqttvhost
+            value: "/"
+          - name: mqttuser
+            value: "admin" 
+          - name: mqttpass
+            value: "admin" 
+          - name: queue
+            value: "infra"           

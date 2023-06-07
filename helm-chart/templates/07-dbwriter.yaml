@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbwriter
+  namespace: default
+  labels:
+    app: {{ .Release.Name }}-dbwriter
+    environment: {{ .Values.environment }}
+    app.business.client: {{ .Values.ClientName }}
+  annotations:
+    prometheus.io/scrape: 'true'
+    filter.by.port.name: 'true'
+    app: {{ .Release.Name }}-dbwriter
+    app.depends: {{ .Release.Name }}-rabbitmq
+    app.mqtt.event.trigger: {{ .Values.traceID }}   
+spec:
+  selector:
+    app: dbwriter
+  ports:
+    - name: metrics
+      protocol: TCP     
+      port: 9090 
+      
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dbwriter
+  namespace: default
+  labels:
+    app: {{ .Release.Name }}-dbwriter
+    environment: {{ .Values.environment }}
+    app.business.client: {{ .Values.ClientName }}
+  annotations:
+    app: {{ .Release.Name }}-dbwriter
+    app.depends: {{ .Release.Name }}-rabbitmq
+    app.mqtt.event.trigger: {{ .Values.traceID }}   
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-dbwriter
+      environment: {{ .Values.environment }}
+      app.business.client: {{ .Values.ClientName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-dbwriter
+        environment: {{ .Values.environment }}
+        app.business.client: {{ .Values.ClientName }}
+      annotations:
+        app: {{ .Release.Name }}-dbwriter
+        app.depends: {{ .Release.Name }}-rabbitmq
+        app.mqtt.event.trigger: {{ .Values.traceID }} 
+        app.version: {{ .Values.dbwriter.image }}:{{ .Values.dbwriter.tag }}
+    spec:
+      containers:
+        - name: dbwriter
+          image: {{ .Values.dbwriter.image }}:{{ .Values.dbwriter.tag }}
+          imagePullPolicy: Always   
+          env:
+          - name: mqtthost
+            value: {{ .Release.Name }}-rabbitmq
+          - name: mqttvhost
+            value: "/"
+          - name: mqttuser
+            value: "admin" 
+          - name: mqttpass
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-rabbitmq
+                key: rabbitmq-password  
+          - name: queue
+            value: "clients"
+          - name: mysql_host
+            value: "mariadb"
+          - name: mysql_db
+            value: "clients"    
+          - name: MARIADB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_root_password
+          - name: mysql_user
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_username
+          - name: mysql_pass
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_password   

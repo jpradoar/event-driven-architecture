@@ -1,0 +1,82 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: producer
+  namespace: default
+  labels:
+    app: producer
+    app.depends: rabbitmq     
+    environment: development
+  annotations:
+    prometheus.io/scrape: 'true'
+    filter.by.port.name: 'true'
+    app: producer
+    app.depends: rabbitmq     
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+spec:
+  selector:
+    app: producer
+  ports:
+    - name: http
+      protocol: TCP     
+      port: 5000        
+      targetPort: 5000
+    - name: monitoring
+      protocol: TCP     
+      port: 9090        
+      targetPort: 9090
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  namespace: default
+  labels:
+    app: producer
+    environment: development
+    app.depends: rabbitmq    
+    prometheus.io/scrape: 'true'
+  annotations:
+    prometheus.io/scrape: 'true'
+    app: producer
+    app.depends: rabbitmq  
+    app.business.client: 'client-001'
+    app.mqtt.event.trigger: '1234567890'    
+    app.owner: 'jpradoar'
+    app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/mqtt-producer/'   
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+        - name: producer
+          image: jpradoar/mqtt-producer:2023.05
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+          - name: mqtthost
+            value: "rabbitmq"          
+          - name: mqttvhost
+            value: "/"
+          - name: mqttuser
+            value: "admin" 
+          - name: mqttpass
+            value: "admin" 
+          - name: queue
+            value: "infra"
+          - name: mqttport
+            value: "5672"      
+          - name: destination_queue
+            value: "infra"
+          - name: destination_RK
+            value: "infra"

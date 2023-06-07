@@ -1,0 +1,7 @@
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: mqtt-poc
+#   labels:
+#     environment: development
