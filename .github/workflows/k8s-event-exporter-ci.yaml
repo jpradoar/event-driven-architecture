@@ -12,7 +12,8 @@ env:
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   BUILD_CONTEXT: './12-k8s-event-exporter'
-
+  VULN_SEVERITY: 'CRITICAL'
+  
 jobs:
   Build-Docker-image:
     runs-on: ubuntu-latest 
@@ -35,7 +36,7 @@ jobs:
       id: nversion
       run: |
         commit_message=$(git log --format=%B -n 1 ${{ github.sha }})
-        version=$(curl -s "https://hub.docker.com/v2/repositories/jpradoar/${{ env.REPO_APP }}/tags/?page_size=5" | jq -r '.results[].name'|sort -M|grep -v latest|tail -1)
+        version=$(curl -s "https://hub.docker.com/v2/repositories/jpradoar/${{ env.REPO_APP }}/tags/?page_size=1" | jq -r '.results[].name'|sort -M|grep -v latest)
         X=$(echo $version|cut -d. -f1)
         Y=$(echo $version|cut -d. -f2)
         Z=$(echo $version|cut -d. -f3)
@@ -48,8 +49,7 @@ jobs:
         elif [[ $commit_message == *patch:* ]]; then
           NuevaVersion=$X.$Y.$(($Z+1))
         else
-          echo "es una beta"
-          echo $custom_version-test
+          NuevaVersion="latest"
         fi
         echo "NEW_VERSION=$NuevaVersion " >> "$GITHUB_OUTPUT"      
       
@@ -64,10 +64,11 @@ jobs:
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
+        hide-progress: true
         format: 'table'
         ignore-unfixed: true
         vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH'
+        severity: ${{ env.VULN_SEVERITY }}
         #exit-code: '1'              
 
     - name: Slack Notification
