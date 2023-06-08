@@ -36,7 +36,7 @@ jobs:
       id: nversion
       run: |
         commit_message=$(git log --format=%B -n 1 ${{ github.sha }})
-        version=$(curl -s "https://hub.docker.com/v2/repositories/jpradoar/${{ env.REPO_APP }}/tags/?page_size=5" | jq -r '.results[].name'|sort -M|grep -v latest|tail -1)
+        version=$(curl -s "https://hub.docker.com/v2/repositories/jpradoar/${{ env.REPO_APP }}/tags/?page_size=1" | jq -r '.results[].name'|sort -M|grep -v latest)
         X=$(echo $version|cut -d. -f1)
         Y=$(echo $version|cut -d. -f2)
         Z=$(echo $version|cut -d. -f3)
@@ -49,8 +49,7 @@ jobs:
         elif [[ $commit_message == *patch:* ]]; then
           NuevaVersion=$X.$Y.$(($Z+1))
         else
-          echo "es una beta"
-          echo $custom_version-test
+          NuevaVersion="latest"
         fi
         echo "NEW_VERSION=$NuevaVersion " >> "$GITHUB_OUTPUT"      
       
