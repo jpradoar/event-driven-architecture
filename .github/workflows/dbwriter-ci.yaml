@@ -47,7 +47,9 @@ jobs:
         VERSION: ${{ steps.last_version_remote_file.outputs.LAST_VERSION }}
 
     - name: Show new version
-      run: echo "New version ${{ steps.nversion.outputs.NEW_VERSION }}" 
+      run: |
+        echo "New version ${{ steps.nversion.outputs.NEW_VERSION }}" 
+        echo "NEW_VERSION=${{ steps.nversion.outputs.NEW_VERSION }} " >> "$GITHUB_OUTPUT"
 
     - name: Build and push
       uses: docker/build-push-action@v4
