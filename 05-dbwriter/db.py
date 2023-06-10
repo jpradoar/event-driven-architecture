@@ -16,12 +16,12 @@ metric_info     = Info('dbwriter_version', 'build version of dbwriter')
 metrics_port    = 9090
 
 # RABBIT
-mqtthost    = os.environ.get('mqtthost') #"rabbitmq" 
-mqttvhost   = os.environ.get('mqttvhost') #"/"
-mqttuser    = os.environ.get('mqttuser') #"admin"
-mqttpass    = os.environ.get('mqttpass') #"admin"
+mqtthost    = str(os.environ.get('mqtthost'))  
+mqttvhost   = str(os.environ.get('mqttvhost')) 
+mqttuser    = str(os.environ.get('mqttuser')) 
+mqttpass    = str(os.environ.get('mqttpass')) 
 mqttport    = os.environ.get('mqttport') #
-queue       = os.environ.get('queue') #"clients"
+queue       = str(os.environ.get('queue'))
 credentials = pika.PlainCredentials(mqttuser, mqttpass)
 parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials,connection_attempts=5, retry_delay=5)
 
