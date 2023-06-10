@@ -38,6 +38,8 @@ jobs:
       run: |
         LastVersion=${{ steps.nversion.outputs.NEW_VERSION }}
         echo "NEW_VERSION=$LastVersion" >> "$GITHUB_OUTPUT"
+        echo "last version: " ${{ steps.nversion.outputs.NEW_VERSION }}
+        echo "last version2: " ${{ steps.nversion.outputs }}
         echo "New version " $NEW_VERSION
 
 
