@@ -21,26 +21,20 @@ jobs:
     
     steps:
      
-    - name: Show last version of docker-hub image
-      id: last_version_remote_file
-      run: |
-        LastVersion=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.REPO_OWNER }}/${{ env.REPO_APP }}/tags/?page_size=1" | jq -r '.results[].name'|sort -M|grep -v latest)
-        echo "LAST_VERSION=$LastVersion " >> "$GITHUB_OUTPUT"
+      - name: Show last version of docker-hub image
+        id: last_version_remote_file
+        run: |
+          LastVersion=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.REPO_OWNER }}/${{ env.REPO_APP }}/tags/?page_size=1" | jq -r '.results[].name'|sort -M|grep -v latest)
+          echo "LAST_VERSION=$LastVersion " >> "$GITHUB_OUTPUT"
 
-    - name: Generate new version with semantic version
-      id: nversion
-      uses: jpradoar/ga-semanticversion@v1.0.0
-      with:
-        COMMIT_MSG:  ${{ github.event.head_commit.message }}
-        VERSION: ${{ steps.last_version_remote_file.outputs.LAST_VERSION }}
+      - name: Generate new version with semantic version
+        id: nversion
+        uses: jpradoar/ga-semanticversion@v1.0.0
+        with:
+          COMMIT_MSG:  ${{ github.event.head_commit.message }}
+          VERSION: ${{ steps.last_version_remote_file.outputs.LAST_VERSION }}
 
-    - name: Show new version
-      run: |
-        LastVersion=${{ steps.nversion.outputs.NEW_VERSION }}
-        echo "NEW_VERSION=$LastVersion" >> "$GITHUB_OUTPUT"
-        echo "last version: " ${{ steps.nversion.outputs.NEW_VERSION }}
-        echo "last version2: " ${{ steps.nversion.outputs }}
-        echo "New version " $NEW_VERSION
-
+      - name: Show new version
+        run: echo "New version ${{ steps.nversion.outputs.NEW_VERSION }}" 
 
 
