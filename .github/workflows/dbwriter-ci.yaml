@@ -9,7 +9,7 @@ on:
 
 env:
   REPO_APP: 'mqtt-dbwriter'
-  DOCKERHUB_USERNAME: 'jpradoar'
+  REPO_OWNER: 'jpradoar'
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   BUILD_CONTEXT: './05-dbwriter'
@@ -27,7 +27,7 @@ jobs:
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        username: ${{ secrets.USERNAME_DOCKERHUB }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Set up Docker Buildx
@@ -36,7 +36,7 @@ jobs:
     - name: Show last version of docker-hub image
       id: last_version_remote_file
       run: |
-        LastVersion=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}/tags/?page_size=1" | jq -r '.results[].name'|sort -M|grep -v latest)
+        LastVersion=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.REPO_OWNER }}/${{ env.REPO_APP }}/tags/?page_size=1" | jq -r '.results[].name'|sort -M|grep -v latest)
         echo "LAST_VERSION=$LastVersion " >> "$GITHUB_OUTPUT"
 
     - name: Generate new version with semantic version
@@ -51,12 +51,12 @@ jobs:
       with:
         context: ${{ env.BUILD_CONTEXT }}
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}
+        tags: ${{ env.REPO_OWNER }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}
         
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
+        image-ref: '${{ env.REPO_OWNER }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
         hide-progress: true
         format: 'table'
         ignore-unfixed: true
@@ -69,7 +69,7 @@ jobs:
       env:
         SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
         SLACK_COLOR: ${{ env.SLACK_MSG_COLOR }}
-        SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}'
+        SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/${{ env.REPO_OWNER }}/${{ env.REPO_APP }}'
         SLACK_TITLE: ':rocket: GithubAction Build docker image: [ ${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }} ]'
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
