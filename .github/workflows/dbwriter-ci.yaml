@@ -21,6 +21,8 @@ jobs:
     
     steps:
      
+
+
       - name: Show last version of docker-hub image
         id: last_version_remote_file
         run: |
@@ -35,6 +37,8 @@ jobs:
           VERSION: ${{ steps.last_version_remote_file.outputs.LAST_VERSION }}
 
       - name: Show new version
-        run: echo "New version ${{ steps.nversion.outputs.NEW_VERSION }}" 
+        run: |
+          echo "last version ${{ steps.last_version_remote_file.outputs.LAST_VERSION }}"
+          echo "New version ${{ steps.nversion.outputs.NEW_VERSION }}" 
 
 
