@@ -9,6 +9,7 @@ on:
 
 env:
   REPO_APP: 'mqtt-dbwriter'
+  DOCKERHUB_USERNAME: 'jpradoar'
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   BUILD_CONTEXT: './05-dbwriter'
@@ -35,7 +36,7 @@ jobs:
     - name: Show last version of docker-hub image
       id: last_version_remote_file
       run: |
-        LastVersion=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}/tags/?page_size=1" | jq -r '.results[].name'|sort -M|grep -v latest)
+        LastVersion=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}/tags/?page_size=1" | jq -r '.results[].name'|sort -M|grep -v latest)
         echo "LAST_VERSION=$LastVersion " >> "$GITHUB_OUTPUT"
 
     - name: Generate new version with semantic version
