@@ -46,12 +46,15 @@ jobs:
         COMMIT_MSG:  ${{ github.event.head_commit.message }}
         VERSION: ${{ steps.last_version_remote_file.outputs.LAST_VERSION }}
 
+    - name: Show new version
+      run: echo "New version ${{ steps.nversion.outputs.NEW_VERSION }}" 
+
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
         context: ${{ env.BUILD_CONTEXT }}
         push: true
-        tags: ${{ env.REPO_OWNER }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}
+        tags: '${{ env.REPO_OWNER }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
         
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
