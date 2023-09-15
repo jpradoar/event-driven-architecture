@@ -52,3 +52,4 @@ eventexporter:
   image: jpradoar/k8s-event-exporter
   tag: 2023.05
   imagePullPolicy: Always
+  aws-arn: arn:aws:iam::123456789012:role/rol-para-acceso-ecr-y-recursos-de-eks
