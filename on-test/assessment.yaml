@@ -1,0 +1,72 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: assessment-sa
+  namespace: default
+  labels:
+    app: assessment-app
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: assessment-sa-cr
+  namespace: default
+  labels:
+    app: assessment-app  
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: assessment-sa-cr-binding
+  labels:
+    app: assessment-app  
+subjects:
+- kind: ServiceAccount
+  name: assessment-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: assessment-sa-cr
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: assessment-pod
+  namespace: default
+  labels:
+    app: assessment-app
+spec:
+  schedule: "* * * * *" 
+  jobTemplate:
+    spec:  
+      template:
+        metadata:
+          labels:
+            app: assessment-app
+            sidecar.istio.io/inject: "false"   
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::123456789:role/aws-iam-with-access-to-infra
+        spec:
+          serviceAccountName: assessment-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: assessment-pod
+            image: 123456789.dkr.ecr.us-east-1.amazonaws.com/c2w:latest
+            command: ["/bin/bash", "-c"]
+            args:
+            - |
+              echo -e "\nKubernetes\n"
+              pluto detect-all-in-cluster -owide -o markdown
+              echo -e "\nHelm\n" 
+              pluto detect-helm -owide -o markdown
+              echo -e "\nHelm upgrades\n"
+              nova find -a --wide --format table
