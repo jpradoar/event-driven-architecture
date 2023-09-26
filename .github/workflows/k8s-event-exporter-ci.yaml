@@ -2,7 +2,7 @@ name: k8s-event-exporter-CI
 on:
   push:
     branches:
-      - main
+      - auto-comments
     paths:
       - '12-k8s-event-exporter/**' # Any change in this path, make trigger build action.
       - '.github/workflows/k8s-event-exporter-ci.yaml'
@@ -61,6 +61,7 @@ jobs:
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}
         
     - name: Run Trivy vulnerability scanner
+      id: vulnscan
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
@@ -80,3 +81,24 @@ jobs:
         SLACK_TITLE: ':rocket: GithubAction Build docker image: [ ${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }} ]'
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   
+
+    - uses: actions/github-script@v6
+      #if: github.event_name == 'pull_request'
+      #env:
+      #  PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          <details><summary>vulnerability scanner</summary>
+    
+          \`\`\`\n
+          ${{ steps.vulnscan.outputs.stdout }}
+          \`\`\`
+          
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
