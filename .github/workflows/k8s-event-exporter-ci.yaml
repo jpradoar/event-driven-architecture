@@ -13,7 +13,6 @@ env:
   SLACK_MSG_COLOR: '#0092ff'
   BUILD_CONTEXT: './12-k8s-event-exporter'
   VULN_SEVERITY: 'HIGH,CRITICAL'
-  VULN_TYPE: 'os,library'
   VULN_TIMEOUT_SCAN: '2m0s'
   VULN_OUTPUT_TYPE: 'table'
   VULN_OUTPUT_FILE: 'k8s-event-exporter_vuln_scan.txt'
@@ -76,7 +75,7 @@ jobs:
       with:
         image-ref: 'domoticz/domoticz:latest'
         format: ${{ env.VULN_FORMAT }}
-        vuln-type: ${{ env.VULN_OUTPUT_TYPE }}
+        vuln-type: 'os,library'
         severity: ${{ env.VULN_SEVERITY }}
         timeout: ${{ env.VULN_TIMEOUT_SCAN }}
         output: vuln_scans/${{ env.VULN_OUTPUT_FILE }}     
