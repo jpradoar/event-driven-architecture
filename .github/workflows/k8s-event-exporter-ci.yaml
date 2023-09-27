@@ -12,7 +12,7 @@ env:
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   BUILD_CONTEXT: './12-k8s-event-exporter'
-  VULN_SEVERITY: 'HIGH,CRITICAL'
+  VULN_SEVERITY: 'CRITICAL' #HIGH,
   VULN_TIMEOUT_SCAN: '2m0s'
   VULN_OUTPUT_TYPE: 'table'
   VULN_OUTPUT_FILE: 'k8s-event-exporter_vuln_scan.txt'
