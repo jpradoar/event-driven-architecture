@@ -12,12 +12,22 @@ env:
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   BUILD_CONTEXT: './12-k8s-event-exporter'
-  VULN_SEVERITY: 'CRITICAL'
+  VULN_SEVERITY: 'HIGH,CRITICAL'
+  VULN_TYPE: 'os,library'
+  VULN_TIMEOUT_SCAN: '2m0s'
+  VULN_OUTPUT_TYPE: 'table'
+  VULN_OUTPUT_FILE: 'k8s-event-exporter_vuln_scan.txt'
+  COMMITER_NAME: 'AutoCommit'
+
+
   
 jobs:
   Build-Docker-image:
     runs-on: ubuntu-latest 
-    
+    # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+    permissions:
+      contents: write
+      
     steps:
      
     - name: Checkout
@@ -61,15 +71,21 @@ jobs:
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}
         
     - name: Run Trivy vulnerability scanner
+      id: vulnscan
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
-        hide-progress: true
-        format: 'table'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
+        image-ref: 'domoticz/domoticz:latest'
+        format: ${{ env.VULN_FORMAT }}
+        vuln-type: ${{ env.VULN_OUTPUT_TYPE }}
         severity: ${{ env.VULN_SEVERITY }}
-        #exit-code: '1'              
+        timeout: ${{ env.VULN_TIMEOUT_SCAN }}
+        output: ${{ env.VULN_OUTPUT_FILE }}     
+        #exit-code: '1' 
+    - uses: EndBug/add-and-commit@v9
+      with:
+        message: 'AutoCommit: Add table file'
+        add: ${{ env.VULN_OUTPUT_FILE }}
+        committer_name: ${{ env.COMMITER_NAME }}             
 
     - name: Slack Notification
       uses: rtCamp/action-slack-notify@v2
@@ -79,4 +95,3 @@ jobs:
         SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}'
         SLACK_TITLE: ':rocket: GithubAction Build docker image: [ ${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }} ]'
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-  
