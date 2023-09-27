@@ -86,7 +86,7 @@ jobs:
         message: 'AutoCommit: Add table file'
         add: ./vuln_scans/${{ env.VULN_OUTPUT_FILE }}
         committer_name: ${{ env.COMMITER_NAME }}             
-
+ 
     - name: Slack Notification
       uses: rtCamp/action-slack-notify@v2
       env:
