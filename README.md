@@ -12,6 +12,7 @@
 ![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/webserver-ci.yaml/badge.svg) 
 ![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/k8s-event-exporter-ci.yaml/badge.svg) 
 </p>
+<img alt="gitleaks badge" src="https://img.shields.io/badge/protected%20by-gitleaks-blue">
 <hr>
 
 
