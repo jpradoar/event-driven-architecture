@@ -1,5 +1,5 @@
 
-jpradoar/k8s-event-exporter:latest (alpine 3.18.3)
-==================================================
+jpradoar/k8s-event-exporter:0.1.2-Update (alpine 3.18.3)
+========================================================
 Total: 0 (CRITICAL: 0)
 
