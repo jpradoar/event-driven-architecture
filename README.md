@@ -44,9 +44,9 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 
 
 ### Extra features 
-:heavy_check_mark: My apps use secrets, and I need to manage them safely and then I need to commit all data without leaking my secrets.   ;) 
+<br>:heavy_check_mark: <b>Safe data</b>:  My apps use tokens or passwords, and I need to manage them safely and then I need to commit all data without leaking my secrets.   ;) 
 <br>:heavy_check_mark: <b>Vendor lock-in</b>: In my case, I prefer have a infrastructure can be used and implemented in any cloud provider that runs a kubernetes cluster, in an "on-premise" client environment or even in a development environment like my laptop.
-
+<br>:heavy_check_mark: <b>Vulnerability Scans</b>: Every time a Developer or SRE build a docker image must be scanned to find possible vulnerabilities. If it happen that image have to mark with different tag. [Vulnerability Scans](vuln_scans/) 
 <br><hr><br>
 
 # Architecture design
