@@ -1,7 +1,5 @@
 {{ if eq .Values.producer.LoadBalancer.enabled "true" }}
 
-
-
 ---
 apiVersion: v1
 kind: Service

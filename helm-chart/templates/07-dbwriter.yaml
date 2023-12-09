@@ -63,6 +63,8 @@ spec:
           env:
           - name: mqtthost
             value: {{ .Release.Name }}-rabbitmq
+          - name: mqttport
+            value: "5672"
           - name: mqttvhost
             value: "/"
           - name: mqttuser

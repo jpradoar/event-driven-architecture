@@ -4,7 +4,7 @@ kind: ServiceAccount
 metadata:
   name: k8s-event-exporter-sa
   annotations:
-    eks.amazonaws.com/role-arn: {{ .Values.eventexporter.aws-arn }}
+    eks.amazonaws.com/role-arn: {{ .Values.eventexporter.aws_arn }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -67,8 +67,8 @@ spec:
       serviceAccountName: k8s-event-exporter-sa
       containers:
       - name: k8s-event-exporter
-          image: {{ .Values.eventexporter.image }}:{{ .Values.eventexporter.tag }}
-          imagePullPolicy: {{ .Values.eventexporter.imagePullPolicy }} 
+        image: {{ .Values.eventexporter.image }}:{{ .Values.eventexporter.tag }}
+        imagePullPolicy: {{ .Values.eventexporter.imagePullPolicy }} 
 #-----------------------------------------          
         resources:
           requests:

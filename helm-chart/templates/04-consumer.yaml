@@ -7,7 +7,7 @@ metadata:
     app: {{ .Release.Name }}-consumer
     app.depends: {{ .Release.Name }}-rabbitmq
     environment: {{ .Values.environment }}
-    app.business.client: {{ .Values.ClientName }}
+    app.business.client: {{ .Values.client_name }}
   annotations:
     prometheus.io/scrape: 'true'
     filter.by.port.name: 'true'
@@ -61,12 +61,12 @@ metadata:
     app: {{ .Release.Name }}-consumer
     app.depends: {{ .Release.Name }}-rabbitmq
     environment: {{ .Values.environment }}
-    app.business.client: {{ .Values.ClientName }}
+    app.business.client: {{ .Values.client_name }}
   annotations:
     prometheus.io/scrape: 'true'
     app: {{ .Release.Name }}-consumer
     app.depends: {{ .Release.Name }}-rabbitmq
-    app.business.client: {{ .Values.ClientName }}
+    app.business.client: {{ .Values.client_name }}
     app.mqtt.event.trigger: {{ .Values.traceID }}    
 spec:
   replicas: 1
@@ -74,15 +74,14 @@ spec:
     matchLabels:
       app: {{ .Release.Name }}-consumer
       environment: {{ .Values.environment }}
-      app.business.client: {{ .Values.ClientName }}      
+      app.business.client: {{ .Values.client_name }}      
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}-consumer
-        app.version: {{ .Values.consumer.image }}:{{ .Values.consumer.tag }}
         app.depends: {{ .Release.Name }}-rabbitmq
         environment: {{ .Values.environment }}
-        app.business.client: {{ .Values.ClientName }}        
+        app.business.client: {{ .Values.client_name }}        
     spec:
       serviceAccountName: {{ .Release.Name }}-consumer-sa
       containers:
