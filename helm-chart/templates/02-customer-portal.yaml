@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: producer
+  name: customerportal
   labels:
-    app: {{ .Release.Name }}-producer
+    app: {{ .Release.Name }}-customerportal
     environment: {{ .Values.environment }}
     app.business.client: {{ .Values.ClientName }}
   annotations:
@@ -12,13 +12,13 @@ metadata:
     prometheus.io/path: "/metrics"
     prometheus.io/port: "9090"    
     filter.by.port.name: "true"
-    app: {{ .Release.Name }}-producer
+    app: {{ .Release.Name }}-customerportal
     app.depends: {{ .Release.Name }}-rabbitmq   
     app.business.client: {{ .Values.ClientName }}
     app.mqtt.event.trigger: {{ .Values.traceID }}
 spec:
   selector:
-    app: {{ .Release.Name }}-producer
+    app: {{ .Release.Name }}-customerportal
   ports:
     - name: http
       protocol: TCP     
@@ -33,42 +33,37 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: producer
+  name: customerportal
+  namespace: default
   labels:
-    app: {{ .Release.Name }}-producer
+    app: {{ .Release.Name }}-customerportal
     environment: {{ .Values.environment }}
     app.business.client: {{ .Values.ClientName }}
   annotations:
-    prometheus.io/scrape: 'true'
-    app: {{ .Release.Name }}-producer
-    app.depends: {{ .Release.Name }}-rabbitmq
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "9090"    
+    filter.by.port.name: "true"
+    app: {{ .Release.Name }}-customerportal
+    app.depends: {{ .Release.Name }}-rabbitmq   
     app.business.client: {{ .Values.ClientName }}
     app.mqtt.event.trigger: {{ .Values.traceID }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-producer
-      environment: {{ .Values.environment }}
-      app.business.client: {{ .Values.ClientName }}      
+      app: {{ .Release.Name }}-customerportal
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-producer
-        environment: {{ .Values.environment }}
-        app.business.client: {{ .Values.ClientName }}
-      annotations:
-        prometheus.io/scrape: 'true'
-        app: {{ .Release.Name }}-producer
-        app.version: {{ .Values.producer.image }}:{{ .Values.producer.tag }}
-        app.depends: {{ .Release.Name }}-rabbitmq
-        app.business.client: {{ .Values.ClientName }}
-        app.mqtt.event.trigger: {{ .Values.traceID }}
+        app: {{ .Release.Name }}-customerportal
     spec:
       containers:
-        - name: {{ .Release.Name }}-producer
-          image: {{ .Values.producer.image }}:{{ .Values.producer.tag }}
-          imagePullPolicy: {{ .Values.producer.imagePullPolicy }}
+        - name: {{ .Release.Name }}-customerportal
+          image: {{ .Values.customerportal.image }}:{{ .Values.customerportal.tag }}
+          imagePullPolicy: {{ .Values.customerportal.imagePullPolicy }}
+          ports:
+            - containerPort: 5000
           env:
           - name: mqtthost
             value: {{ .Release.Name }}-rabbitmq
@@ -86,4 +81,4 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: {{ .Release.Name }}-rabbitmq
-                key: rabbitmq-password              
+                key: rabbitmq-password  

@@ -61,21 +61,25 @@ spec:
           image: {{ .Values.dbwriter.image }}:{{ .Values.dbwriter.tag }}
           imagePullPolicy: Always   
           env:
-          - name: mqtthost
-            value: {{ .Release.Name }}-rabbitmq
           - name: mqttport
             value: "5672"
+          - name: mqtthost
+            value: {{ .Release.Name }}-rabbitmq
           - name: mqttvhost
-            value: "/"
+            value: {{ .Values.rabbitmq.configs.mqttvhost }}
+          - name: queue
+            value: {{ .Values.rabbitmq.configs.queue }}
+          - name: destination_queue
+            value: {{ .Values.rabbitmq.configs.destination_queue }}
+          - name: destination_RK
+            value: {{ .Values.rabbitmq.configs.destination_rk }}
           - name: mqttuser
-            value: "admin" 
+            value: {{ .Values.rabbitmq.auth.username }}
           - name: mqttpass
             valueFrom:
               secretKeyRef:
                 name: {{ .Release.Name }}-rabbitmq
                 key: rabbitmq-password  
-          - name: queue
-            value: "clients"
           - name: mysql_host
             value: "mariadb"
           - name: mysql_db

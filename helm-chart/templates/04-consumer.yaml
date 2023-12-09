@@ -92,13 +92,17 @@ spec:
           - name: mqtthost
             value: {{ .Release.Name }}-rabbitmq
           - name: mqttvhost
-            value: "/"
+            value: {{ .Values.rabbitmq.configs.mqttvhost }}
           - name: queue
-            value: "infra"     
+            value: {{ .Values.rabbitmq.configs.queue }}
+          - name: destination_queue
+            value: {{ .Values.rabbitmq.configs.destination_queue }}
+          - name: destination_RK
+            value: {{ .Values.rabbitmq.configs.destination_rk }}
           - name: mqttuser
-            value: "admin"       
+            value: {{ .Values.rabbitmq.auth.username }}
           - name: mqttpass
             valueFrom:
               secretKeyRef:
                 name: {{ .Release.Name }}-rabbitmq
-                key: rabbitmq-password            
+                key: rabbitmq-password           
