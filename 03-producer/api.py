@@ -65,6 +65,12 @@ def requires_auth(f):
       return f(*args, **kwargs)
   return decorated
 
+
+# Ruta para servir el favicon.ico y no muestre el error de 404 en los logs
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
+
 # Si es un GET esta accediendo al formulario para crear un nuevo recurso
 # Si es un POST capturo la data del formulario y genero un json para enviarlo a una cola de RabbitMQ
 @app.route('/', methods=['GET','POST'])

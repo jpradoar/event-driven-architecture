@@ -26,12 +26,12 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
+  - name: producer
+    port: 5000
+    targetPort: 5000
   - name: webserver
     port: 8080
     targetPort: 8080
-  - name: consumer
-    port: 5000
-    targetPort: 5000
   selector:
     environment: {{ .Values.environment }}
     app.business.client: {{ .Values.ClientName }}

@@ -19,17 +19,17 @@ rabbitmq:
     destination_queue: infra
     destination_rk: infra
 
-customerportal:
-  image: jpradoar/mqtt-customer-portal
-  tag: 1.0.0
-  imagePullPolicy: Always
+# customerportal:
+#   image: jpradoar/mqtt-customer-portal
+#   tag: 1.0.0
+#   imagePullPolicy: Always
 
 producer:
   image: jpradoar/mqtt-producer
-  tag: 2023.06
+  tag: latest #2023.06
   imagePullPolicy: Always
   LoadBalancer: 
-    enabled: "false" # If true. it will create a LB to internet access
+    enabled: "true" # If true. it will create a LB to internet access
 
 consumer:
   image: jpradoar/mqtt-consumer
