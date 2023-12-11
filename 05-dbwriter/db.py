@@ -26,10 +26,10 @@ credentials = pika.PlainCredentials(mqttuser, mqttpass)
 parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials,connection_attempts=5, retry_delay=5)
 
 # DATABASE
-mysql_host  = os.environ.get('mysql_host') #"mariadb"  
-mysql_user  = os.environ.get('mysql_user') #"admin"
-mysql_pass  = os.environ.get('mysql_pass') #"admin"
-mysql_db    = os.environ.get('mysql_db')   #"clients"
+mysql_host  = os.environ.get('MARIADB_HOST') #"mariadb"  
+mysql_user  = os.environ.get('MARIADB_USER') #"admin"
+mysql_pass  = os.environ.get('MARIADB_PASSWORD') #"admin"
+mysql_db    = os.environ.get('MARIADB_DATABASE')   #"clients"
 
 # TIEMPO
 now         = datetime.datetime.now()
