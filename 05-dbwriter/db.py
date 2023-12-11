@@ -13,7 +13,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 # PROMETHEUS
 metric_info     = Info('dbwriter_version', 'build version of dbwriter')
-metrics_port    = 9090
+metrics_port    = 9090 
 
 # RABBIT
 mqtthost    = str(os.environ.get('mqtthost'))  
