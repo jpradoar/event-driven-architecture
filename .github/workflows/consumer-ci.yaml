@@ -73,7 +73,13 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: ${{ env.VULN_SEVERITY }}
-        #exit-code: '1'              
+        #exit-code: '1'      
+        
+    # - uses: EndBug/add-and-commit@v9
+    #   with:
+    #     message: 'AutoCommit: Add table file'
+    #     add: ./vuln_scans/${{ env.VULN_OUTPUT_FILE }}
+    #     committer_name: ${{ env.COMMITER_NAME }}             
 
     - name: Slack Notification
       uses: rtCamp/action-slack-notify@v2
