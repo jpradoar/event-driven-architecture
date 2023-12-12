@@ -83,7 +83,7 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 
 ### Producer (client portal)
 <br>
-<img src="img/producer.png">
+<img src="img/producer.png"><img src="img/producer-2.png">
 <br>
 
 ### DBClients UI (webserver)
