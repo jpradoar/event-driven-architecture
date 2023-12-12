@@ -8,15 +8,19 @@ metadata:
     environment: {{ .Values.environment }}
     app.business.client: {{ .Values.ClientName }}
   annotations:
+    environment: {{ .Values.environment }}
+    app.business.client: {{ .Values.ClientName }}    
     prometheus.io/scrape: 'true'
     app.mqtt.event.trigger: {{ .Values.traceID }}
 spec:
   selector:
-    app: webserver
+    app: {{ .Release.Name }}-webserver
+    environment: {{ .Values.environment }}
+    app.business.client: {{ .Values.ClientName }}    
   ports:
     - name: http
       protocol: TCP     
-      port: 8080
+      port: 80
       targetPort: 80
 
 ---
@@ -55,3 +59,23 @@ spec:
           imagePullPolicy: {{ .Values.webserver.imagePullPolicy }}
           ports:
             - containerPort: 80          
+          env: 
+          - name: MARIADB_HOST
+            value: "mariadb"
+          - name: MARIADB_DATABASE
+            value: {{ .Values.mariadb.config.database_name }}
+          - name: MARIADB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_root_password
+          - name: MARIADB_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_username
+          - name: MARIADB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_password  

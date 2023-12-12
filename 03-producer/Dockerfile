@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.19.0
 WORKDIR /app
 COPY ./templates /app/templates/
 COPY ./api.py /app/api.py

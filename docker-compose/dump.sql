@@ -22,7 +22,6 @@ CREATE TABLE `clients` (
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii COLLATE=ascii_general_ci;
 
 
-
 DROP DATABASE IF EXISTS `users`;
 CREATE DATABASE `users` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `users`;
@@ -34,3 +33,7 @@ CREATE TABLE `users` (
   `password` varchar(50) NOT NULL,
   PRIMARY KEY (`id_usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii COLLATE=ascii_general_ci;
+
+-- USE `clients`;
+-- INSERT INTO `clients` (`client`, `archtype`, `hardware`, `product`, `xdate`, `license`)
+-- VALUES ('demo', 'Tipo1', 'Hardware1', 'Producto1', '2023-01-01', 'Licencia1');

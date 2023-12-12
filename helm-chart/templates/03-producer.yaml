@@ -87,3 +87,15 @@ spec:
               secretKeyRef:
                 name: {{ .Release.Name }}-rabbitmq
                 key: rabbitmq-password              
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5                

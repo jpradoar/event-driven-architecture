@@ -19,7 +19,7 @@ services:
           - infra
 #--------------------------------------------
     producer:
-        image: jpradoar/mqtt-producer:2023.05
+        image: jpradoar/mqtt-producer:1.0.0 #jpradoar/mqtt-producer:2023.05 #
         container_name: producer
         restart: always
         environment:
@@ -40,7 +40,7 @@ services:
           - infra       
 #--------------------------------------------
     consumer:
-        image: jpradoar/mqtt-consumer:2023.05
+        image: jpradoar/mqtt-consumer:1.0.0
         container_name: consumer
         restart: always
         environment:
@@ -56,7 +56,7 @@ services:
           - infra
 #--------------------------------------------
     dbwriter:
-      image: jpradoar/mqtt-dbwriter:2023.05
+      image: jpradoar/mqtt-dbwriter:1.0.0
       container_name: dbwriter
       restart: always       
       environment:
@@ -66,11 +66,12 @@ services:
         mqttpass: admin
         mqttport: 5672     
         queue: clients   
-        #
-        mysql_host: mariadb
-        mysql_user: admin
-        mysql_pass: admin
-        mysql_db: clients   
+        # 
+        MARIADB_HOST: mariadb
+        MARIADB_USER: admin
+        MARIADB_PASSWORD: admin
+        MARIADB_DATABASE: clients
+
       ports:
         - 9090
       depends_on: 
@@ -83,10 +84,11 @@ services:
       container_name: mariadb
       restart: always
       environment:
-        MARIADB_ROOT_PASSWORD: xadmin
+        MARIADB_HOST: mariadb      
+        MARIADB_DATABASE: clients
+        MARIADB_ROOT_PASSWORD: admin
         MARIADB_USER: admin
         MARIADB_PASSWORD: admin
-        MARIADB_DATABASE: clients
       volumes: 
         - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro   
       ports:
@@ -95,9 +97,15 @@ services:
         - infra         
 #--------------------------------------------          
     webserver:
-      image: jpradoar/mqtt-webserver:2023.05
+      image: jpradoar/mqtt-webserver:1.0.0 #jpradoar/mqtt-webserver:latest #2023.05
       container_name: webserver
       restart: always   
+      environment:
+        MARIADB_HOST: mariadb      
+        MARIADB_DATABASE: clients
+        MARIADB_ROOT_PASSWORD: admin
+        MARIADB_USER: admin
+        MARIADB_PASSWORD: admin
       ports:
          - 8080:80
       depends_on: 
@@ -108,4 +116,3 @@ services:
 networks:
   infra:
     driver: bridge 
-

@@ -61,6 +61,26 @@ spec:
           image: {{ .Values.dbwriter.image }}:{{ .Values.dbwriter.tag }}
           imagePullPolicy: Always   
           env:
+          - name: MARIADB_HOST
+            value: "mariadb"
+          - name: MARIADB_DATABASE
+            value: {{ .Values.mariadb.config.database_name }}
+          - name: MARIADB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_root_password
+          - name: MARIADB_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_root_username #mariadb_username
+          - name: MARIADB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_root_password #mariadb_password 
+          #                 
           - name: mqttport
             value: "5672"
           - name: mqtthost
@@ -68,7 +88,7 @@ spec:
           - name: mqttvhost
             value: {{ .Values.rabbitmq.configs.mqttvhost }}
           - name: queue
-            value: {{ .Values.rabbitmq.configs.queue }}
+            value: "clients" #{{ .Values.rabbitmq.configs.queue }}
           - name: destination_queue
             value: {{ .Values.rabbitmq.configs.destination_queue }}
           - name: destination_RK
@@ -80,22 +100,15 @@ spec:
               secretKeyRef:
                 name: {{ .Release.Name }}-rabbitmq
                 key: rabbitmq-password  
-          - name: mysql_host
-            value: "mariadb"
-          - name: mysql_db
-            value: "clients"    
-          - name: MARIADB_ROOT_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-infra-secrets
-                key: mariadb_root_password
-          - name: mysql_user
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-infra-secrets
-                key: mariadb_username
-          - name: mysql_pass
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-infra-secrets
-                key: mariadb_password   
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 15
+            periodSeconds: 5                 

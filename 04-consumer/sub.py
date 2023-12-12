@@ -43,7 +43,7 @@ def sendmsg(message):
 def WriteDB(client,archtype,hardware,product):     
   message = "  *[Consumer] Send messaje to dbwriter to create new user in DBCLIENTS: [" + client + "] "
   sendmsg(message)
-  #channel.queue_declare(queue='clients', durable=True)
+  channel.queue_declare(queue='clients', durable=True)
   data = '{"client": "'+client+'","archtype": "'+archtype+'","hardware": "'+hardware+'","product": "'+product+'"}'
   channel.basic_publish(exchange='', routing_key='clients', body=data)
   sendmsg("  *[Consumer] " + data)    
@@ -77,7 +77,7 @@ def parseMsg(data):
   client      = data['client']
   namespace   = data['namespace']
   product     = data['product']
-  environment     = data['environment']
+  environment = data['environment']
   archtype    = data['archtype']
   hardware    = data['hardware']
   trace_id    = data['MessageAttributes']['trace_id']

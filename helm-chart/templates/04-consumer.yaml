@@ -5,15 +5,16 @@ metadata:
   name: consumer
   labels:
     app: {{ .Release.Name }}-consumer
-    app.depends: {{ .Release.Name }}-rabbitmq
     environment: {{ .Values.environment }}
     app.business.client: {{ .Values.client_name }}
+    app.depends: {{ .Release.Name }}-rabbitmq
   annotations:
     prometheus.io/scrape: 'true'
     filter.by.port.name: 'true'
     app: {{ .Release.Name }}-consumer
-    app.depends: {{ .Release.Name }}-rabbitmq
-    app.mqtt.event.trigger: {{ .Values.traceID }}    
+    environment: {{ .Values.environment }}
+    app.business.client: {{ .Values.client_name }}
+    app.depends: {{ .Release.Name }}-rabbitmq  
 spec:
   selector:
     app: {{ .Release.Name }}-consumer
@@ -59,29 +60,30 @@ metadata:
   name: consumer
   labels:
     app: {{ .Release.Name }}-consumer
-    app.depends: {{ .Release.Name }}-rabbitmq
     environment: {{ .Values.environment }}
     app.business.client: {{ .Values.client_name }}
-  annotations:
-    prometheus.io/scrape: 'true'
-    app: {{ .Release.Name }}-consumer
     app.depends: {{ .Release.Name }}-rabbitmq
+  annotations:
+    app: {{ .Release.Name }}-consumer
+    environment: {{ .Values.environment }}
     app.business.client: {{ .Values.client_name }}
-    app.mqtt.event.trigger: {{ .Values.traceID }}    
+    app.depends: {{ .Release.Name }}-rabbitmq
+    app.business.client: {{ .Values.client_name }}  
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-consumer
       environment: {{ .Values.environment }}
-      app.business.client: {{ .Values.client_name }}      
+      app.business.client: {{ .Values.client_name }}
+      app.depends: {{ .Release.Name }}-rabbitmq     
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}-consumer
-        app.depends: {{ .Release.Name }}-rabbitmq
         environment: {{ .Values.environment }}
-        app.business.client: {{ .Values.client_name }}        
+        app.business.client: {{ .Values.client_name }}
+        app.depends: {{ .Release.Name }}-rabbitmq       
     spec:
       serviceAccountName: {{ .Release.Name }}-consumer-sa
       containers:
@@ -106,3 +108,15 @@ spec:
               secretKeyRef:
                 name: {{ .Release.Name }}-rabbitmq
                 key: rabbitmq-password           
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 15
+            periodSeconds: 5                     

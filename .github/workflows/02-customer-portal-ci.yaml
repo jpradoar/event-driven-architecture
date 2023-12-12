@@ -13,6 +13,10 @@ env:
   SLACK_MSG_COLOR: '#0092ff'
   BUILD_CONTEXT: './02-customer-portal'
   VULN_SEVERITY: 'CRITICAL'
+  VULN_TIMEOUT_SCAN: '2m0s'
+  VULN_OUTPUT_TYPE: 'table'
+  VULN_OUTPUT_FILE: 'mqtt-customer-portal_vuln_scan.txt'
+  COMMITER_NAME: 'AutoCommit'
 
 jobs:
   Customer-portal-CI_build-docker-image:
