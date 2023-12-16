@@ -71,13 +71,13 @@ jobs:
         vuln-type: ${{ env.VULN_TYPE }}
         severity: ${{ env.VULN_SEVERITY }}
         timeout: ${{ env.VULN_TIMEOUT_SCAN }}
-        output: vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif     
+        output: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif'
         #exit-code: '1' 
        
     - uses: EndBug/add-and-commit@v9
       with:
         message: 'AutoCommit: Add ${{ env.REPO_APP }}_vuln_scan'
-        add: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif'      
+        add: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif'
 
     - name: Slack Notification
       uses: rtCamp/action-slack-notify@v2
