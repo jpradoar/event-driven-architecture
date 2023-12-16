@@ -76,8 +76,9 @@ jobs:
        
     - uses: EndBug/add-and-commit@v9
       with:
-        message: 'AutoCommit: Add ${{ env.REPO_APP }}_vuln_scan'
+        message: 'AutoCommit: Add table file'
         add: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif'
+
 
     - name: Slack Notification
       uses: rtCamp/action-slack-notify@v2
