@@ -21,6 +21,9 @@ env:
 jobs:
   Producer-CI_build-docker-image:
     runs-on: ubuntu-latest 
+    # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+    permissions:
+      contents: write  
     
     steps:
      
