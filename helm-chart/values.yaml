@@ -36,7 +36,7 @@ consumer:
 
 dbwriter:
   image: jpradoar/mqtt-dbwriter
-  tag: 1.0.0
+  tag: 1.1.1 #1.0.0
   imagePullPolicy: Always
   # configs:
   #   queue: clients
