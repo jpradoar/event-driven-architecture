@@ -14,7 +14,6 @@ env:
   SLACK_MSG_COLOR: '#0092ff'
   COMMITER_NAME: 'AutoCommit'
   VULN_SEVERITY: 'CRITICAL,HIGH'
-  VULN_OUTPUT_FILE: 'k8s-event-exporter_vuln_scan'
   VULN_TYPE: 'os,library'
   VULN_TIMEOUT_SCAN: '2m0s'
 
@@ -72,13 +71,13 @@ jobs:
         vuln-type: ${{ env.VULN_TYPE }}
         severity: ${{ env.VULN_SEVERITY }}
         timeout: ${{ env.VULN_TIMEOUT_SCAN }}
-        output: vuln_scans/${{ env.VULN_OUTPUT_FILE }}.sarif     
+        output: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif'
         #exit-code: '1' 
        
     - uses: EndBug/add-and-commit@v9
       with:
         message: 'AutoCommit: Add table file'
-        add: './vuln_scans/${{ env.VULN_OUTPUT_FILE }}.sarif'
+        add: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif'
         
  
     - name: Slack Notification
