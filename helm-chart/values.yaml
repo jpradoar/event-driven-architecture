@@ -31,12 +31,12 @@ producer:
 
 consumer:
   image: jpradoar/mqtt-consumer
-  tag: 1.0.1
+  tag: 1.1.1
   imagePullPolicy: Always
 
 dbwriter:
   image: jpradoar/mqtt-dbwriter
-  tag: 1.1.1 #1.0.0
+  tag: 1.1.2
   imagePullPolicy: Always
   # configs:
   #   queue: clients
