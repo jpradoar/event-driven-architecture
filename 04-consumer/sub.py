@@ -84,7 +84,7 @@ def parseMsg(data):
   sendmsg("  *[Consumer] Message: " + str(data) + "\n")
   sendmsg("  *[Consumer] Message trace_id: " + str(trace_id) + "\n")
   time.sleep (1)
-  WriteDB(client,archtype,hardware,product)
+  WriteDB(client,archtype,hardware,product,trace_id)
   time.sleep (1)
   executeDeployment(environment, client, product)
   time.sleep (1) 

@@ -82,7 +82,7 @@ def parseMsg(data):
   product     = data['product']
   xdate       = dateformat
   license     = 'OpenSource'
-  trace_id    = data['MessageAttributes']['trace_id']
+  trace_id    = data['trace_id']
   val         = (client,archtype,hardware,product,xdate,license)
   sql         = "INSERT INTO clients (client,archtype,hardware,product,xdate,license) VALUES (%s,%s,%s,%s,%s,%s)"
   sendmsg("  *[DBWriter] Message trace_id: " + str(trace_id) + "\n")
