@@ -40,7 +40,7 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 <br>:heavy_check_mark: Generate a big scalability and security isolating each tasks in small actions/calls.
 <br>:heavy_check_mark: Avoid tech dependences or "human-tech dependence". Each human can enjoy his own Tech/Language  *(...No, no java, please!  :joy: )*.
 <br>:heavy_check_mark: The standard (input/output) will be  [JSON](https://www.json.org/json-en.html) because its an open standard and is easy to implement and easy to parse.
-<br>:heavy_check_mark: To manage version numbers I will use [Semantic Version](https://semver.org/)  
+<br>:heavy_check_mark: To manage version numbers I created a [Semantic Version GithubAction](https://github.com/marketplace/actions/genericsemanticversion)  
 
 
 ### Extra features 
@@ -48,6 +48,24 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 <br>:heavy_check_mark: <b>Vendor lock-in</b>: In my case, I prefer have a infrastructure can be used and implemented in any cloud provider that runs a kubernetes cluster, in an "on-premise" client environment or even in a development environment like my laptop.
 <br>:heavy_check_mark: <b>Vulnerability Scans</b>: Every time a Developer or SRE build a docker image must be scanned to find possible vulnerabilities. If it happen that image have to mark with different tag. [Vulnerability Scans](vuln_scans/) 
 <br><hr><br>
+
+
+
+### For automatic semantic release logic
+```mermaid
+graph LR
+    A(git push) --> B>GitHub Action]
+    B --> C[Get old version ]
+    C --> D[1.0.0]
+    B --> | git commit -m text: ...| E{Parse Trigger}
+    E --> |patch: ...| F((1.0.1))
+    E --> |minor: ...| G((1.1.0))
+    E --> |major: ...| H((2.0.0))
+    E --> |test: ... | I((1.0.0-wbp9lays))
+    E --> |alpine ...| J((1.0.0-alpine))
+
+```
+
 
 # Architecture design
 <br>
