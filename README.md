@@ -75,8 +75,8 @@ graph LR
 
 ### Json data model (example)
     {                                              /* Posible Inputs */ 
-    "client":"Client-01",                          /* Client Name / Identification */ 
-    "namespace":"Client-01",                       /* kubernetes namespace = client */
+    "client":"cliente02",                          /* Client Name / Identification */ 
+    "namespace":"cliente02",                       /* kubernetes namespace = client */
     "environment":"Development",                   /* Dev / Stage / Prod */
     "archtype":"SaaS",                             /* SaaS / Edge / On-Prem */
     "hardware":"Dedicated",                        /* Classic (No extra cost allocated) / Dedicated (Extra cost allocated) */
@@ -86,9 +86,9 @@ graph LR
         "Type": "String",     
         "Value": "mycompany.producer.event.client.published"   /* (Dinamic) Company.App.messageType.client.EventAction */
         }, 
-      "published_on": "2023.01.2.23.02.642883101", /* +%Y.%m.%d.%H.%M.%N */ 
-      "trace_id": "qegsTKASAb32Y761yGRpBrxE",      /* uniq random_string(40)  */
-      "retrace_intent": "0"                        /* how many reintents */
+      "published_on": "2023.01.2.23.02.642883101",         /* +%Y.%m.%d.%H.%M.%N */ 
+      "trace_id": "9a2ae9de-3f82-4f55-966b-47df50ff51ff",  /* uniq random string  */
+      "retrace_intent": "0"                                /* how many reintents */
       }, 
       "Metadata": { 
         "host": "hostname",                       /* microservice */
@@ -97,7 +97,15 @@ graph LR
       } 
     } 
 
+### TraceID from deployment workflow to pod annotations
 <br>
+<img src="img/client-pod-trace_id.png"> 
+
+_This trace_id is super usefull when you need to see the deployment trace, and then I use it like reference tag and/or annotations in pods.
+trace_id is generated on first api-call in deployment process and is allocated to all the pods. If you use grafana or similar you can trace all steps and associate it to deployment or even in each pod deployed with this process_
+
+
+<br><br>
 
 ### Producer (client portal)
 <br>
