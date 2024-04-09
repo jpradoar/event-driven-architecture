@@ -50,6 +50,10 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 <br><hr><br>
 
 
+### Workflow logic
+<br><img src="img/github-event-driven-architecture-workflow.png">
+
+<br>
 
 ### For automatic semantic release logic
 ```mermaid
