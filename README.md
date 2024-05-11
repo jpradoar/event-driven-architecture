@@ -132,6 +132,3 @@ trace_id is generated on first api-call in deployment process and is allocated t
 <br>
 <img src="img/slack-build-msg.png">
 <br>
-
-
-
