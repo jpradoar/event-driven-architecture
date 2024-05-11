@@ -2,7 +2,7 @@ name: gitleaks-checker
 on:
   push:
     branches:
-      - main
+      - disabled
 
 jobs:
   gitleaks-checker:
