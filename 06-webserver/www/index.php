@@ -1,53 +1,53 @@
 <?php
-  $db_host = getenv('MARIADB_HOST');
-  $db_name = getenv('MARIADB_DATABASE');
-  $db_user = getenv('MARIADB_USER');
-  $db_pass = getenv('MARIADB_PASSWORD');
-  try{
-    $db_con = new PDO("mysql:host={$db_host};dbname={$db_name}",$db_user,$db_pass);
-    $db_con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  }
-  catch(PDOException $e){
-    echo $e->getMessage();
-  }
-  $stmt = $db_con->prepare("SELECT * FROM clients");
-  $stmt->execute();
+$db_host = getenv('MARIADB_HOST');
+$db_name = getenv('MARIADB_DATABASE');
+$db_user = getenv('MARIADB_USER');
+$db_pass = getenv('MARIADB_PASSWORD');
+try{
+  $db_con = new PDO("mysql:host={$db_host};dbname={$db_name}",$db_user,$db_pass);
+  $db_con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+}
+catch(PDOException $e){
+  echo $e->getMessage();
+}
+$stmt = $db_con->prepare("SELECT * FROM clients");
+$stmt->execute();
 ?>  
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Database clients created by MQTT-Event</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-  body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-  }
-  .container {
-      max-width: 95%;
-      margin: 20px auto;
-      background-color: #e0e5e8;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-      padding: 20px;
-  }
-  table {
-      border-collapse: collapse;
-      margin: 25px 0;
-      font-family: Arial, sans-serif;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-  }
-  th, td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-  }
-  th {
-      background-color: #4CAF50;
-      color: white;
-  }
-</style>
+    <meta charset="UTF-8">
+    <title>Database clients created by MQTT-Event</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+        .container {
+            max-width: 95%;
+            margin: 20px auto;
+            background-color: #e0e5e8;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
