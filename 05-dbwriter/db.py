@@ -20,7 +20,7 @@ mqtthost    = str(os.environ.get('mqtthost'))
 mqttvhost   = str(os.environ.get('mqttvhost')) 
 mqttuser    = str(os.environ.get('mqttuser')) 
 mqttpass    = str(os.environ.get('mqttpass')) 
-mqttport    = os.environ.get('mqttport') #
+mqttport    = 5672
 queue       = str(os.environ.get('queue'))
 credentials = pika.PlainCredentials(mqttuser, mqttpass)
 parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials,connection_attempts=5, retry_delay=5)
