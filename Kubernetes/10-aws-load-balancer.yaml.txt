@@ -14,7 +14,7 @@ metadata:
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
     app.owner: 'jpradoar'
-    app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'  
+    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'  
     service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "environment=dev,owner=SRE,job=mqtt"
     service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
     service.beta.kubernetes.io/aws-load-balancer-type: nlb # (AWS NLB)
