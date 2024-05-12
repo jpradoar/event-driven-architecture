@@ -177,13 +177,13 @@ spec:
     spec:
       containers:
         - name: dbwriter
-          image: jpradoar/mqtt-dbwriter:1.1.1
+          image: jpradoar/mqtt-dbwriter:1.1.3
           imagePullPolicy: Always   
           env:
           - name: mqtthost
             value: "rabbitmq"
           #- name: mqttport
-          #  value: "1883"
+          #  value: "5672"
           - name: mqttvhost
             value: "/"
           - name: mqttuser
@@ -200,11 +200,11 @@ spec:
             value: "admin"
           - name: MARIADB_DATABASE
             value: "clients"             
-          volumeMounts:
-            - name: dbwriter-cm
-              mountPath: /app/
-      volumes:
-        #-------------------------        
-        - name: dbwriter-cm
-          configMap:
-            name: dbwriter-cm            
+      #     volumeMounts:
+      #       - name: dbwriter-cm
+      #         mountPath: /app/
+      # volumes:
+      #   #-------------------------        
+      #   - name: dbwriter-cm
+      #     configMap:
+      #       name: dbwriter-cm            

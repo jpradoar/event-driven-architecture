@@ -241,7 +241,7 @@ spec:
       serviceAccountName: consumer-sa
       containers:
         - name: consumer
-          image: jpradoar/mqtt-consumer:1.0.1
+          image: jpradoar/mqtt-consumer:1.1.2
           imagePullPolicy: Always
           env:
           - name: mqtthost
@@ -249,16 +249,16 @@ spec:
           - name: mqttvhost
             value: "/"
           - name: mqttuser
-            value: "admin" 
+            value: "Consumers" 
           - name: mqttpass
-            value: "admin" 
+            value: "Adm1n@P4s5W0rd._9" 
           - name: queue
             value: "infra"         
-          volumeMounts:
-            - name: consumer-cm
-              mountPath: /app/
-      volumes:
-        #-------------------------        
-        - name: consumer-cm
-          configMap:
-            name: consumer-cm
+      #     volumeMounts:
+      #       - name: consumer-cm
+      #         mountPath: /app/
+      # volumes:
+      #   #-------------------------        
+      #   - name: consumer-cm
+      #     configMap:
+      #       name: consumer-cm

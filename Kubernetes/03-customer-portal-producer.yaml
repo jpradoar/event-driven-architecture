@@ -199,7 +199,7 @@ spec:
     spec:
       containers:
         - name: producer
-          image: jpradoar/mqtt-producer:1.0.0
+          image: jpradoar/mqtt-producer:1.1.2-mod
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -220,11 +220,11 @@ spec:
             value: "infra"
           - name: destination_RK
             value: "infra"
-          volumeMounts:
-            - name: producer-cm
-              mountPath: /app/templates/
-      volumes:
-        #-------------------------        
-        - name: producer-cm
-          configMap:
-            name: producer-cm
+      #     volumeMounts:
+      #       - name: producer-cm
+      #         mountPath: /app/templates/
+      # volumes:
+      #   #-------------------------        
+      #   - name: producer-cm
+      #     configMap:
+      #       name: producer-cm

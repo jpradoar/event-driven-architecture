@@ -161,7 +161,7 @@ spec:
     spec:
       containers:
         - name: webserver
-          image: jpradoar/mqtt-webserver:2023.05
+          image: jpradoar/mqtt-webserver:1.1.1 #2023.05
           imagePullPolicy: Always
           ports:
             - containerPort: 80 
@@ -174,13 +174,13 @@ spec:
             value: "clients"        
           - name: MARIADB_HOST
             value: "mariadb"        
-          volumeMounts:
-            - name: webserver-cm
-              mountPath: /var/www/html
-      volumes:
-        #-------------------------        
-        - name: webserver-cm
-          configMap:
-            name: webserver-cm            
+      #     volumeMounts:
+      #       - name: webserver-cm
+      #         mountPath: /var/www/html
+      # volumes:
+      #   #-------------------------        
+      #   - name: webserver-cm
+      #     configMap:
+      #       name: webserver-cm            
 
 
