@@ -40,7 +40,7 @@ jobs:
       id: nversion
       run: |
         commit_message=$(git log --format=%B -n 1 ${{ github.sha }})
-        version=$(curl -s "https://hub.docker.com/v2/repositories/jpradoar/${{ env.REPO_APP }}/tags/?page_size=2" | jq -r '.results[].name'|sort -M|grep -v latest)
+        version=$(curl -s "https://hub.docker.com/v2/repositories/jpradoar/${{ env.REPO_APP }}/tags/?page_size=2" | jq -r '.results[].name'|sort -M|grep -v latest|sort -r|tail -1)
         X=$(echo $version|cut -d. -f1)
         Y=$(echo $version|cut -d. -f2)
         Z=$(echo $version|cut -d. -f3)
