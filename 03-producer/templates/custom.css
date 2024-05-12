@@ -1,110 +1,48 @@
 body {
-  font-family: Arial;
-  font-size: 17px;
-  padding: 8px;
+  font-family: Arial, sans-serif;
+  background-color: #35495e;
 }
-
-* {
-  box-sizing: border-box;
-}
-
-.row {
-  display: -ms-flexbox; /* IE10 */
-  display: flex;
-  -ms-flex-wrap: wrap; /* IE10 */
-  flex-wrap: wrap;
-  margin: 0 -16px;
-}
-
-.col-25 {
-  -ms-flex: 25%; /* IE10 */
-  flex: 25%;
-}
-
-.col-50 {
-  -ms-flex: 50%; /* IE10 */
-  flex: 50%;
-}
-
-.col-75 {
-  -ms-flex: 75%; /* IE10 */
-  flex: 75%;
-}
-
-.col-25,
-.col-50,
-.col-75 {
-  padding: 0 16px;
-}
-
 .container {
-  background-color: #f2f2f2;
-  padding: 5px 20px 15px 20px;
-  border: 1px solid lightgrey;
-  border-radius: 3px;
+  max-width: 40%;
+  margin: 5px auto;
+  background-color: #e0e5e8;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  padding: 20px;
 }
-
-input[type=text] {
-  width: 100%;
+.section {
   margin-bottom: 20px;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
 }
-
-.select {
-  width: 100%;
-  margin-bottom: 20px;
-  padding: 12px;
-
-}
-
-label {
+.section-header {
+  border-bottom: 1px solid #465b6c;
+  padding-bottom: 10px;
   margin-bottom: 10px;
+  cursor: pointer; /* Añadido para hacer el título clickeable */
+}
+.section-header h2 {
+  margin: 0;
+  text-align: center;
+}
+label {
+  font-weight: bold;
   display: block;
+  font-size: 12px; /* Reducido el tamaño de la fuente */
 }
-
-.icon-container {
-  margin-bottom: 20px;
-  padding: 7px 0;
-  font-size: 24px;
+input[type="text"],
+select {
+  width: 70%;
+  padding: 6px;
+  margin-bottom: 15px;
+  border: 1px solid #46637f;
+  border-radius: 5px;
 }
-
-.btn {
-  background-color: #04AA6D;
+input[type="submit"] {
+  background-color: #4CAF50;
   color: white;
-  padding: 12px;
-  margin: 10px 0;
   border: none;
-  width: 100%;
-  border-radius: 3px;
+  padding: 8px 16px; /* Reducido el padding */
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 17px;
-}
-
-.btn:hover {
-  background-color: #45a049;
-}
-
-a {
-  color: #2196F3;
-}
-
-hr {
-  border: 1px solid lightgrey;
-}
-
-span.price {
-  float: right;
-  color: grey;
-}
-
-/* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other (also change the direction - make the "cart" column go on top) */
-@media (max-width: 800px) {
-  .row {
-    flex-direction: column-reverse;
-  }
-  .col-25 {
-    margin-bottom: 20px;
-  }
+  font-size: 12px; /* Reducido el tamaño de la fuente */
+  transition: background-color 0.3s ease;
 }
