@@ -6,11 +6,11 @@
 :rocket:  <b> Build Status:
 <p></b>
 
-![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/producer-ci.yaml/badge.svg) 
-![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/consumer-ci.yaml/badge.svg)
-![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/dbwriter-ci.yaml/badge.svg) 
-![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/webserver-ci.yaml/badge.svg) 
-![](https://github.com/jpradoar/event-driven-infrastructure/actions/workflows/k8s-event-exporter-ci.yaml/badge.svg) 
+![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/producer-ci.yaml/badge.svg) 
+![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/consumer-ci.yaml/badge.svg)
+![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/dbwriter-ci.yaml/badge.svg) 
+![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/webserver-ci.yaml/badge.svg) 
+![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/k8s-event-exporter-ci.yaml/badge.svg) 
 </p>
 <hr>
 
