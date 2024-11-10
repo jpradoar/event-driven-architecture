@@ -74,10 +74,10 @@ jobs:
         output: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif'
         #exit-code: '1' 
        
-    - uses: EndBug/add-and-commit@v9
-      with:
-        message: 'AutoCommit: Add table file'
-        add: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif'
+    #- uses: EndBug/add-and-commit@v9
+    #  with:
+    #    message: 'AutoCommit: Add table file'
+    #    add: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.sarif'
         
  
     - name: Slack Notification
