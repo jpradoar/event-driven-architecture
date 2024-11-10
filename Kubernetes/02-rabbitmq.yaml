@@ -19,7 +19,7 @@ spec:
   ports:
     - name: http
       protocol: TCP     
-      port: 15672        
+      port: 8089 #15672        
       targetPort: 15672
     - name: admin
       protocol: TCP     
@@ -107,18 +107,22 @@ data:
         "users": [
           {"name": "admin",     "password_hash": "aiW2BXO5wmA0tfeYsjgoPcKhVOWe28hv9TXSfSi+B5CmKya8","hashing_algorithm": "rabbit_password_hashing_sha256","tags": ["administrator"],"limits": {} },
           {"name": "management","password_hash": "wQd8CIJgaSazRhLuPeqBJWSqMAG7AG/o376GCH2wCBIxwViA","hashing_algorithm": "rabbit_password_hashing_sha256","tags": ["management"]   ,"limits": {} },
-          {"name": "monitoring","password_hash": "bOcDZzNh7D7vNahqoN7WmTZ1J58LFGVss5tzbXcS5WZ9Emd6","hashing_algorithm": "rabbit_password_hashing_sha256","tags": ["monitoring"]   ,"limits": {} }
+          {"name": "monitoring","password_hash": "bOcDZzNh7D7vNahqoN7WmTZ1J58LFGVss5tzbXcS5WZ9Emd6","hashing_algorithm": "rabbit_password_hashing_sha256","tags": ["monitoring"]   ,"limits": {} },
+          {"name": "Consumers","password_hash": "kMDP/UM6mhZSSPXEZM+/8sbG+Nv0LEg+bkBgU59Hh+ntzAUv","hashing_algorithm": "rabbit_password_hashing_sha256","tags": ["administrator"]   ,"limits": {} }
+
         ],
         "vhosts": [
           {"name": "/"}
         ],
         "permissions": [
           {"user": "admin","vhost": "/","configure": ".*","write": ".*","read": ".*"},
+          {"user": "Consumers","vhost": "/","configure": ".*","write": ".*","read": ".*"},
           {"user": "monitoring","vhost": "/","configure": ".*","write": ".*","read": ".*"},
           {"user": "management","vhost": "/","configure": ".*","write": ".*","read": ".*"}
         ],
         "topic_permissions": [
           {"user": "management","vhost": "/","exchange": "","write": ".*","read": ".*"},
+          {"user": "Consumers","vhost": "/","exchange": "","write": ".*","read": ".*"},
           {"user": "monitoring","vhost": "/","exchange": "","write": ".*","read": ".*"}
         ],
         "parameters": [],

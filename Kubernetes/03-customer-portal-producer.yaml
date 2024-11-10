@@ -8,6 +8,7 @@ metadata:
     app: producer
     app.depends: rabbitmq     
     environment: development
+    app.business.client: 'client-001'
   annotations:
     prometheus.io/scrape: 'true'
     filter.by.port.name: 'true'
@@ -28,6 +29,150 @@ spec:
       port: 9090        
       targetPort: 9090
 
+
+##########################
+#
+# to make local test uncommet it
+#
+#########################
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata: 
+#   name: producer-cm
+#   namespace: default
+#   labels:
+#     app: producer
+#     environment: development
+#   annotations:
+#     app: producer
+#     app.business.client: 'client-001'
+#     app.mqtt.event.trigger: '1234567890'    
+# data:
+#   # /usr/share/nginx/html
+#   index.html: |-
+#       <!DOCTYPE html>
+#       <html>
+#       <head>
+#       <head>
+#       <meta name="viewport" content="width=device-width, initial-scale=1">
+#       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+#       <style type="text/css">
+#       body {
+#         font-family: Arial, sans-serif;
+#         background-color: #35495e;
+#       }
+#       .container {
+#         max-width: 40%;
+#         margin: 5px auto;
+#         background-color: #e0e5e8;
+#         border-radius: 8px;
+#         box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+#         padding: 20px;
+#       }
+#       .section {
+#         margin-bottom: 20px;
+#       }
+#       .section-header {
+#         border-bottom: 1px solid #465b6c;
+#         padding-bottom: 10px;
+#         margin-bottom: 10px;
+#         cursor: pointer; /* Añadido para hacer el título clickeable */
+#       }
+#       .section-header h2 {
+#         margin: 0;
+#         text-align: center;
+#       }
+#       label {
+#         font-weight: bold;
+#         display: block;
+#         font-size: 12px; /* Reducido el tamaño de la fuente */
+#       }
+#       input[type="text"],
+#       select {
+#         width: 70%;
+#         padding: 6px;
+#         margin-bottom: 15px;
+#         border: 1px solid #46637f;
+#         border-radius: 5px;
+#       }
+#       input[type="submit"] {
+#         background-color: #4CAF50;
+#         color: white;
+#         border: none;
+#         padding: 8px 16px; /* Reducido el padding */
+#         border-radius: 5px;
+#         cursor: pointer;
+#         font-size: 12px; /* Reducido el tamaño de la fuente */
+#         transition: background-color 0.3s ease;
+#       }
+#       </style>
+#       </head>
+#       <body>
+#       <div align="center">
+#       <h1>Event Driven Architecture</h1>
+#       </div>
+#       <div class="container">
+#           <form action="" method="post" class="" id="formulario" >
+#           <div align="center"><h3>Product</h3></div>
+#           <label for="client"><i class="fa fa-tag"></i> Client Name</label><input type="text" id="client" name="client" placeholder="" required="required">
+#           <label for="product"><i class="fa fa-archive"></i> Product</label><select id="product" name="product"  class="select">
+#               <option value="nginx">Product-A (nginx)</option>
+#               <option value="wordpress">Product-B (Wordpress)</option>
+#               <option value="grafana">Product-C (Grafana)</option>
+#               <option value="domoticz">Home Automation</option>
+#               </select>
+#           <label for="fname"><i class="fa fa-sitemap"></i> Environment</label><select id="environment" name="environment"  class="select">
+#                       <option value="development">Development</option>
+#                       <option value="stage">Stage</option>
+#                       <option value="production">Production</option>
+#                       </select>
+#               <label for="archtype"><i class="fa fa-cloud"></i> Architecture Type</label><select id="archtype" name="archtype" class="select">
+#                     <option value="saas">Software as a Service (SaaS)</option>
+#                     <option value="edge">Edge</option>
+#                     <option value="classic">Classic Old (Like On-Prem)</option>
+#                     </select>
+#               <label for="hardware"><i class="fa fa-cog"></i> Hardware</label><select id="hardware" name="hardware"  class="select">
+#                     <option value="shared">Hardware Classic (Shared - No extra cost allocated)</option>
+#                     <option value="dedicated">Hardware Dedicated (Extra cost allocated)</option>
+#                     </select>               
+#       </div>
+#       <div class="container">
+        
+#               <div align="center"><h3>Billing Address</h3></div>
+#               <label for="fname"><i class="fa fa-user"></i> Full Name</label><input type="text" id="fname" name="firstname" placeholder="Ned Flanders" >
+#               <label for="email"><i class="fa fa-envelope"></i> Email</label><input type="text" id="email" name="email" placeholder="nedf@businessmail.com" >
+#               <label for="adr"><i class="fa fa-address-card-o"></i> Address</label><input type="text" id="adr" name="address" placeholder="Avenida Siempreviva 744" >
+#               <label for="city"><i class="fa fa-institution"></i> City</label><input type="text" id="city" name="city" placeholder="Springfield" >
+#               <label for="state">State</label><input type="text" id="state" name="state" placeholder="LA" >
+#               <label for="zip">Zip</label><input type="text" id="zip" name="zip" placeholder="10001" >
+
+#               <div align="center">
+#                 <h3>Payment</h3>
+#                 <label for="fname">Accepted Cards</label>
+#                 <div class="icon-container">
+#                   <i class="fa fa-cc-visa" style="color:navy;"></i>
+#                   <i class="fa fa-cc-amex" style="color:blue;"></i>
+#                   <i class="fa fa-cc-mastercard" style="color:red;"></i>
+#                   <i class="fa fa-cc-discover" style="color:orange;"></i>
+#                 </div>
+#               </div>
+#               <label for="cardname">Name on Card</label><input type="text" id="cardname" name="cardname" placeholder="Ned Flanders" >
+#               <label for="cardnumber">Credit card number</label><input type="text" id="cardnumber" name="cardnumber" placeholder="1111-2222-3333-4444" >
+#               <label for="cardexpmonth">Exp Month</label><input type="text" id="cardexpmonth" name="cardexpmonth" placeholder="September" >
+#               <label for="cardexpyear">Exp Year</label><input type="text" id="cardexpyear" name="cardexpyear" placeholder="2050" >
+#               <label for="cardcvv">CVV</label>
+#               <input type="text" id="cardcvv" name="cardcvv" placeholder="666" >
+
+#           <input type="submit" value="Continue to checkout" class="btn">
+#         </form>
+#       </div>
+#       </body>
+#       </html>
+
+
+
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -46,7 +191,7 @@ metadata:
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
     app.owner: 'jpradoar'
-    app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/mqtt-producer/'   
+    #app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/mqtt-producer/'   
 spec:
   replicas: 1
   selector:
@@ -59,7 +204,7 @@ spec:
     spec:
       containers:
         - name: producer
-          image: jpradoar/mqtt-producer:2023.05
+          image: jpradoar/mqtt-producer:1.1.2-mod
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -69,9 +214,9 @@ spec:
           - name: mqttvhost
             value: "/"
           - name: mqttuser
-            value: "admin" 
+            value: "Consumers" 
           - name: mqttpass
-            value: "admin" 
+            value: "Adm1n@P4s5W0rd._9" 
           - name: queue
             value: "infra"
           - name: mqttport
@@ -80,3 +225,16 @@ spec:
             value: "infra"
           - name: destination_RK
             value: "infra"
+##########################
+#
+# to make local test uncommet it
+#
+#########################            
+      #     volumeMounts:
+      #       - name: producer-cm
+      #         mountPath: /app/templates/
+      # volumes:
+      #   #-------------------------        
+      #   - name: producer-cm
+      #     configMap:
+      #       name: producer-cm

@@ -1,0 +1,85 @@
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: customerportal
+#   labels:
+#     app: {{ .Release.Name }}-customerportal
+#     environment: {{ .Values.environment }}
+#     app.business.client: {{ .Values.ClientName }}
+#   annotations:
+#     prometheus.io/scrape: "true"
+#     prometheus.io/path: "/metrics"
+#     prometheus.io/port: "9090"    
+#     filter.by.port.name: "true"
+#     app: {{ .Release.Name }}-customerportal
+#     app.depends: {{ .Release.Name }}-rabbitmq   
+#     app.business.client: {{ .Values.ClientName }}
+#     app.mqtt.event.trigger: {{ .Values.traceID }}
+# spec:
+#   selector:
+#     app: {{ .Release.Name }}-customerportal
+#   ports:
+#     - name: http
+#       protocol: TCP     
+#       port: 8081        
+#       targetPort: 80
+#     - name: monitoring
+#       protocol: TCP     
+#       port: 9090        
+#       targetPort: 9090
+
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: customerportal
+#   labels:
+#     app: {{ .Release.Name }}-customerportal
+#     environment: {{ .Values.environment }}
+#     app.business.client: {{ .Values.ClientName }}
+#   annotations:
+#     prometheus.io/scrape: "true"
+#     prometheus.io/path: "/metrics"
+#     prometheus.io/port: "9090"    
+#     filter.by.port.name: "true"
+#     app: {{ .Release.Name }}-customerportal
+#     app.depends: {{ .Release.Name }}-rabbitmq   
+#     app.business.client: {{ .Values.ClientName }}
+#     app.mqtt.event.trigger: {{ .Values.traceID }}
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: {{ .Release.Name }}-customerportal
+#   template:
+#     metadata:
+#       labels:
+#         app: {{ .Release.Name }}-customerportal
+#         environment: {{ .Values.environment }}
+#         app.business.client: {{ .Values.ClientName }}
+#     spec:
+#       containers:
+#         - name: {{ .Release.Name }}-customerportal
+#           image: {{ .Values.customerportal.image }}:{{ .Values.customerportal.tag }}
+#           imagePullPolicy: {{ .Values.customerportal.imagePullPolicy }}
+#           ports:
+#             - containerPort: 80
+#           env:
+#           - name: mqtthost
+#             value: {{ .Release.Name }}-rabbitmq
+#           - name: mqttvhost
+#             value: {{ .Values.rabbitmq.configs.mqttvhost }}
+#           - name: queue
+#             value: {{ .Values.rabbitmq.configs.queue }}
+#           - name: destination_queue
+#             value: {{ .Values.rabbitmq.configs.destination_queue }}
+#           - name: destination_RK
+#             value: {{ .Values.rabbitmq.configs.destination_rk }}
+#           - name: mqttuser
+#             value: {{ .Values.rabbitmq.auth.username }}
+#           - name: mqttpass
+#             valueFrom:
+#               secretKeyRef:
+#                 name: {{ .Release.Name }}-rabbitmq
+#                 key: rabbitmq-password  

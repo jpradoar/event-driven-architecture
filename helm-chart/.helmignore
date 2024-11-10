@@ -21,3 +21,6 @@
 .idea/
 *.tmproj
 .vscode/
+
+# In test
+02-customer-portal.yaml

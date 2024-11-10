@@ -13,23 +13,23 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 # PROMETHEUS
 metric_info     = Info('dbwriter_version', 'build version of dbwriter')
-metrics_port    = 9090
+metrics_port    = 9090 
 
 # RABBIT
-mqtthost    = os.environ.get('mqtthost') #"rabbitmq" 
-mqttvhost   = os.environ.get('mqttvhost') #"/"
-mqttuser    = os.environ.get('mqttuser') #"admin"
-mqttpass    = os.environ.get('mqttpass') #"admin"
-mqttport    = os.environ.get('mqttport') #
-queue       = os.environ.get('queue') #"clients"
+mqtthost    = str(os.environ.get('mqtthost'))  
+mqttvhost   = str(os.environ.get('mqttvhost')) 
+mqttuser    = str(os.environ.get('mqttuser')) 
+mqttpass    = str(os.environ.get('mqttpass')) 
+mqttport    = os.environ.get('mqttport')
+queue       = str(os.environ.get('queue'))
 credentials = pika.PlainCredentials(mqttuser, mqttpass)
 parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials,connection_attempts=5, retry_delay=5)
 
 # DATABASE
-mysql_host  = os.environ.get('mysql_host') #"mariadb"  
-mysql_user  = os.environ.get('mysql_user') #"admin"
-mysql_pass  = os.environ.get('mysql_pass') #"admin"
-mysql_db    = os.environ.get('mysql_db')   #"clients"
+mysql_host  = os.environ.get('MARIADB_HOST')      # "mariadb"  
+mysql_user  = os.environ.get('MARIADB_USER')      # "admin"
+mysql_pass  = os.environ.get('MARIADB_PASSWORD')  # "admin"
+mysql_db    = os.environ.get('MARIADB_DATABASE')  # "clients"
 
 # TIEMPO
 now         = datetime.datetime.now()
@@ -49,10 +49,10 @@ def WriteDB(sql,val):
   db          = connector.cursor()
   db.execute(sql,val)
   connector.commit()
-  sendmsg("  *[DBWriter] One record was inserted, RecordID:"+ str(db.lastrowid))
+  sendmsg("-   *[DBWriter] One record was inserted, RecordID:"+ str(db.lastrowid))
   db.close()
   connector.close()
-  sendmsg("  *[DBWriter] Waiting messages in Queue: [ "+ queue +" ] ")  
+  sendmsg("-   *[DBWriter] Waiting messages in Queue: [ "+ queue +" ] ")  
 
 # Función principal encargada de conectarse al MQTT Server, esperar mensajes y actuar en base al mensaje recibido.
 def main():
@@ -64,7 +64,7 @@ def main():
   def callback(ch, method, properties, body):
       parseMsg(body.decode("utf-8"))
 
-  sendmsg("  *[DBWriter] Started and connected to Queue: [ "+ queue +" ] ")
+  sendmsg("-   *[DBWriter] Started and connected to Queue: [ "+ queue +" ] ")
   channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=True)
   start_http_server(metrics_port)
   metrics_info()
@@ -82,8 +82,10 @@ def parseMsg(data):
   product     = data['product']
   xdate       = dateformat
   license     = 'OpenSource'
+  trace_id    = data['MessageAttributes']['trace_id']
   val         = (client,archtype,hardware,product,xdate,license)
   sql         = "INSERT INTO clients (client,archtype,hardware,product,xdate,license) VALUES (%s,%s,%s,%s,%s,%s)"
+  sendmsg("-   *[DBWriter] Message trace_id: " + str(trace_id) + "\n")
   WriteDB(sql,val)
 
 # En general cuando uso docker-compose o kubernetes suele pasar que este servicio levanta antes que Rabbit.
@@ -95,7 +97,7 @@ def validateMQTTConnection():
           channel = connection.channel()
           break
       except pika.exceptions.AMQPConnectionError:
-          sendmsg("  *[DBWriter] No se puede conectar a RabbitMQ, esperando 5 segundos para reconectar...")
+          sendmsg("-   *[DBWriter] No se puede conectar a RabbitMQ, esperando 5 segundos para reconectar...")
           time.sleep(5)      
 
 if __name__ == '__main__':    

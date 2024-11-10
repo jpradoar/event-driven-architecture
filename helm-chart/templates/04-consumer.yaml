@@ -1,26 +1,21 @@
----
 apiVersion: v1
 kind: Service
 metadata:
   name: consumer
   labels:
     app: {{ .Release.Name }}-consumer
-    app.depends: {{ .Release.Name }}-rabbitmq
-    environment: {{ .Values.environment }}
     app.business.client: {{ .Values.ClientName }}
+    environment: {{ .Values.environment }}
   annotations:
     prometheus.io/scrape: 'true'
     filter.by.port.name: 'true'
-    app: {{ .Release.Name }}-consumer
-    app.depends: {{ .Release.Name }}-rabbitmq
-    app.mqtt.event.trigger: {{ .Values.traceID }}    
 spec:
   selector:
     app: {{ .Release.Name }}-consumer
   ports:
     - name: metrics
       protocol: TCP     
-      port: 9090 
+      port: 9090
 
 ---
 apiVersion: v1
@@ -60,29 +55,19 @@ metadata:
   labels:
     app: {{ .Release.Name }}-consumer
     app.depends: {{ .Release.Name }}-rabbitmq
+    app.business.client: {{ .Values.ClientName }}
     environment: {{ .Values.environment }}
-    app.business.client: {{ .Values.ClientName }}
-  annotations:
-    prometheus.io/scrape: 'true'
-    app: {{ .Release.Name }}-consumer
-    app.depends: {{ .Release.Name }}-rabbitmq
-    app.business.client: {{ .Values.ClientName }}
-    app.mqtt.event.trigger: {{ .Values.traceID }}    
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-consumer
-      environment: {{ .Values.environment }}
-      app.business.client: {{ .Values.ClientName }}      
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}-consumer
-        app.version: {{ .Values.consumer.image }}:{{ .Values.consumer.tag }}
         app.depends: {{ .Release.Name }}-rabbitmq
-        environment: {{ .Values.environment }}
-        app.business.client: {{ .Values.ClientName }}        
+        environment: {{ .Values.environment }}    
     spec:
       serviceAccountName: {{ .Release.Name }}-consumer-sa
       containers:
@@ -93,13 +78,29 @@ spec:
           - name: mqtthost
             value: {{ .Release.Name }}-rabbitmq
           - name: mqttvhost
-            value: "/"
+            value: {{ .Values.rabbitmq.configs.mqttvhost }}
           - name: queue
-            value: "infra"     
+            value: {{ .Values.rabbitmq.configs.queue }}
+          - name: destination_queue
+            value: {{ .Values.rabbitmq.configs.destination_queue }}
+          - name: destination_RK
+            value: {{ .Values.rabbitmq.configs.destination_rk }}
           - name: mqttuser
-            value: "admin"       
+            value: {{ .Values.rabbitmq.auth.username }}
           - name: mqttpass
             valueFrom:
               secretKeyRef:
                 name: {{ .Release.Name }}-rabbitmq
-                key: rabbitmq-password            
+                key: rabbitmq-password           
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 15
+            periodSeconds: 5                     

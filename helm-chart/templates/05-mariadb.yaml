@@ -13,7 +13,7 @@ metadata:
     app.mqtt.event.trigger: {{ .Values.traceID }}
 spec:
   selector:
-    app: mariadb
+    app: {{ .Release.Name }}-mariadb
   ports:
     - name: http
       protocol: TCP     
@@ -62,6 +62,10 @@ data:
         `password` varchar(50) NOT NULL,
         PRIMARY KEY (`id_usuario`)
       ) ENGINE=InnoDB DEFAULT CHARSET=ascii COLLATE=ascii_general_ci;
+      #USE `clients`;
+      #INSERT INTO `clients` (`client`, `archtype`, `hardware`, `product`, `xdate`, `license`)
+      #VALUES ('demo', 'Tipo1', 'Hardware1', 'Producto1', '2023-01-01', 'Licencia1');
+
 
 ---
 apiVersion: apps/v1
@@ -70,24 +74,19 @@ metadata:
   name: mariadb
   labels:
     app: {{ .Release.Name }}-mariadb
-    environment: {{ .Values.environment }}
     app.business.client: {{ .Values.ClientName }}
-  annotations:
-    prometheus.io/scrape: 'true'
-    app.mqtt.event.trigger: {{ .Values.traceID }}
+    environment: {{ .Values.environment }}
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-mariadb
-      environment: {{ .Values.environment }}
-      app.business.client: {{ .Values.ClientName }}   
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}-mariadb
-        environment: {{ .Values.environment }}
         app.business.client: {{ .Values.ClientName }}
+        environment: {{ .Values.environment }}
       annotations:
         prometheus.io/scrape: 'true'
         app.version: {{ .Values.mariadb.image }}:{{ .Values.mariadb.tag }}
@@ -98,19 +97,18 @@ spec:
         - name: mariadb
           image: {{ .Values.mariadb.image }}:{{ .Values.mariadb.tag }}
           imagePullPolicy: {{ .Values.mariadb.imagePullPolicy }}
-          env:
+          ports:
+            - containerPort: 3306           
+          env:            
           - name: MARIADB_DATABASE
-            value: "clients"    
+            value: {{ .Values.mariadb.config.database_name }}
           - name: MARIADB_ROOT_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: {{ .Release.Name }}-infra-secrets
                 key: mariadb_root_password
           - name: MARIADB_USER
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-infra-secrets
-                key: mariadb_username
+            value: "admin"
           - name: MARIADB_PASSWORD
             valueFrom:
               secretKeyRef:

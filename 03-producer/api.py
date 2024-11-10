@@ -52,7 +52,7 @@ def check_auth(username, password):
   return username == "admin" and password == "admin"
 
 def not_authenticate():
-  logging.error("  *[Producer] Login Failed")
+  logging.error("-   *[Producer] Login Failed")
   return Response('Login fail: User and/or Password are wrong!\n', 401,  {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 # Util si quiero que tenga que validar para acceder a algun recurso (como por ejemplo el formulario)
@@ -64,6 +64,12 @@ def requires_auth(f):
           return not_authenticate()
       return f(*args, **kwargs)
   return decorated
+
+
+# Ruta para servir el favicon.ico y no muestre el error de 404 en los logs
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
 
 # Si es un GET esta accediendo al formulario para crear un nuevo recurso
 # Si es un POST capturo la data del formulario y genero un json para enviarlo a una cola de RabbitMQ
@@ -101,7 +107,7 @@ def my_form():
         } \
       }'   
       send_mqtt_msg(destination_queue, destination_RK, data)  
-      sendmsg("  *[Producer] " + data)  
+      sendmsg("-   *[Producer] " + data)  
       msginfo='{"client":"'+client+'","status":"Provisioning","product":"'+product+'"}'
       send_mqtt_msg("event-status", "event-status", msginfo)
 
@@ -121,7 +127,7 @@ def send_mqtt_msg(queue, routing_key, data):
   channel.queue_declare(queue=queue, durable=True)
   channel.basic_publish(exchange='', routing_key=routing_key, body=data)
   connection.close() 
-  sendmsg('  *[Producer] Data sent to queue: '+queue)
+  sendmsg('-   *[Producer] Data sent mqtt message to queue: '+queue)
 
 
 # Funcion para exponer metricas custom de esta app.
@@ -132,7 +138,7 @@ def monitoring():
 
 
 def main():
-  sendmsg('  *[Producer] Started')
+  sendmsg('-   *[Producer] Started')
   app.run(host='0.0.0.0', port=5000, debug=False)
   
 

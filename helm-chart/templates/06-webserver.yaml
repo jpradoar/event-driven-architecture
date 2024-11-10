@@ -5,18 +5,15 @@ metadata:
   name: webserver
   labels:
     app: {{ .Release.Name }}-webserver
-    environment: {{ .Values.environment }}
     app.business.client: {{ .Values.ClientName }}
-  annotations:
-    prometheus.io/scrape: 'true'
-    app.mqtt.event.trigger: {{ .Values.traceID }}
+    environment: {{ .Values.environment }}
 spec:
   selector:
-    app: webserver
+    app: {{ .Release.Name }}-webserver  
   ports:
     - name: http
       protocol: TCP     
-      port: 8080
+      port: 80
       targetPort: 80
 
 ---
@@ -26,8 +23,8 @@ metadata:
   name: webserver
   labels:
     app: {{ .Release.Name }}-webserver
-    environment: {{ .Values.environment }}
     app.business.client: {{ .Values.ClientName }}
+    environment: {{ .Values.environment }}
   annotations:
     prometheus.io/scrape: 'true'
     app.mqtt.event.trigger: {{ .Values.traceID }}   
@@ -36,14 +33,12 @@ spec:
   selector:
     matchLabels:
       app: {{ .Release.Name }}-webserver
-      environment: {{ .Values.environment }}
-      app.business.client: {{ .Values.ClientName }}
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}-webserver
-        environment: {{ .Values.environment }}
         app.business.client: {{ .Values.ClientName }}
+        environment: {{ .Values.environment }}
       annotations:
         app.version: {{ .Values.webserver.image }}:{{ .Values.webserver.tag }}
         app.mqtt.event.trigger: {{ .Values.traceID }}      
@@ -55,3 +50,20 @@ spec:
           imagePullPolicy: {{ .Values.webserver.imagePullPolicy }}
           ports:
             - containerPort: 80          
+          env: 
+          - name: MARIADB_HOST
+            value: "mariadb"
+          - name: MARIADB_DATABASE
+            value: {{ .Values.mariadb.config.database_name }}
+          - name: MARIADB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_root_password
+          - name: MARIADB_USER
+            value: "admin"
+          - name: MARIADB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-infra-secrets
+                key: mariadb_password  

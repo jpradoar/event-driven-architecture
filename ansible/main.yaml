@@ -1,0 +1,167 @@
+---
+- name: Deploy EDA Demo
+  hosts: all
+  become: true
+  become_method: sudo
+  become_user: admin
+
+  vars:
+    OS_USER: 'admin'
+    GIT_BRANCH: 'development'
+
+
+  tasks:
+
+      - name: apt update
+        ansible.builtin.shell: |
+            sudo apt-get update 
+            sudo apt-get install -y wget curl snapd git kubecolor
+        args:
+          executable: /bin/bash
+
+      #--------------------------
+      # Pending to migrate a community.general.snap
+      #--------------------------
+      - name: Install microk8s and kubectl
+        ansible.builtin.shell: |
+            sudo snap install microk8s --classic
+            sudo snap install kubectl --classic
+        args:
+          executable: /bin/bash
+
+      - name: usermod microk8s
+        ansible.builtin.shell: |
+            sudo usermod -a -G microk8s {{ OS_USER }}
+            mkdir -p /home/{{ OS_USER }}/.kube
+        args:
+          executable: /bin/bash
+
+      - name: chown microk8s
+        ansible.builtin.shell: |
+            sudo chown -f -R {{ OS_USER }}:{{ OS_USER }} /home/{{ OS_USER }}/.kube
+        args:
+          executable: /bin/bash
+
+      - name: enable storage
+        ansible.builtin.shell: |
+            sudo /snap/bin/microk8s enable storage
+        args:
+          executable: /bin/bash
+
+      - name: enable hostpath-storage
+        ansible.builtin.shell: |
+            sudo /snap/bin/microk8s enable hostpath-storage
+        args:
+          executable: /bin/bash
+
+      - name: enable helm
+        ansible.builtin.shell: |
+            sudo /snap/bin/microk8s enable helm
+        args:
+          executable: /bin/bash
+
+      - name: Configure kubeconfig
+        ansible.builtin.shell: |
+            sudo /snap/bin/microk8s config > /home/{{ OS_USER }}/.kube/config
+        args:
+          executable: /bin/bash
+
+      - name: chown kube
+        ansible.builtin.shell: |
+            sudo chown -R {{ OS_USER }}:{{ OS_USER }} /home/{{ OS_USER }}/.kube
+        args:
+          executable: /bin/bash
+
+      - name: Configure kubecolor
+        ansible.builtin.shell: |
+            echo 'alias kubectl="kubecolor"' >>  /home/{{ OS_USER }}/.bashrc
+        args:
+          executable: /bin/bash            
+
+      - name: install helm
+        ansible.builtin.shell: |
+            curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+            chmod 700 get_helm.sh
+            ./get_helm.sh
+        args:
+          executable: /bin/bash
+
+      - name: clone repo EDA
+        ansible.builtin.shell: |
+            rm -rf event-driven-architecture; git clone https://github.com/jpradoar/event-driven-architecture.git -b {{ GIT_BRANCH }}
+        args:
+          executable: /bin/bash
+
+      # - name: Deploy EDA stack
+      #   ansible.builtin.shell: |
+      #       helm upgrade -i --create-namespace -n default mqtt test-borrar/helm-chart/
+      #   args:
+      #     executable: /bin/bash
+
+      # - name: Copy helm chart
+      #   ansible.builtin.copy:
+      #     src: ../helm-chart
+      #     dest: /home/{{ OS_USER }} 
+
+      - name: Deploy EDA stack
+        ansible.builtin.shell: |
+            helm upgrade -i --create-namespace -n default mqtt /home/{{ OS_USER }}/event-driven-architecture/helm-chart
+        args:
+          executable: /bin/bash
+            
+      - name: monitoring helm repo add grafana
+        ansible.builtin.shell: |
+            helm repo add grafana https://grafana.github.io/helm-charts
+        args:
+          executable: /bin/bash
+
+      - name: monitoring helm repo add prometheus
+        ansible.builtin.shell: |
+            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        args:
+          executable: /bin/bash
+
+      - name: helm repo update
+        ansible.builtin.shell: |
+            helm repo update
+        args:
+          executable: /bin/bash
+
+      - name: monitoring install loki
+        ansible.builtin.shell: |
+            helm install --create-namespace -n monitoring loki grafana/loki-stack --set loki.image.tag=2.9.1
+        args:
+          executable: /bin/bash
+
+      - name: monitoring install prometheus
+        ansible.builtin.shell: |
+            helm install --create-namespace -n monitoring prometheus prometheus-community/prometheus
+        args:
+          executable: /bin/bash
+
+      - name: monitoring install grafana
+        ansible.builtin.shell: |
+            helm install --create-namespace -n monitoring grafana grafana/grafana -f https://raw.githubusercontent.com/jpradoar/test/refs/heads/main/grafana-values.yaml
+        args:
+          executable: /bin/bash
+
+
+      - name: port-forward script
+        ansible.builtin.shell: |
+          echo "kubectl port-forward --address 0.0.0.0 deployment/producer 5000:5000 & " > /home/admin/svc.run
+          echo "kubectl port-forward --address 0.0.0.0 service/webserver 8080:80 & " >> /home/admin/svc.run
+          echo "kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 & " >> /home/admin/svc.run
+          chmod +x /home/admin/svc.run
+        args:
+          executable: /bin/bash
+
+
+
+      - name: Enviar notificación a Slack
+        uri:
+          url: "{{ lookup('env', 'SLACK_WEBHOOK') }}" # Esto está en mi .bashrc o haciendo un export SLACK_WEBHOOK="...."
+          method: POST
+          headers:
+            Content-Type: "application/json"
+          body: '{"text":"Deployment finished, infrastructure will be ready in a few minutes..."}'
+          body_format: json

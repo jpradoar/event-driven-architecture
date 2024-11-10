@@ -1,0 +1,88 @@
+name: Customer-portal-CI  
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '02-customer-portal/**'
+      - '.github/workflows/customer-portal-ci.yaml'
+
+env:
+  REPO_APP: 'mqtt-customer-portal'
+  SLACK_CHANNEL: 'builds-and-ci'
+  SLACK_MSG_COLOR: '#0092ff'
+  BUILD_CONTEXT: './02-customer-portal'
+  VULN_SEVERITY: 'CRITICAL'
+  VULN_TIMEOUT_SCAN: '2m0s'
+  VULN_OUTPUT_TYPE: 'table'
+  VULN_OUTPUT_FILE: 'mqtt-customer-portal_vuln_scan.txt'
+  COMMITER_NAME: 'AutoCommit'
+
+jobs:
+  Customer-portal-CI_build-docker-image:
+    runs-on: ubuntu-latest 
+    
+    steps:
+     
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+
+    - name: Show last version of docker-hub image
+      id: last_version_remote_file
+      run: |
+        LastVersion=$(curl -s "https://hub.docker.com/v2/repositories/jpradoar/${{ env.REPO_APP }}/tags/?page_size=2" | jq -r '.results[].name'|sort -M|grep -v latest)
+        echo "LAST_VERSION=$LastVersion " >> "$GITHUB_OUTPUT"
+
+
+    - name: Generate new version with semantic version
+      id: nversion
+      uses: jpradoar/ga-semanticversion@v1.0.0
+      with:
+        COMMIT_MSG:  ${{ github.event.head_commit.message }}
+        VERSION: ${{ steps.last_version_remote_file.outputs.LAST_VERSION }}
+
+
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: ${{ env.BUILD_CONTEXT }}
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}
+        
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
+        hide-progress: true
+        format: 'table'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: ${{ env.VULN_SEVERITY }}
+        #exit-code: '1'         
+
+    # - uses: EndBug/add-and-commit@v9
+    #   with:
+    #     message: 'AutoCommit: Add table file'
+    #     add: ./vuln_scans/${{ env.VULN_OUTPUT_FILE }}
+    #     committer_name: ${{ env.COMMITER_NAME }}     
+
+    - name: Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
+        SLACK_COLOR: ${{ env.SLACK_MSG_COLOR }}
+        SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}'
+        SLACK_TITLE: ':rocket: GithubAction Build docker image: [ ${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }} ]'
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }} 

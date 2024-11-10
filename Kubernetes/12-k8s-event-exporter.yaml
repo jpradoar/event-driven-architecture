@@ -4,6 +4,8 @@ kind: ServiceAccount
 metadata:
   name: k8s-event-exporter-sa
   namespace: default
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::123456789:role/AccessToAwsResources
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -44,8 +46,6 @@ metadata:
     app: k8s-event-exporter
     app.business.client: 'client-001'
     app.mqtt.event.trigger: '1234567890'    
-    app.owner: 'jpradoar'
-    app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/'   
 spec:
   replicas: 1
   selector:
@@ -61,7 +61,7 @@ spec:
       serviceAccountName: k8s-event-exporter-sa
       containers:
       - name: k8s-event-exporter
-        image: jpradoar/k8s-event-exporter:2023.05
+        image: jpradoar/k8s-event-exporter:1.0.0
         imagePullPolicy: Always     
 #-----------------------------------------          
         resources:

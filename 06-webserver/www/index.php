@@ -1,8 +1,8 @@
 <?php
-$db_host = "mariadb";
-$db_name = "clients";
-$db_user = "admin";
-$db_pass = "admin";
+$db_host = getenv('MARIADB_HOST');
+$db_name = getenv('MARIADB_DATABASE');
+$db_user = getenv('MARIADB_USER');
+$db_pass = getenv('MARIADB_PASSWORD');
 try{
   $db_con = new PDO("mysql:host={$db_host};dbname={$db_name}",$db_user,$db_pass);
   $db_con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

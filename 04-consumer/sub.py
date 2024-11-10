@@ -14,7 +14,7 @@ metric_info     = Info('consumer_version', 'build version of consumer')
 metrics_port    = 9090
 
 mqtthost    = os.environ.get('mqtthost')  #"rabbitmq"
-mqttvhost   = os.environ.get('mqttvhost')  #"/"
+mqttvhost   = os.environ.get('mqttvhost') #"/"
 mqttuser    = os.environ.get('mqttuser')  #"admin"
 mqttpass    = os.environ.get('mqttpass')  #"admin"
 mqttport    = 5672
@@ -40,13 +40,13 @@ def sendmsg(message):
 # Esta funcion es la que se encarga de enviar el mensaje a la cola para que el DBWriter agregue el cliente a la DB de clientes.
 # recibe los parametros filtrados del JSON original que envio la api customer-portal y genera un nuevo JSON que lo envia a la cola de clientes
 # donde será utilizado para escribir dicha data en la DB
-def WriteDB(client,archtype,hardware,product):     
-  message = "  *[Consumer] Send messaje to dbwriter to create new user in DBCLIENTS: [" + client + "] "
+def WriteDB(client,archtype,hardware,product,trace_id):     
+  message = "-   *[Consumer] Send messaje to dbwriter to create new user in DBCLIENTS: [" + client + "] "
   sendmsg(message)
-  #channel.queue_declare(queue='clients', durable=True)
+  channel.queue_declare(queue='clients', durable=True)
   data = '{"client": "'+client+'","archtype": "'+archtype+'","hardware": "'+hardware+'","product": "'+product+'"}'
   channel.basic_publish(exchange='', routing_key='clients', body=data)
-  sendmsg("  *[Consumer] " + data)    
+  sendmsg("-   *[Consumer] publish " + data)    
 
 # Esta funcion recibe el environment donde se va a deployar, el namespace y el nombre del cliente
 # Con todo eso genera un namespace y deploya el cliente.
@@ -54,13 +54,16 @@ def WriteDB(client,archtype,hardware,product):
 # Idealmente deberia ser otra api o proceso que ejecute esto pero a fines de la demo funciona bien como ejemplo. 
 def executeDeployment(environment,client,product):
   #
-  # Esta parte se ve fea, pero es solo para la demo. 
+  # Esta parte se ve fea, pero es solo para la demo 
+  # y para no publicar codigo propietario use directamente el subprocess.
+  # A fines practicos la funcionalidad es la misma.
   # 
   subprocess.run("helm repo add bitnami https://charts.bitnami.com/bitnami", shell=True)
-  sendmsg("  *[Consumer] [run]  helm upgrade -i -n "+client+" --create-namespace "+client+"  bitnami/"+product+" ")
-  subprocess.run("helm upgrade -i -n mqtt-poc --create-namespace "+client+" bitnami/"+product+" ", shell=True)
+  sendmsg("-   *[Consumer] [run]  Deployment for "+client+" with product "+product+" ")
+  #subprocess.run("helm upgrade -i -n mqtt-poc --create-namespace "+client+" bitnami/"+product+" ", shell=True)
+  subprocess.run("helm upgrade -i -n mqtt-poc --create-namespace "+client+" bitnami/"+product+" --set podAnnotations.trace_id="+trace_id+",podAnnotations.client="+client+",podLabels.trace_id="+trace_id+",podLabels.trace_id="+trace_id+" ", shell=True)
   time.sleep(3)  # Los sleep solo los uso para que en la demo se vea con un poco de delay
-  sendmsg("  *[Consumer] [DEPLOYMENT] client: [" + client + "] DONE" )
+  sendmsg("-   *[Consumer] deployment client: [" + client + "] DONE" )
 
 # Envio un mensaje a la cola de Status para declarar que el proceso termino.
 # Esta cola la podria usar para mostrarle al cliente el estado de su deployment en tiempo real. 
@@ -68,7 +71,7 @@ def finish_message(client):
   channel.queue_declare(queue='event-status', durable=True)
   data = '{"client": "'+client+'","Status": "Finished"}'
   channel.basic_publish(exchange='', routing_key='event-status', body=data)
-  message = "  *[Consumer] [DONE] Message event-status: [" + data + "] sent to queue: [event-status]"
+  message = "-   *[Consumer] [done] Message event-status: [" + data + "] sent to queue: [event-status]"
   sendmsg(message)
 
 # El mensaje que debe recibir es un json similar a esto:  {"client":"ClientX", "namespace": "ClientX", "environment": "development"}
@@ -77,12 +80,12 @@ def parseMsg(data):
   client      = data['client']
   namespace   = data['namespace']
   product     = data['product']
-  environment     = data['environment']
+  environment = data['environment']
   archtype    = data['archtype']
   hardware    = data['hardware']
   trace_id    = data['MessageAttributes']['trace_id']
-  sendmsg("  *[Consumer] Message: " + str(data) + "\n")
-  sendmsg("  *[Consumer] Message trace_id: " + str(trace_id) + "\n")
+  sendmsg("-   *[Consumer] Message: " + str(data) + "\n")
+  sendmsg("-   *[Consumer] Message trace_id: " + str(trace_id) + "\n")
   time.sleep (1)
   WriteDB(client,archtype,hardware,product)
   time.sleep (1)
@@ -95,9 +98,9 @@ def callback(ch, method, properties, body):
 
 
 def main():
-  sendmsg("  *[Consumer] Queue [" + queue + "] ")
+  sendmsg("-   *[Consumer] Queue [" + queue + "] ")
   channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=True)
-  sendmsg("  *[Consumer] Waiting messages in Queue: [ "+ queue +" ] ")
+  sendmsg("-   *[Consumer] Waiting messages in Queue: [ "+ queue +" ] ")
   start_http_server(metrics_port)
   metrics_info()
   channel.start_consuming()

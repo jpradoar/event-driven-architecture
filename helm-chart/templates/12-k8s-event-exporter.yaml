@@ -3,6 +3,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: k8s-event-exporter-sa
+  annotations:
+    eks.amazonaws.com/role-arn: {{ .Values.eventexporter.aws_arn }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -37,36 +39,26 @@ metadata:
   namespace: default
   labels:
     app: {{ .Release.Name }}-event-exporter
-    environment: {{ .Values.environment }}
-    app.business.client: {{ .Values.ClientName }}
+    app.depends: metrics-server
   annotations:
     prometheus.io/scrape: 'true'
-    app.depends: metrics-server
-    app.business.client: {{ .Values.ClientName }}
-    app.mqtt.event.trigger: {{ .Values.traceID }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-event-exporter
-      environment: {{ .Values.environment }}
-      app.business.client: {{ .Values.ClientName }}     
+      app: {{ .Release.Name }}-event-exporter   
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}-event-exporter
-        environment: {{ .Values.environment }}
-        app.business.client: {{ .Values.ClientName }}  
-      annotations:
         app.depends: metrics-server
-        app.business.client: {{ .Values.ClientName }}
-        app.mqtt.event.trigger: {{ .Values.traceID }}      
+        environment: {{ .Values.environment }}    
     spec:
       serviceAccountName: k8s-event-exporter-sa
       containers:
       - name: k8s-event-exporter
-          image: {{ .Values.eventexporter.image }}:{{ .Values.eventexporter.tag }}
-          imagePullPolicy: {{ .Values.eventexporter.imagePullPolicy }} 
+        image: {{ .Values.eventexporter.image }}:{{ .Values.eventexporter.tag }}
+        imagePullPolicy: {{ .Values.eventexporter.imagePullPolicy }} 
 #-----------------------------------------          
         resources:
           requests:

@@ -5,5 +5,9 @@
 **/*.key
 **/*.pem
 **/*.secure
+**/*.terraform.*
+**terraform.tfstate*
+**demo_sshkey_tf*
+**/demo-inventory.ini
 temp/
 tmp/

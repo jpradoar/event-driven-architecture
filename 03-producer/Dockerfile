@@ -1,7 +1,10 @@
-FROM alpine:latest
+FROM alpine:3.19.0
 WORKDIR /app
-ADD ./templates /app/templates/
-ADD ./api.py /app/api.py
-RUN apk add python3 py3-pip bind-tools && pip3 install flask pika prometheus_client 
-
-CMD [ "python3", "-u", "./api.py" ] 
+COPY ./templates /app/templates/
+COPY ./api.py /app/api.py
+RUN adduser -D userx \
+	&& apk add --no-cache python3 py3-pip bind-tools \
+	&& python3 -m venv /venv \
+	&& /venv/bin/pip install --no-cache-dir flask pika prometheus_client
+USER userx
+CMD ["/venv/bin/python3", "-u", "./api.py"]

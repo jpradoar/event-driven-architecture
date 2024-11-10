@@ -1,0 +1,52 @@
+body {
+  font-family: Arial;
+  font-size: 12px;
+  padding: 8px;
+  width: 30%;
+  background-image: url('https://img.freepik.com/free-vector/gradient-futuristic-background-with-connection-concept_23-2149104857.jpg');
+  background-size: cover; /* Ajusta el tamaño de la imagen */
+  background-position: center; /* Centra la imagen */  
+}
+
+
+h1 {
+  text-align: center;
+  color: black; /* Color del texto */
+}
+
+
+input[type=text] {
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 5px;
+  color: black; /* Color del texto */
+}
+
+.select {
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 5px;
+}
+
+.icon-container {
+  margin-bottom: 20px;
+  padding: 7px 0;
+  /*font-size: 12px;*/
+}
+
+.btn {
+  background-color: #04AA6D;
+  color: white;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  width: 100%;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+
+
+
+
+

@@ -6,14 +6,11 @@ metadata:
   namespace: default
   labels:
     app: {{ .Release.Name }}-dbwriter
-    environment: {{ .Values.environment }}
     app.business.client: {{ .Values.ClientName }}
+    environment: {{ .Values.environment }}
   annotations:
     prometheus.io/scrape: 'true'
     filter.by.port.name: 'true'
-    app: {{ .Release.Name }}-dbwriter
-    app.depends: {{ .Release.Name }}-rabbitmq
-    app.mqtt.event.trigger: {{ .Values.traceID }}   
 spec:
   selector:
     app: dbwriter
@@ -31,65 +28,202 @@ metadata:
   namespace: default
   labels:
     app: {{ .Release.Name }}-dbwriter
-    environment: {{ .Values.environment }}
-    app.business.client: {{ .Values.ClientName }}
-  annotations:
-    app: {{ .Release.Name }}-dbwriter
     app.depends: {{ .Release.Name }}-rabbitmq
-    app.mqtt.event.trigger: {{ .Values.traceID }}   
+    app.business.client: {{ .Values.ClientName }}
+    environment: {{ .Values.environment }}  
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Release.Name }}-dbwriter
-      environment: {{ .Values.environment }}
-      app.business.client: {{ .Values.ClientName }}
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}-dbwriter
-        environment: {{ .Values.environment }}
-        app.business.client: {{ .Values.ClientName }}
-      annotations:
-        app: {{ .Release.Name }}-dbwriter
-        app.depends: {{ .Release.Name }}-rabbitmq
-        app.mqtt.event.trigger: {{ .Values.traceID }} 
-        app.version: {{ .Values.dbwriter.image }}:{{ .Values.dbwriter.tag }}
     spec:
       containers:
         - name: dbwriter
           image: {{ .Values.dbwriter.image }}:{{ .Values.dbwriter.tag }}
           imagePullPolicy: Always   
           env:
-          - name: mqtthost
-            value: {{ .Release.Name }}-rabbitmq
-          - name: mqttvhost
-            value: "/"
-          - name: mqttuser
-            value: "admin" 
-          - name: mqttpass
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-rabbitmq
-                key: rabbitmq-password  
-          - name: queue
-            value: "clients"
-          - name: mysql_host
+          - name: MARIADB_HOST
             value: "mariadb"
-          - name: mysql_db
-            value: "clients"    
+          - name: MARIADB_DATABASE
+            value: {{ .Values.mariadb.config.database_name }}
           - name: MARIADB_ROOT_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: {{ .Release.Name }}-infra-secrets
                 key: mariadb_root_password
-          - name: mysql_user
+          - name: MARIADB_USER
+            value: "root"
+          - name: MARIADB_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: {{ .Release.Name }}-infra-secrets
-                key: mariadb_username
-          - name: mysql_pass
+                key: mariadb_root_password
+               
+          - name: mqttport
+            value: "5672"
+          - name: mqtthost
+            value: {{ .Release.Name }}-rabbitmq
+          - name: mqttvhost
+            value: {{ .Values.rabbitmq.configs.mqttvhost }}
+          - name: queue
+            value: "clients" #{{ .Values.rabbitmq.configs.queue }}
+          - name: destination_queue
+            value: {{ .Values.rabbitmq.configs.destination_queue }}
+          - name: destination_RK
+            value: {{ .Values.rabbitmq.configs.destination_rk }}
+          - name: mqttuser
+            value: {{ .Values.rabbitmq.auth.username }}
+          - name: mqttpass
             valueFrom:
               secretKeyRef:
-                name: {{ .Release.Name }}-infra-secrets
-                key: mariadb_password   
+                name: {{ .Release.Name }}-rabbitmq
+                key: rabbitmq-password  
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9090
+            initialDelaySeconds: 15
+            periodSeconds: 5                 
+      #     volumeMounts:
+      #       - name: dbwriter-cm
+      #         mountPath: /app/
+      # volumes:
+      #   #-------------------------        
+      #   - name: dbwriter-cm
+      #     configMap:
+      #       name: dbwriter-cm                   
+
+
+
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata: 
+#   name: dbwriter-cm
+#   namespace: default
+#   labels:
+#     app: dbwriter
+#     environment: development
+#   annotations:
+#     app: dbwriter
+#     app.business.client: 'client-001'
+#     app.mqtt.event.trigger: '1234567890'    
+# data:
+#   db.py: |-
+#     #!/usr/bin/python3
+#     #
+#     # JONY TEST 
+#     #
+#     import os                                       # Para obtener las variables del Deployment
+#     import pika                                     # Para rabbitmq
+#     import json                                     # Para manejar los JSON
+#     import mysql.connector                          # Para conectar al MariaDB
+#     import datetime, time                           # Para manejo de tiempo
+#     import logging                                  # Para manejo de log y STDOUT
+#     from prometheus_client import start_http_server # Para levantar el http_server
+#     from prometheus_client import Info              # Para exponer metricas
+
+#     # Formateo el log FECHA - MENSAJE
+#     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+
+#     # PROMETHEUS
+#     metric_info     = Info('dbwriter_version', 'build version of dbwriter')
+#     metrics_port    = 9090 
+
+#     # RABBIT
+#     mqtthost    = str(os.environ.get('mqtthost'))  
+#     mqttvhost   = str(os.environ.get('mqttvhost')) 
+#     mqttuser    = str(os.environ.get('mqttuser')) 
+#     mqttpass    = str(os.environ.get('mqttpass')) 
+#     mqttport    = os.environ.get('mqttport') #
+#     queue       = str(os.environ.get('queue'))
+#     credentials = pika.PlainCredentials(mqttuser, mqttpass)
+#     parameters  = pika.ConnectionParameters(host=mqtthost,port=mqttport,virtual_host=mqttvhost,credentials=credentials,connection_attempts=5, retry_delay=5)
+
+#     # DATABASE
+#     mysql_host  = os.environ.get('MARIADB_HOST') #"mariadb"  
+#     mysql_user  = os.environ.get('MARIADB_USER') #"admin"
+#     mysql_pass  = os.environ.get('MARIADB_PASSWORD') #"admin"
+#     mysql_db    = os.environ.get('MARIADB_DATABASE')   #"clients"
+
+#     # TIEMPO
+#     now         = datetime.datetime.now()
+#     dateformat  = now.strftime("%Y-%m-%d")
+
+#     # Genero una función para reciclar el envío de mensajes, notificaciones y/o logs.
+#     def sendmsg(message):
+#       logging.info(message)
+
+#     # Genero una metrica informativa para saber la version e info general
+#     def metrics_info():
+#       metric_info.info({'name':'dbwriter', 'version': '1.0.0', 'owner': 'jpradoar'})
+
+#     # Funcion que genera una conexión a una DB e inserta los datos recibidos en la misma. 
+#     def WriteDB(sql,val):
+#       connector   = mysql.connector.connect(host=mysql_host,user=mysql_user,password=mysql_pass,database=mysql_db)
+#       db          = connector.cursor()
+#       db.execute(sql,val)
+#       connector.commit()
+#       sendmsg("  *[DBWriter] One record was inserted, RecordID:"+ str(db.lastrowid))
+#       db.close()
+#       connector.close()
+#       sendmsg("  *[DBWriter] Waiting messages in Queue: [ "+ queue +" ] ")  
+
+#     # Función principal encargada de conectarse al MQTT Server, esperar mensajes y actuar en base al mensaje recibido.
+#     def main():
+#       #validateMQTTConnection()
+#       connection  = pika.BlockingConnection(parameters)
+#       channel     = connection.channel()
+#       channel.queue_declare(queue=queue, durable=True) # Declaro y creo la queue si no existe
+
+#       def callback(ch, method, properties, body):
+#           parseMsg(body.decode("utf-8"))
+
+#       sendmsg("  *[DBWriter] Started and connected to Queue: [ "+ queue +" ] ")
+#       channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=True)
+#       start_http_server(metrics_port)
+#       metrics_info()
+#       channel.start_consuming()
+
+
+#     # Funcion para parsear los datos que recibo en formato json y generar una query de SQL
+#     # El mensaje que debe recibe es un json similar a esto:  
+#     # {"client":"ClientX", "archtype": "true", "hardware":"shared"}
+#     def parseMsg(data):
+#       data        = json.loads(data)
+#       client      = data['client']
+#       archtype    = data['archtype']
+#       hardware    = data['hardware']
+#       product     = data['product']
+#       xdate       = dateformat
+#       license     = 'OpenSource'
+#       trace_id    = data['MessageAttributes']['trace_id']
+#       val         = (client,archtype,hardware,product,xdate,license)
+#       sql         = "INSERT INTO clients (client,archtype,hardware,product,xdate,license) VALUES (%s,%s,%s,%s,%s,%s)"
+#       sendmsg("  *[DBWriter] Message trace_id: " + str(trace_id) + "\n")
+#       WriteDB(sql,val)
+
+#     # En general cuando uso docker-compose o kubernetes suele pasar que este servicio levanta antes que Rabbit.
+#     # Por tal motivo valido si el Rabbit esta listo, sino espero 5 segundos. 
+#     def validateMQTTConnection():
+#       while True:
+#           try:
+#               connection = pika.BlockingConnection(parameters)
+#               channel = connection.channel()
+#               break
+#           except pika.exceptions.AMQPConnectionError:
+#               sendmsg("  *[DBWriter] No se puede conectar a RabbitMQ, esperando 5 segundos para reconectar...")
+#               time.sleep(5)      
+
+#     if __name__ == '__main__':    
+#       main()
