@@ -2,7 +2,7 @@
 
 
 ### Build docker container
-	docker build -t demo .
+	docker build -t c2w .
 
 
 ### Create folder to share between container and your local

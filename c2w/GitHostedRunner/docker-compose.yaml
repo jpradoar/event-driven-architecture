@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  github-runner:
+    image: eda-hosted-runner:latest
+    environment:
+      - RUNNER_TOKEN=YOUR_GITHUB_RUNNER_TOKEN_HERE
+      - GITHUB_REPOSITORY_URL=https://github.com/jpradoar/event-driven-architecture
+    stdin_open: true
+    tty: true
