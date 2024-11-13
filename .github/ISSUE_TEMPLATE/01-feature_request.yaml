@@ -1,0 +1,77 @@
+---
+name: 🚀 Feature Request
+description: Suggest an idea or improvement the project
+title: "🚀 [Feat]: ..."
+labels: ["enhancement"]
+assignees: "not default"
+
+body:
+
+  - type: markdown
+    attributes:
+      value: >
+        * Thanks :heart: for taking the time to fill out this feature request. Please, first try to search to see if a similar issue or if [already exists](https://github.com/jpradoar/event-driven-architecture/issues?q=is%3Aopen+is%3Aissue) for
+        your feature.
+        
+        * We are open to accept any contribution from users or enthusiast. 
+        
+        * For more info please see [CONTRIBUTING](https://github.com/jpradoar/event-driven-architecture/blob/master/CONTRIBUTING.md).
+
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: |
+        A clear and concise description of the feature you're interested in...
+      value: |
+         Describe your feature here
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Suggested Solution
+      description: >
+        Describe the solution you'd like. A clear and concise description of what you want to happen. If you have
+        considered alternatives, please describe them.
+      value: |
+          Describe your solution here
+    validations:
+      required: false
+
+  - type: dropdown
+    id: interested
+    attributes:
+      label: This feature is interested for
+      multiple: false
+      options:
+        - Just for me
+        - Maybe for everyone
+        - For the product
+
+  - type: dropdown
+    attributes:
+      label: Can you participate developing this feat? 
+      multiple: true
+      options:
+        - "Yes, of course!"
+        - "yes, but i don't have all skills"
+        - "Yes, but I don't have a lot of time"
+        - "No, I'm sorry"
+        
+  - type: input
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: yourmail@example.com
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Anything else you'd like to add?"
+      description: >
+        free way for you...
+      value:           
+    validations:
+      required: false
