@@ -19,7 +19,7 @@ env:
   DATA: '/dev/null'
 
 jobs:
-  CI-test-actions:
+  CI-hosted-runner:
     runs-on: self-hosted
 
     steps:
