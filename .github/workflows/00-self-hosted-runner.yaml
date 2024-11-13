@@ -20,7 +20,7 @@ env:
 
 jobs:
   CI-test-actions:
-    runs-on: eda-hosted-runner
+    runs-on: self-hosted
 
     steps:
      
