@@ -1,0 +1,31 @@
+##################################
+#
+# IMPORTANT: 
+#  THIS WORKFLOW REQUIRE YOU RUN
+#  A RUNNER CONTAINER IN YOUR LAPTOP
+#  FOR MORE INFORMATION SEE:
+#
+#    ..c2w/GitHostedRunner/README.md
+#
+##################################
+---
+name: CI-hosted-runner
+on:
+  push:
+    branches:
+      - hosted-runner
+
+env:
+  DATA: '/dev/null'
+
+jobs:
+  CI-runner-on-my-laptop:
+    runs-on: self-hosted
+
+    steps:
+     
+    - name: Show versions
+      run: |
+        echo "hello world" 
+        echo "bye bye world"
+        echo ${{ env.DATA }} > /tmp/test.txt
