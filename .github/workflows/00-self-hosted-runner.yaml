@@ -19,7 +19,7 @@ env:
   DATA: '/dev/null'
 
 jobs:
-  CI-hosted-runner:
+  CI-hosted-runner-docker-on-my-laptop:
     runs-on: self-hosted
 
     steps:
