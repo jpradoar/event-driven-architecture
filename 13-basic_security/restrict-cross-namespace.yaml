@@ -1,0 +1,22 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: restrict-cross-namespace
+  namespace: <NAMESPACE>
+spec:
+  podSelector:
+    matchLabels:
+      app.business.client: {{ .Values.ClientName }} # Esto asegura que la política se aplica solo a Pods con la etiqueta "app.business.client"
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector: {} # Permitir tráfico solo desde otros Pods dentro del mismo namespace
+  egress:
+  - to:
+    - ipBlock: # Permitir tráfico a cualquier IP externa (salida hacia internet)
+        cidr: 0.0.0.0/0
+  - to:
+    - podSelector: {} # Permitir tráfico hacia Pods en el mismo namespace
