@@ -7,7 +7,7 @@
 
   vars:
     OS_USER: 'admin'
-    GIT_BRANCH: 'development'
+    GIT_BRANCH: 'main'
 
 
   tasks:
@@ -92,17 +92,6 @@
         args:
           executable: /bin/bash
 
-      # - name: Deploy EDA stack
-      #   ansible.builtin.shell: |
-      #       helm upgrade -i --create-namespace -n default mqtt test-borrar/helm-chart/
-      #   args:
-      #     executable: /bin/bash
-
-      # - name: Copy helm chart
-      #   ansible.builtin.copy:
-      #     src: ../helm-chart
-      #     dest: /home/{{ OS_USER }} 
-
       - name: Deploy EDA stack
         ansible.builtin.shell: |
             helm upgrade -i --create-namespace -n default mqtt /home/{{ OS_USER }}/event-driven-architecture/helm-chart
@@ -159,7 +148,7 @@
 
       - name: Enviar notificación a Slack
         uri:
-          url: "{{ lookup('env', 'SLACK_WEBHOOK') }}" # Esto está en mi .bashrc o haciendo un export SLACK_WEBHOOK="...."
+          url: "{{ lookup('env', 'SLACK_WEBHOOK') }}" # Esto está en el .bashrc o haciendo un export SLACK_WEBHOOK="...."
           method: POST
           headers:
             Content-Type: "application/json"
