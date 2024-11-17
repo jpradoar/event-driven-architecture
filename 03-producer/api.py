@@ -147,3 +147,4 @@ if __name__ == '__main__':
   # uso el trheading para exponer cada funcion en un hilo separado. 
   Thread(target = main).start()
   Thread(target = monitoring).start()
+
