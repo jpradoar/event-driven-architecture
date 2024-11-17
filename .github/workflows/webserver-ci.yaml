@@ -1,4 +1,4 @@
-xname: webserver-CI
+name: webserver-CI
 on:
   push:
     branches:
