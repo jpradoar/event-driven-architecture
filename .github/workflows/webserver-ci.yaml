@@ -1,4 +1,4 @@
-name: webserver-CI
+xname: webserver-CI
 on:
   push:
     branches:
@@ -9,39 +9,54 @@ on:
 
 env:
   REPO_APP: 'mqtt-webserver'
+  BUILD_CONTEXT: './06-webserver'
+  #
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
-  BUILD_CONTEXT: './06-webserver'
+  COMMITER_NAME: 'AutoCommit'
   VULN_SEVERITY: 'CRITICAL'
   VULN_TYPE: 'os,library'
+  VULN_FORMAT: 'table'
   VULN_TIMEOUT_SCAN: '2m0s'
-  VULN_OUTPUT_TYPE: 'table'
-  VULN_OUTPUT_FILE: 'mqtt-webserver_vuln_scan.txt'
-  COMMITER_NAME: 'AutoCommit'
- 
+  VULN_SCANNERS: 'vuln,secret,misconfig,license'
+  VULN_IGNORED_LIC: 'MIT' # MIT,LGPL,MPL-2.0
+  VULN_EXIT_CODE: 1
+  TRIVY_DISABLE_VEX_NOTICE: true
+  TRIVY_REPOSITORY: 'public.ecr.aws/aquasecurity/trivy-db:2'
+
 jobs:
   webserver-CI_build-docker-image:
-    runs-on: ubuntu-latest 
-    
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write         # get the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+      security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read           # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status  
+      issues: write           # to create new issues in workflows
+
     steps:
-     
+
+
     - name: Checkout
       uses: actions/checkout@v3
+
 
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        username: 'jpradoar'
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
+
 
     - name: Show last version of docker-hub image
       id: last_version_remote_file
       run: |
         LastVersion=$(curl -s "https://hub.docker.com/v2/repositories/jpradoar/${{ env.REPO_APP }}/tags/?page_size=2" | jq -r '.results[].name'|sort -M|grep -v latest|tail -1)
         echo "LAST_VERSION=$LastVersion " >> "$GITHUB_OUTPUT"
+
 
     - name: Generate new version with semantic version
       id: nversion
@@ -50,37 +65,103 @@ jobs:
         COMMIT_MSG:  ${{ github.event.head_commit.message }}
         VERSION: ${{ steps.last_version_remote_file.outputs.LAST_VERSION }}
 
+
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
         context: ${{ env.BUILD_CONTEXT }}
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}
-        
-    - name: Run Trivy vulnerability scanner
-      id: vulnscan
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: 'jpradoar/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
-        format: ${{ env.VULN_FORMAT }}
-        vuln-type: ${{ env.VULN_TYPE }}
-        severity: ${{ env.VULN_SEVERITY }}
-        timeout: ${{ env.VULN_TIMEOUT_SCAN }}
-        output: vuln_scans/${{ env.VULN_OUTPUT_FILE }}     
-        #exit-code: '1' 
+        tags: jpradoar/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}
 
-    - uses: EndBug/add-and-commit@v9
-      with:
-        message: 'AutoCommit: Add table file'
-        add: ./vuln_scans/${{ env.VULN_OUTPUT_FILE }}
-        committer_name: ${{ env.COMMITER_NAME }}            
 
-    - name: Slack Notification
+    - name: Install trivy last version
+      run: |
+          sudo apt-get install wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+
+
+    - name: search for vulnerabilities
+      id: trivy_scan
+      continue-on-error: true
+      run: |
+        rm -rf ./vuln_scans/${{ env.REPO_APP }}_vuln_scan.table
+        trivy image \
+         --scanners ${{ env.VULN_SCANNERS }} \
+         --severity ${{ env.VULN_SEVERITY }} \
+         --timeout ${{ env.VULN_TIMEOUT_SCAN }} \
+         --pkg-types ${{ env.VULN_TYPE }} \
+         --license-full \
+         --ignored-licenses ${{ env.VULN_IGNORED_LIC }} \
+         --format ${{ env.VULN_FORMAT }} \
+         --exit-code ${{ env.VULN_EXIT_CODE }} \
+         --db-repository ${{ env.TRIVY_REPOSITORY }} \
+         --ignore-unfixed \
+         -o ./vuln_scans/${{ env.REPO_APP }}_vuln_scan.table \
+        'jpradoar/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
+
+
+    - name: show vulnerability report
+      if: ${{ steps.trivy_scan.outcome == 'failure' }}
+      run: |
+        cat ./vuln_scans/${{ env.REPO_APP }}_vuln_scan.table
+
+
+    - name: validate if exist vuln
+      if: ${{ steps.trivy_scan.outcome == 'failure' }}
+      run: |
+        echo "### See detailed information in: " > /tmp/vuln_info.md
+        echo "<br>![](https://custom-icon-badges.demolab.com/badge/Vulnerability-detected-red.svg) ![](https://custom-icon-badges.demolab.com/badge/Affected_version-${{ steps.nversion.outputs.NEW_VERSION }}-purple.svg) <br>" >> /tmp/vuln_info.md
+        echo " * Detected in image: [${{ env.REPO_APP }}](https://hub.docker.com/repository/docker/jpradoar/${{ env.REPO_APP }}/general)" >> /tmp/vuln_info.md
+        echo " * Detected in commit: ${{ github.sha }}"  >> /tmp/vuln_info.md
+        echo " * Vulnerability report: [vuln_report](https://github.com/jpradoar/event-driven-architecture/blob/feat/issues/3/vuln_scans/${{ env.REPO_APP }}_vuln_scan.table)" >> /tmp/vuln_info.md
+
+
+    - name: update data
+      if: ${{ steps.trivy_scan.outcome == 'failure' }}
+      run: |
+          git pull
+
+
+    - name: Upload vuln scan report
+      uses: EndBug/add-and-commit@v9
+      with:
+        message: 'AutoCommit: upload vuln scan report'
+        add: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.table'
+
+
+    - name: Vulnerability detected - Create issue
+      if: ${{ steps.trivy_scan.outcome == 'failure' }}
+      run: |
+        body="New vulnerability detected on vuln_scans/${{ env.REPO_APP }}_vuln_scan.table"
+        gh issue create \
+        --repo ${{ github.repository }} \
+        --title ":skull: [vuln] vulnerability detected on image ${{ env.REPO_APP }} " \
+        --body-file '/tmp/vuln_info.md' \
+        --assignee "jpradoar" \
+        --label bug --label vulnerability
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+    - name: Slack docker build Notification
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
         SLACK_COLOR: ${{ env.SLACK_MSG_COLOR }}
-        SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_APP }}'
+        SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/jpradoar/${{ env.REPO_APP }}'
         SLACK_TITLE: ':rocket: GithubAction Build docker image: [ ${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }} ]'
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
+
+    - name: Slack Vulnerability Notification
+      if: ${{ steps.trivy_scan.outcome == 'failure' }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
+        SLACK_COLOR: ${{ env.SLACK_MSG_COLOR }}
+        SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/jpradoar/${{ env.REPO_APP }}'
+        SLACK_TITLE: ':skull: Vulnerability detected in: [ ${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }} ]'
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

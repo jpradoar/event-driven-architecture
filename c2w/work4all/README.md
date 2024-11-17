@@ -14,8 +14,8 @@
 	--rm \
 	-itd \
 	--name c2w \
-	-v /tmp/c2w:/data
-	demo:latest
+	-v /tmp/c2w:/data \
+	c2w:latest
 
 ### Work in container
-	docker exec -it demo:latest
+	docker exec -it c2w:latest bash
