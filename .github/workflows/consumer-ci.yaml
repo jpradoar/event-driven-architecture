@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - '04-consumer/**' # Any change in this path, make trigger build action.
+      - '04-consumer/**'
       - '.github/workflows/consumer-ci.yaml'
 
 env:

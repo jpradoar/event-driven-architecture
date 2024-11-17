@@ -10,7 +10,7 @@ on:
 env:
   REPO_APP: 'k8s-event-exporter'
   BUILD_CONTEXT: './12-k8s-event-exporter'
-  #
+  # 
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   COMMITER_NAME: 'AutoCommit'
