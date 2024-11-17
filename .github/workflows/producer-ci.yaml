@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - '03-producer/**'
+      - '03-producer/**' 
       - '.github/workflows/producer-ci.yaml'
 
 env:
