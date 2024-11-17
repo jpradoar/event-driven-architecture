@@ -1,4 +1,4 @@
-name: DBWriter-CI
+name: DBWriter-CI 
 on:
   push:
     branches:
