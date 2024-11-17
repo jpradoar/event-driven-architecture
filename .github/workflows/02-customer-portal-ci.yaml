@@ -116,7 +116,7 @@ jobs:
         echo "<br>![](https://custom-icon-badges.demolab.com/badge/Vulnerability-detected-red.svg) ![](https://custom-icon-badges.demolab.com/badge/Affected_version-${{ steps.nversion.outputs.NEW_VERSION }}-purple.svg) <br>" >> /tmp/vuln_info.md
         echo " * Detected in image: [${{ env.REPO_APP }}](https://hub.docker.com/repository/docker/jpradoar/${{ env.REPO_APP }}/general)" >> /tmp/vuln_info.md
         echo " * Detected in commit: ${{ github.sha }}"  >> /tmp/vuln_info.md
-        echo " * Vulnerability report: [vuln_report](https://github.com/jpradoar/event-driven-architecture/blob/feat/issues/3/vuln_scans/${{ env.REPO_APP }}_vuln_scan.table)" >> /tmp/vuln_info.md
+        echo " * Vulnerability report: [vuln_report](https://github.com/jpradoar/event-driven-architecture/blob/main/vuln_scans/${{ env.REPO_APP }}_vuln_scan.table)" >> /tmp/vuln_info.md
 
 
     - name: update data
