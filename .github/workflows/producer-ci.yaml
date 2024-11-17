@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - '03-producer/**' # Any change in this path, make trigger build action.
+      - '03-producer/**'
       - '.github/workflows/producer-ci.yaml'
 
 env:

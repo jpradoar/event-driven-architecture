@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - '06-webserver/**' # Any change in this path, make trigger build action.
+      - '06-webserver/**'
       - '.github/workflows/webserver-ci.yaml'
 
 env:

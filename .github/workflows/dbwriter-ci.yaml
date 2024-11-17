@@ -10,7 +10,7 @@ on:
 env:
   REPO_APP: 'mqtt-dbwriter'
   BUILD_CONTEXT: './05-dbwriter'
-  #
+  # 
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   COMMITER_NAME: 'AutoCommit'
