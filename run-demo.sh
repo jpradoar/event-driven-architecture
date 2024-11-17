@@ -12,6 +12,15 @@ demo_action=$1
 # export TF_VAR_vpc_id="vpc-xxxxx"
 # export TF_VAR_subnet_id="subnet-xxxxxxxx"
 
+FILE=terraform/kp/demo_sshkey_tf
+if [ -f "$FILE" ]; then
+    echo "ssh-key	[OK]"
+else 
+    echo "$FILE does not exist. Create it first"
+    echo "  Example: ssh-keygen -b 2048 -t rsa -f terraform/kp/demo_sshkey_tf -q -N '' "
+    exit 1
+fi
+
 
 # Function to wait for EC2 instance and anotehr deployments
 sleep_time_4_demo () {
