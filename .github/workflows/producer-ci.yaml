@@ -135,7 +135,7 @@ jobs:
     - name: Vulnerability detected - Create issue
       if: ${{ steps.trivy_scan.outcome == 'failure' }}
       run: |
-        body="New vulnerability detected on vuln_scans/${{ env.REPO_APP }}_vuln_scan.table"
+        body="New vulnerability detected on vuln_scans/${{ env.REPO_APP }}_vuln_scan.table" 
         gh issue create \
         --repo ${{ github.repository }} \
         --title ":skull: [vuln] vulnerability detected on image ${{ env.REPO_APP }} " \
@@ -165,3 +165,4 @@ jobs:
         SLACK_MESSAGE: 'URL: https://hub.docker.com/repository/docker/jpradoar/${{ env.REPO_APP }}'
         SLACK_TITLE: ':skull: Vulnerability detected in: [ ${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }} ]'
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+

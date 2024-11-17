@@ -14,7 +14,7 @@ env:
   SLACK_CHANNEL: 'builds-and-ci'
   SLACK_MSG_COLOR: '#0092ff'
   COMMITER_NAME: 'AutoCommit'
-  VULN_SEVERITY: 'CRITICAL,HIGH'
+  VULN_SEVERITY: 'CRITICAL'
   VULN_TYPE: 'os,library'
   VULN_FORMAT: 'table' 
   VULN_TIMEOUT_SCAN: '2m0s'
