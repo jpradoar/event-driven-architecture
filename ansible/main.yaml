@@ -8,6 +8,8 @@
   vars:
     OS_USER: 'admin'
     GIT_BRANCH: 'main'
+    OPEN_PORTS_FOR_DEMO: true
+    SEND_NOTIFICATIONS: true
 
 
   tasks:
@@ -134,19 +136,24 @@
         args:
           executable: /bin/bash
 
-
-      - name: port-forward script
+      - name: Open ports for demo
+        when: OPEN_PORTS_FOR_DEMO
         ansible.builtin.shell: |
-          echo "kubectl port-forward --address 0.0.0.0 deployment/producer 5000:5000 & " > /home/admin/svc.run
-          echo "kubectl port-forward --address 0.0.0.0 service/webserver 8080:80 & " >> /home/admin/svc.run
-          echo "kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 & " >> /home/admin/svc.run
-          chmod +x /home/admin/svc.run
+          nohup /snap/bin/kubectl port-forward --address 0.0.0.0 deployment/producer 5000:5000 > /tmp/kubectl_producer.log 2>&1 &
+          nohup /snap/bin/kubectl port-forward --address 0.0.0.0 service/webserver 8080:80 > /tmp/kubectl_webserver.log 2>&1 &
+          nohup /snap/bin/kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
         args:
           executable: /bin/bash
 
+      - name: show process
+        when: OPEN_PORTS_FOR_DEMO
+        ansible.builtin.shell: |
+            ps aux |grep -i forwa
+        args:
+          executable: /bin/bash
 
-
-      - name: Enviar notificación a Slack
+      - name: Send Slack notificación
+        when: SEND_NOTIFICATIONS
         uri:
           url: "{{ lookup('env', 'SLACK_WEBHOOK') }}" # Esto está en el .bashrc o haciendo un export SLACK_WEBHOOK="...."
           method: POST
