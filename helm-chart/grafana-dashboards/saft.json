@@ -1689,7 +1689,7 @@
             "uid": "Prometheus"
           },
           "exemplar": true,
-          "expr": "kube_pod_container_info{namespace=\"$namespace\"}",
+          "expr": "kube_pod_container_info{namespace=\"$namespace\", image!~\".*istio.*\" }",
           "format": "table",
           "hide": false,
           "interval": "",
