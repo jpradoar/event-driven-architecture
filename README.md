@@ -1,10 +1,17 @@
+<div align="center">
+
 # Event Driven Architecture
-### 🏠 Full SaaS for IoT
 
-<br><br>
+### 🏠 A small SaaS project for IoT
 
-:rocket:  <b> Build Status:
+<br>
+<hr>
+
+    
+:rocket:  <b> Build Status and info project:
 <p></b>
+
+
 
 ![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/producer-ci.yaml/badge.svg) 
 ![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/consumer-ci.yaml/badge.svg)
@@ -12,13 +19,18 @@
 ![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/webserver-ci.yaml/badge.svg) 
 ![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/k8s-event-exporter-ci.yaml/badge.svg) 
 </p>
-<hr>
-
-
-:pencil2: <b>Kanban project:</b>   
     
-Here you can see all project roadmap and more info.
-<a href="https://github.com/users/jpradoar/projects/2/views/1" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Kanban_project-backlog-blue.svg?logoColor=fff&logo=trending-up)
+|Link | Desc |
+|---|---|
+| <a href="https://jpradoar.github.io/helm-chart/" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Helm_charts-blue.svg?logo=Helm)</a>  |Personal Helm repo   |
+|<a href="https://github.com/users/jpradoar/projects/2/views/1" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Kanban_project-blue.svg?logo=book)</a>   |here you can see all project roadmap and more info  |
+
+</div>
+
+<b></b>   
+    
+
+
 
 <hr><br><br>
 

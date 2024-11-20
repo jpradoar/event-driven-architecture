@@ -5,7 +5,7 @@
 #
 # Run with: sh install.sh
 
-sleep_time="210"
+sleep_time="160"
 demo_action=$1
 
 # Esto puede estar en tu .bashrc, sino lo descomentas y ya! 
@@ -56,16 +56,14 @@ if [ "$demo_action" = "deploy" ]; then
         chmod 400 terraform/kp/*
         # Run ansible and wait for deployment finish
         if ansible-playbook -i ansible/demo-inventory.ini ansible/main.yaml; then
-            echo
-            echo "wait for running kubernetes pods"
-            sleep_time_4_demo
+            echo;echo
             echo "ONLY FOR DEMO. Enable public access (public port-forward)"
-            #ansible-playbook -i ansible/demo-inventory.ini ansible/kubectl-port-forward.yaml
             echo;echo "  Happy demo! :D "
             echo;echo
             echo "Producer: http://$(terraform -chdir=terraform/ output objetive |jq -r ):5000"
             echo "Webserver: http://$(terraform -chdir=terraform/ output objetive |jq -r ):8080"
             echo "Grafana: http://$(terraform -chdir=terraform/ output objetive |jq -r ):3000"
+            echo "RabbitMQ: http://$(terraform -chdir=terraform/ output objetive |jq -r ):15672"
             echo
         else
             echo "Ansible failed. Exiting script."

@@ -15,68 +15,43 @@ $stmt->execute();
 ?>
 <!DOCTYPE html>
 <html>
-<style>
-input[type=text], select {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-input[type=submit] {
-  width: 100%;
-  background-color: #4CAF50;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-input[type=submit]:hover {
-  background-color: #45a049;
-}
-div {
-  border-radius: 5px;
-  padding: 20px;
-}
-body {
-  background-color: #f2f2f2;
-}
-.table {
-    border-collapse: collapse;
-    margin: 25px 0;
-    font-size: 0.9em;
-    font-family: sans-serif;
-    min-width: 400px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-}
-.table th,
-.table td {
-    padding: 1% 15px;
-}
-.table tbody tr:last-of-type {
-    border-bottom: 2px solid #3383FF;
-}
-#messages {
-  border: 1px solid black;
-  padding: 10px;
-  margin-top: auto;
-  max-height: auto;
-  overflow: auto;
-}
-</style>
 <head>
-  <meta charset="UTF-8">
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #35495e;
+}
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #0A5D6E;
+  color: white;
+}
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+  text-align: center;
+  background-color: #C3BBBB;
+  
+}
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+#customers tr:nth-child(even){background-color: #C3BBBB;}
+#customers tr:hover {background-color: #ddd;}
+</style>
+
 </head>
-<body>    
+<body>
 <div align="center">
   <img src="it-infrastructure-icon-28.jpg" height="60" width="60">
   <br>
   <h3>Database clients created by MQTT-Event</h3>
-  <table border="1" class="table">
+  <table id="customers">
   <tr>
     <th scope="col"> ID </th>
     <th scope="col"> Client</th>
@@ -90,42 +65,12 @@ body {
     <td><?php echo $row['id']; ?></td>
     <td><?php echo $row['client']; ?></td>
     <td><?php echo $row['archtype']; ?></td>
-    <td><?php echo $row['hardware']; ?></td>    
-    <td><?php echo $row['product']; ?></td>  
-    <td><?php echo $row['xdate']; ?></td>       
+    <td><?php echo $row['hardware']; ?></td>
+    <td><?php echo $row['product']; ?></td>
+    <td><?php echo $row['xdate']; ?></td>
     </tr>
   <?php   }   $stmt = null; ?>
-  </table>                        
-  <!-- 
-  <br><br><h3>DEPLOYMENT REAL TIME STATUS</h3>
-  <ul id="messages"></ul>
-  <script>
-    // Conexión a RabbitMQ
-    const QUEUE_NAME = 'event-status';
-    const AMQP_URL = 'ws://rabbitmq:15674/ws'; // Reemplazar con la URL de conexión a RabbitMQ
-
-    const client = Stomp.client(AMQP_URL);
-    client.connect('admin', 'admin', onConnect, onError);
-
-    function onConnect() {
-      console.log('Conectado a RabbitMQ');
-      client.subscribe(QUEUE_NAME, onMessageReceived);
-    }
-
-    function onError(error) {
-      console.error('Error de conexión a RabbitMQ:', error);
-    }
-
-    function onMessageReceived(message) {
-      const body = JSON.parse(message.body);
-      console.log('Mensaje recibido:', body);
-      const li = document.createElement('li');
-      li.innerText = JSON.stringify(body);
-      document.getElementById('messages').appendChild(li);
-    }
-  </script> -->
-
+  </table>
 </div>
-
 </body>
 </html>

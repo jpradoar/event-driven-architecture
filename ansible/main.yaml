@@ -7,7 +7,6 @@
 
   vars:
     OS_USER: 'admin'
-    GIT_BRANCH: 'main'
     OPEN_PORTS_FOR_DEMO: true
     SEND_NOTIFICATIONS: true
 
@@ -31,32 +30,32 @@
         args:
           executable: /bin/bash
 
-      - name: usermod microk8s
+      - name: Usermod microk8s
         ansible.builtin.shell: |
             sudo usermod -a -G microk8s {{ OS_USER }}
             mkdir -p /home/{{ OS_USER }}/.kube
         args:
           executable: /bin/bash
 
-      - name: chown microk8s
+      - name: Chown microk8s
         ansible.builtin.shell: |
             sudo chown -f -R {{ OS_USER }}:{{ OS_USER }} /home/{{ OS_USER }}/.kube
         args:
           executable: /bin/bash
 
-      - name: enable storage
+      - name: Enable storage
         ansible.builtin.shell: |
             sudo /snap/bin/microk8s enable storage
         args:
           executable: /bin/bash
 
-      - name: enable hostpath-storage
+      - name: Enable hostpath-storage
         ansible.builtin.shell: |
             sudo /snap/bin/microk8s enable hostpath-storage
         args:
           executable: /bin/bash
 
-      - name: enable helm
+      - name: Enable helm
         ansible.builtin.shell: |
             sudo /snap/bin/microk8s enable helm
         args:
@@ -68,7 +67,7 @@
         args:
           executable: /bin/bash
 
-      - name: chown kube
+      - name: Chown kube
         ansible.builtin.shell: |
             sudo chown -R {{ OS_USER }}:{{ OS_USER }} /home/{{ OS_USER }}/.kube
         args:
@@ -80,75 +79,65 @@
         args:
           executable: /bin/bash            
 
-      - name: install helm
+      - name: Install helm
         ansible.builtin.shell: |
             curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
             chmod 700 get_helm.sh
             ./get_helm.sh
+            rm get_helm.sh
         args:
           executable: /bin/bash
 
-      - name: clone repo EDA
+      - name: Helm repo add jpradoar
         ansible.builtin.shell: |
-            rm -rf event-driven-architecture; git clone https://github.com/jpradoar/event-driven-architecture.git -b {{ GIT_BRANCH }}
+            helm repo add jpradoar https://jpradoar.github.io/helm-chart
         args:
           executable: /bin/bash
 
-      - name: Deploy EDA stack
-        ansible.builtin.shell: |
-            helm upgrade -i --create-namespace -n default mqtt /home/{{ OS_USER }}/event-driven-architecture/helm-chart
-        args:
-          executable: /bin/bash
-            
-      - name: monitoring helm repo add grafana
+      - name: Helm repo add grafana
         ansible.builtin.shell: |
             helm repo add grafana https://grafana.github.io/helm-charts
         args:
           executable: /bin/bash
 
-      - name: monitoring helm repo add prometheus
+      - name: Helm repo add prometheus
         ansible.builtin.shell: |
             helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         args:
           executable: /bin/bash
 
-      - name: helm repo update
+      - name: Update helm repos
         ansible.builtin.shell: |
             helm repo update
         args:
           executable: /bin/bash
 
-      - name: monitoring install loki
+      # ---------------------------------------------------
+      # IMPORTANTE:
+      # uso el --wait para que no "suelte" el deployment como terminado
+      # de esta manera me aseguro que recién cuando termina sin errores puedo continuar
+      # ---------------------------------------------------
+      - name: Deploy EDA stack
         ansible.builtin.shell: |
-            helm install --create-namespace -n monitoring loki grafana/loki-stack --set loki.image.tag=2.9.1
+            helm upgrade --wait -i --create-namespace -n default mqtt  jpradoar/event-driven-architecture
+        args:
+          executable: /bin/bash
+            
+      - name: Monitoring install loki
+        ansible.builtin.shell: |
+            helm install --wait --create-namespace -n monitoring loki grafana/loki-stack --set loki.image.tag=2.9.1
         args:
           executable: /bin/bash
 
-      - name: monitoring install prometheus
+      - name: Monitoring install prometheus
         ansible.builtin.shell: |
-            helm install --create-namespace -n monitoring prometheus prometheus-community/prometheus
+            helm install --wait --create-namespace -n monitoring prometheus prometheus-community/prometheus
         args:
           executable: /bin/bash
 
-      - name: monitoring install grafana
+      - name: Monitoring install grafana
         ansible.builtin.shell: |
-            helm install --create-namespace -n monitoring grafana grafana/grafana -f https://raw.githubusercontent.com/jpradoar/test/refs/heads/main/grafana-values.yaml
-        args:
-          executable: /bin/bash
-
-      - name: Open ports for demo
-        when: OPEN_PORTS_FOR_DEMO
-        ansible.builtin.shell: |
-          nohup /snap/bin/kubectl port-forward --address 0.0.0.0 deployment/producer 5000:5000 > /tmp/kubectl_producer.log 2>&1 &
-          nohup /snap/bin/kubectl port-forward --address 0.0.0.0 service/webserver 8080:80 > /tmp/kubectl_webserver.log 2>&1 &
-          nohup /snap/bin/kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
-        args:
-          executable: /bin/bash
-
-      - name: show process
-        when: OPEN_PORTS_FOR_DEMO
-        ansible.builtin.shell: |
-            ps aux |grep -i forwa
+            helm install --wait --create-namespace -n monitoring grafana grafana/grafana -f https://raw.githubusercontent.com/jpradoar/test/refs/heads/main/grafana-values.yaml
         args:
           executable: /bin/bash
 
@@ -161,3 +150,23 @@
             Content-Type: "application/json"
           body: '{"text":"Deployment finished, infrastructure will be ready in a few minutes..."}'
           body_format: json
+
+      - name: Open ports for demo
+        when: OPEN_PORTS_FOR_DEMO
+        ansible.builtin.shell: |
+            nohup /snap/bin/kubectl port-forward --address 0.0.0.0 deployment/producer 5000:5000 > /tmp/kubectl_producer.log 2>&1 &
+            sleep 1
+            nohup /snap/bin/kubectl port-forward --address 0.0.0.0 deployment/webserver 8080:80 > /tmp/kubectl_webserver.log 2>&1 &
+            sleep 1
+            nohup /snap/bin/kubectl port-forward --address 0.0.0.0 service/mqtt-rabbitmq 15672:15672 > /tmp/kubectl_rabbitmq.log 2>&1 &
+            sleep 3
+            nohup /snap/bin/kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
+        args:
+          executable: /bin/bash
+
+      - name: Show process
+        when: OPEN_PORTS_FOR_DEMO
+        ansible.builtin.shell: |
+            ps aux |grep -i forwa
+        args:
+          executable: /bin/bash
