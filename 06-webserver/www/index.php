@@ -73,58 +73,57 @@ body {
 </head>
 <body>    
 <div align="center">
-<img src="it-infrastructure-icon-28.jpg" height="60" width="60">
-<br><h3>Database clients created by MQTT-Event</h3>
-<table border="1" class="table">
-<tr>
-  <th scope="col"> ID </th>
-  <th scope="col"> Client</th>
-  <th scope="col"> ArchType</th>
-  <th scope="col"> Hardware</th>
-  <th scope="col"> Product</th>
-  <th scope="col"> Deployed</th>
-  <th scope="col"> License type</th>
-</tr>
-<?php while($row=$stmt->fetch(PDO::FETCH_ASSOC)) { ?>
+  <img src="it-infrastructure-icon-28.jpg" height="60" width="60">
+  <br>
+  <h3>Database clients created by MQTT-Event</h3>
+  <table border="1" class="table">
   <tr>
-  <td><?php echo $row['id']; ?></td>
-  <td><?php echo $row['client']; ?></td>
-  <td><?php echo $row['archtype']; ?></td>
-  <td><?php echo $row['hardware']; ?></td>    
-  <td><?php echo $row['product']; ?></td>  
-  <td><?php echo $row['xdate']; ?></td>
-  <td><?php echo $row['license']; ?></td>           
+    <th scope="col"> ID </th>
+    <th scope="col"> Client</th>
+    <th scope="col"> ArchType</th>
+    <th scope="col"> Hardware</th>
+    <th scope="col"> Product</th>
+    <th scope="col"> Deployed</th>
   </tr>
-<?php   }   $stmt = null; ?>
-</table>                        
+  <?php while($row=$stmt->fetch(PDO::FETCH_ASSOC)) { ?>
+    <tr>
+    <td><?php echo $row['id']; ?></td>
+    <td><?php echo $row['client']; ?></td>
+    <td><?php echo $row['archtype']; ?></td>
+    <td><?php echo $row['hardware']; ?></td>    
+    <td><?php echo $row['product']; ?></td>  
+    <td><?php echo $row['xdate']; ?></td>       
+    </tr>
+  <?php   }   $stmt = null; ?>
+  </table>                        
+  <!-- 
+  <br><br><h3>DEPLOYMENT REAL TIME STATUS</h3>
+  <ul id="messages"></ul>
+  <script>
+    // Conexión a RabbitMQ
+    const QUEUE_NAME = 'event-status';
+    const AMQP_URL = 'ws://rabbitmq:15674/ws'; // Reemplazar con la URL de conexión a RabbitMQ
 
-<br><br><h3>DEPLOYMENT REAL TIME STATUS</h3>
-<ul id="messages"></ul>
-<script>
-  // Conexión a RabbitMQ
-  const QUEUE_NAME = 'event-status';
-  const AMQP_URL = 'ws://rabbitmq:15674/ws'; // Reemplazar con la URL de conexión a RabbitMQ
+    const client = Stomp.client(AMQP_URL);
+    client.connect('admin', 'admin', onConnect, onError);
 
-  const client = Stomp.client(AMQP_URL);
-  client.connect('admin', 'admin', onConnect, onError);
+    function onConnect() {
+      console.log('Conectado a RabbitMQ');
+      client.subscribe(QUEUE_NAME, onMessageReceived);
+    }
 
-  function onConnect() {
-    console.log('Conectado a RabbitMQ');
-    client.subscribe(QUEUE_NAME, onMessageReceived);
-  }
+    function onError(error) {
+      console.error('Error de conexión a RabbitMQ:', error);
+    }
 
-  function onError(error) {
-    console.error('Error de conexión a RabbitMQ:', error);
-  }
-
-  function onMessageReceived(message) {
-    const body = JSON.parse(message.body);
-    console.log('Mensaje recibido:', body);
-    const li = document.createElement('li');
-    li.innerText = JSON.stringify(body);
-    document.getElementById('messages').appendChild(li);
-  }
-</script>
+    function onMessageReceived(message) {
+      const body = JSON.parse(message.body);
+      console.log('Mensaje recibido:', body);
+      const li = document.createElement('li');
+      li.innerText = JSON.stringify(body);
+      document.getElementById('messages').appendChild(li);
+    }
+  </script> -->
 
 </div>
 
