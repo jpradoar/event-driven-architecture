@@ -30,6 +30,7 @@ hostname            = str(myname+"@"+socket.gethostbyname(myname))
 destination_queue   = os.environ.get('destination_queue') # "infra"
 destination_RK      = os.environ.get('destination_RK') #"infra"
 credentials         = pika.PlainCredentials(mqttuser, mqttpass)
+debug               = 'true' #os.environ.get('debug')
 
 
 # Log formato FECHA - MENSAJE
@@ -106,16 +107,23 @@ def my_form():
           "publisher": "'+myname+'" \
         } \
       }'   
-      send_mqtt_msg(destination_queue, destination_RK, data)  
+      #send_mqtt_msg(destination_queue, destination_RK, data)  
       sendmsg("-   *[Producer] " + data)  
       msginfo='{"client":"'+client+'","status":"Provisioning","product":"'+product+'"}'
-      send_mqtt_msg("event-status", "event-status", msginfo)
+      #send_mqtt_msg("event-status", "event-status", msginfo)
 
       # El return lo genero para que devuelva el json que envia y luego de 3 segundos vuelva al index original.
       # para fines de la demo quiero que se vea que se genera el json que se envia al MQTT y que el 
       # trace_id se mantiene durante todo el proceso de deployment. 
       # Esto resulta muy útil cuando tengo que trackear un mensaje o troubleshootear un workflow completo. !!!!!
-      return "<b>Data sent to mqtt:</b> <br><br> [msg] : " + data + "<br><br> <a href='/'><button>Back</button></a> <meta http-equiv='refresh' content='3;url=/' />"
+      json_data = json.loads(data)  # Convierte la cadena en JSON
+      formatted_data = json.dumps(json_data, indent=2)
+      if not debug:
+          return render_template('index.html')
+      else:
+          return render_template('mensaje.html', formatted_data=formatted_data)
+      
+      
 
 
 # Me conecto al Rabbit y envio el mensaje que fue creado en el formulario, cierro la conexión y envio un mensaje.

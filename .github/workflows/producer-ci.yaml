@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - demo
     paths:
       - '03-producer/**' 
       - '.github/workflows/producer-ci.yaml'
