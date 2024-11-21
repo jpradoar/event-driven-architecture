@@ -107,10 +107,10 @@ def my_form():
           "publisher": "'+myname+'" \
         } \
       }'   
-      #send_mqtt_msg(destination_queue, destination_RK, data)  
+      send_mqtt_msg(destination_queue, destination_RK, data)  
       sendmsg("-   *[Producer] " + data)  
       msginfo='{"client":"'+client+'","status":"Provisioning","product":"'+product+'"}'
-      #send_mqtt_msg("event-status", "event-status", msginfo)
+      send_mqtt_msg("event-status", "event-status", msginfo)
 
       # El return lo genero para que devuelva el json que envia y luego de 3 segundos vuelva al index original.
       # para fines de la demo quiero que se vea que se genera el json que se envia al MQTT y que el 
