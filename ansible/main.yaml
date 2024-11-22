@@ -119,7 +119,7 @@
       # ---------------------------------------------------
       - name: Deploy EDA stack
         ansible.builtin.shell: |
-          helm upgrade --wait -i --create-namespace -n default mqtt  jpradoar/event-driven-architecture --set producer.tag=1.1.6-demo
+          helm upgrade --wait -i --create-namespace -n default mqtt  jpradoar/event-driven-architecture
         args:
           executable: /bin/bash
             
