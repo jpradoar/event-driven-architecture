@@ -1,14 +1,9 @@
+---
 name: code checker
 on:
   push:
     branches:
       - develop
-  pull_request:
-    types: [opened, reopened]
-  pull_request:
-    branches:
-      - develop
-      - main
     paths:
       - '03-producer/*.py'
       - '04-consumer/*.py'
