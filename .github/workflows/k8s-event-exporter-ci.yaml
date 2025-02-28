@@ -88,7 +88,8 @@ jobs:
       id: trivy_scan
       continue-on-error: true
       run: |
-        rm -rf ./vuln_scans/${{ env.REPO_APP }}_vuln_scan.table
+        wget -N https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/vuln_scans/html.tpl; 
+        rm -rf ./vuln_scans/${{ env.REPO_APP }}_vuln_scan.html; 
         trivy image \
          --scanners ${{ env.VULN_SCANNERS }} \
          --severity ${{ env.VULN_SEVERITY }} \
@@ -96,18 +97,19 @@ jobs:
          --pkg-types ${{ env.VULN_TYPE }} \
          --license-full \
          --ignored-licenses ${{ env.VULN_IGNORED_LIC }} \
-         --format ${{ env.VULN_FORMAT }} \
+         --format template \
+         --template "@html.tpl"  \
          --exit-code ${{ env.VULN_EXIT_CODE }} \
          --db-repository ${{ env.TRIVY_REPOSITORY }} \
          --ignore-unfixed \
-         -o ./vuln_scans/${{ env.REPO_APP }}_vuln_scan.table \
+         -o ./vuln_scans/${{ env.REPO_APP }}_vuln_scan.html \
         'jpradoar/${{ env.REPO_APP }}:${{ steps.nversion.outputs.NEW_VERSION }}'
 
 
     - name: show vulnerability report
       if: ${{ steps.trivy_scan.outcome == 'failure' }}
       run: |
-        cat ./vuln_scans/${{ env.REPO_APP }}_vuln_scan.table
+        cat ./vuln_scans/${{ env.REPO_APP }}_vuln_scan.html
 
 
     - name: validate if exist vuln
@@ -115,9 +117,9 @@ jobs:
       run: |
         echo "### See detailed information in: " > /tmp/vuln_info.md
         echo "<br>![](https://custom-icon-badges.demolab.com/badge/Vulnerability-detected-red.svg) ![](https://custom-icon-badges.demolab.com/badge/Affected_version-${{ steps.nversion.outputs.NEW_VERSION }}-purple.svg) <br>" >> /tmp/vuln_info.md
-        echo " * Detected in image: [${{ env.REPO_APP }}](https://hub.docker.com/repository/docker/jpradoar/${{ env.REPO_APP }}/general)" >> /tmp/vuln_info.md
+        echo " * Vulnerability report: [vuln_scans/${{ env.REPO_APP }}_vuln_scan](https://jpradoar.github.io/jpradoar/vuln_scans/${{ env.REPO_APP }}_vuln_scan.html)"  >> /tmp/vuln_info.md
         echo " * Detected in commit: ${{ github.sha }}"  >> /tmp/vuln_info.md
-        echo " * Vulnerability report: [vuln_report](https://github.com/jpradoar/event-driven-architecture/blob/main/vuln_scans/${{ env.REPO_APP }}_vuln_scan.table)" >> /tmp/vuln_info.md
+        echo " * Vulnerability report: [vuln_report](https://github.com/jpradoar/event-driven-architecture/blob/main/vuln_scans/${{ env.REPO_APP }}_vuln_scan.html)" >> /tmp/vuln_info.md
 
 
     - name: update data
@@ -130,13 +132,13 @@ jobs:
       uses: EndBug/add-and-commit@v9
       with:
         message: 'AutoCommit: upload vuln scan report'
-        add: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.table'
+        add: './vuln_scans/${{ env.REPO_APP }}_vuln_scan.html'
 
 
     - name: Vulnerability detected - Create issue
       if: ${{ steps.trivy_scan.outcome == 'failure' }}
       run: |
-        body="New vulnerability detected on vuln_scans/${{ env.REPO_APP }}_vuln_scan.table" 
+        body="New vulnerability detected on vuln_scans/${{ env.REPO_APP }}_vuln_scan.html" 
         gh issue create \
         --repo ${{ github.repository }} \
         --title ":skull: [vuln] vulnerability detected on image ${{ env.REPO_APP }} " \
