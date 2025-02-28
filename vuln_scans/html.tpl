@@ -146,7 +146,7 @@
 {{- else }}
   </head>
   <body>
-    <h1>Trivy Returned Empty Report</h1>
+    <h1>Returned Empty Report</h1>
 {{- end }}
   </body>
 </html>
