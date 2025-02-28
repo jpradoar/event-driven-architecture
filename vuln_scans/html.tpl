@@ -11,16 +11,18 @@
         text-align: center;
       }
       .group-header th {
-        font-size: 200%;
+        font-size: 150%;
+        background-color: #a2a2a2;
       }
       .sub-header th {
-        font-size: 150%;
+        font-size: 120%;
       }
       table, th, td {
         border: 1px solid black;
         border-collapse: collapse;
         white-space: nowrap;
         padding: .3em;
+
       }
       table {
         margin: 0 auto;
@@ -84,14 +86,12 @@
   <body>
     <div align="center">
       <h2>{{- escapeXML ( index . 0 ).Target }}</h2>
-      <br>
-      <b>Last check: </b> {{ now }}
     </div>
     <table>
     {{- range . }}
       <tr class="group-header"><th colspan="6">{{ .Type | toString | escapeXML }}</th></tr>
       {{- if (eq (len .Vulnerabilities) 0) }}
-      <tr><th colspan="6">No Vulnerabilities found</th></tr>
+      <!--<tr><th colspan="6">No Vulnerabilities found</th></tr>-->
       {{- else }}
       <tr class="sub-header">
         <th>Package</th>
@@ -117,7 +117,7 @@
         {{- end }}
       {{- end }}
       {{- if (eq (len .Misconfigurations ) 0) }}
-      <tr><th colspan="6">No Misconfigurations found</th></tr>
+      <!--<tr><th colspan="6">No Misconfigurations found</th></tr>-->
       {{- else }}
       <tr class="sub-header">
         <th>Type</th>
@@ -141,9 +141,31 @@
       </tr>
         {{- end }}
       {{- end }}
+       <!-- Secrets Section -->
+        {{- if .Secrets }}
+          <tr class="group-header"><th colspan="6">Secrets</th></tr>
+          <tr class="sub-header">
+            <th>File</th>
+            <th>Secret</th>
+            <th>Severity</th>
+            <th>Line</th>
+          </tr>
+          {{- range .Secrets }}
+            <tr class="severity-{{ escapeXML .Severity }}">
+              <td class="file">{{ escapeXML .File }}</td>
+              <td class="secret">{{ escapeXML .Secret }}</td>
+              <td class="severity">{{ escapeXML .Severity }}</td>
+              <td class="line">{{ escapeXML .Line }}</td>
+            </tr>
+          {{- end }}
+        {{- else }}
+          <!--<tr><th colspan="6">No Secrets found</th></tr>-->
+        {{- end }}
     {{- end }}
     </table>
+    <div align="center"><br><b>Last check: </b> {{ now }}</div>
 {{- else }}
+
   </head>
   <body>
     <h1>Returned Empty Report</h1>
