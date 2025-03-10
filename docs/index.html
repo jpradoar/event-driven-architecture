@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Portfolio - Event Driven Architecture</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			text-align: center;
+			background-color: #f4f4f4;
+			margin: 0;
+			padding: 0;
+		}
+		.container {
+			width: 80%;
+			margin: auto;
+			padding: 20px;
+		}
+		h1 {
+			color: #333;
+		}
+		.titles {
+			text-align: center;
+		}
+		.badges img {
+			margin: 10px;
+		}
+		.section {
+			background: white;
+			padding: 10px;
+			margin: 10px 0;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			text-align: left;
+		}
+		.button {
+		   background-color: #008CBA;
+		   border-radius: 8px;
+		   border: none;
+		   color: black;
+		   padding: 8px 15px;
+		   text-align: center;
+		   text-decoration: none;
+		   display: inline-block;
+		   font-size: 16px;
+		}
+		.toCenter {
+			text-align: center;
+		}
+        code {
+            display: block;
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre;
+        }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Event Driven Architecture</h1>
+		<h2>🏠 A small SaaS project for IoT</h2>
+		<hr>
+
+		<div class="section toCenter">
+			<h2>📌 About This Project </h2> 
+			<p>This is a personal project and a proof of concept to learn and implement Event Driven Architecture using Python, RabbitMQ, and Kubernetes.</p>
+			<a href="https://github.com/users/jpradoar/projects/2/views/1" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/Kanban_project_(see_all_roadmap)-black.svg?logo=book"></a>
+			<a href="https://jpradoar.github.io/helm-chart/" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/Helm_charts_(personal_repo)-blue.svg?logo=Helm"></a>
+			<a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/My_own_Semangit_Version-git_action-lightblue.svg?logo=tag"><a>
+		</div>
+		<div class="section toCenter">
+			<h2>Compilations and Workflow status</h2>
+		<div class="badges toCenter">
+			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/producer-ci.yaml/badge.svg" alt="Producer (CI)">
+			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/consumer-ci.yaml/badge.svg" alt="Consumer (CI)">
+			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/dbwriter-ci.yaml/badge.svg" alt="DB Writer (CI)">
+			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/webserver-ci.yaml/badge.svg" alt="Webserver (CI)">
+			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/k8s-event-exporter-ci.yaml/badge.svg" alt="K8s Event Exporter (CI)">
+		</div>
+				
+
+		</div>
+		
+
+		<div class="section">
+		<h2 class="titles">💡 Main idea</h2>
+		A simple excuse learn and use Python as Pub/Sub and a message broker, in this case RabbitMQ,  to provisioning infrastructure triggered by event like "buy a small module" and finally monitoring all infrastructure. <br>
+		I love IoT, for this reason, this PoC is designed to simulate a  "SasS Product". <br>
+		At the end of all this, it will provision my small IoT modules. 👾 <br>
+
+		<br>
+		<h2 class="titles">🔥 Supposed problem</h2>
+
+		<br>💀 I need to manage a lot inputs, all of them, will be to do different tasks, like messages, deployments, and more. Obvioulsly I will re-use data to make another jobs generate custom events, and finally ,will be use Grafana to see some analysis and tendences.
+		<br>💀 Some apps have to get information but a common problem is have or develop lot of products in with different technologies like, NodeJs,Python,Php.
+		<br>💀 I would like to have a shared origin to get data and avoid RE-build or make connectors or apis for connect different components in different tech/languages.
+		<br>💀 All developers need to know what version must be fixed, or I need a human resource to manage version number. (I would like avoid manage it manually).
+
+
+		<br>
+		<h2 class="titles">🏁 Objetive</h2>
+		<br>✔️ Create a simple api to centralize all "inputs" and organize work-loads by queues.
+		<br>✔️ Each microservice consume his our queue and if need, can consume others to.
+		<br>✔️ Each microservice do a specific tasks, this is to avoid have "JUMBO-Pods".
+		<br>✔️ All microservice generate logs for future monitoring, analysis and make improvements or troubleshoot.
+		<br>✔️ All logs must to be expose in stdout, to avoid write data in the container. This way enable me to use my pods with ReadOnly Filesystem.
+		<br>✔️ Automate All tasks via microservice API-CALL environments.
+		<br>✔️ Generate a big scalability and security isolating each tasks in small actions/calls.
+		<br>✔️ Avoid tech dependences or "human-tech dependence". Each human can enjoy his own Tech/Language.
+		<br>✔️ The standard (input/output) will be <a href="https://www.json.org/json-en.html"  target="_blank"><img src="https://img.shields.io/badge/JSON-blue"></a> because its an open standard and is easy to implement and easy to parse.
+		<br>✔️ To manage version numbers I created a <a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/My_own_Semangit_Version-git_action-lightblue.svg?logo=tag"><a>
+
+
+		<br><h2 class="titles">🛡️ Minimum security</h2>
+		<br>✔️ Safe data: My apps use tokens or passwords, and I need to manage them safely and then I need to commit all data without leaking my secrets.
+		<br>✔️ Vulnerability Scans: Every time a Developer or SRE build a docker image must be scanned to find possible vulnerabilities. If it happen that image have to mark with different tag. 
+		<br>See examples: <a href="https://github.com/jpradoar/event-driven-architecture/tree/main/vuln_scans" target="_blank"><img src="https://img.shields.io/badge/Vulnerability-List_Scans-red"><a> and <b><a href="https://jpradoar.github.io/event-driven-architecture/vuln_scans/vuln_scan_demo.html" target="_blank"><img src="https://img.shields.io/badge/EXAMPLE-for_humans_(html)-red"></a></b>
+
+
+		<br><h2 class="titles">🔍 Monitoring</h2>
+		<br>✔️ Monitoring: All developers or devops must be see some metrics. (PLG Stack)
+		 
+
+		<br><h2 class="titles">🎁 Extra feature</h2>
+
+		<br>✔️ Vendor lock-in: In my case, I prefer have a infrastructure can be used and implemented in any cloud provider that runs a kubernetes cluster, in an "on-premise" client environment or even in a development environment, like my laptop.<br>
+		
+		</div>
+
+
+		<br><br>
+
+		<br>
+		<div align="center">
+		<br>
+		<h2 class="titles">Workflow logic</h2>
+		<br>
+		<img src="../img/github-event-driven-architecture-workflow.png" width="60%">
+
+		<br>
+		<br><h2 class="titles">Architecture</h2>
+		<br>
+		<img src="../img/event-driven-architecture.jpg" alt="Architecture Design" width="60%">
+
+
+		<br><h2 class="titles">Json data model (example)</h2>
+		<div class="section">
+		<code>
+		{
+		"client":"cliente02",                          /* Client Name or Identification */ 
+		"namespace":"cliente02",                       /* kubernetes namespace = client */
+		"environment":"Development",                   /* Dev / Stage / Prod */
+		"archtype":"SaaS",                             /* SaaS / Edge / On-Prem */
+		"hardware":"Dedicated",                        /* Classic (No extra cost allocated) / Dedicated (Extra cost allocated) */
+		"product":"Product-A",                         /* Product-A / -B / -C / -N */ 
+		"MessageAttributes": { 
+		  "event_type": { 
+			"Type": "String",     
+			"Value": "mycompany.producer.event.client.published"   /* (Dinamic) Company.App.messageType.client.EventAction */
+			}, 
+		  "published_on": "2023.01.2.23.02.642883101",         /* +%Y.%m.%d.%H.%M.%N */ 
+		  "trace_id": "9a2ae9de-3f82-4f55-966b-47df50ff51ff",  /* uniq random string  */
+		  "retrace_intent": "0"                                /* how many reintents */
+		  }, 
+		  "Metadata": { 
+			"host": "hostname",                    /* microservice */
+			"origing": "Cloud",                    /* Cloud / On-Prem */
+			"publisher": "producer"                /* publisherType */
+		  } 
+		} 
+		</code>
+		</div>
+
+		<br><h2 class="titles">TraceID from deployment workflow to pod annotations</h2>
+		<br>
+		<img src="../img/client-pod-trace_id.png" width="40%"> 
+
+		<br>
+		<div class="section">
+		This <b>trace_id</b> is super usefull when you need to see the deployment trace, and then I use it like reference tag and/or annotations in pods.
+		trace_id is generated on first api-call in deployment process and is allocated to all the pods. If you use grafana or similar you can trace all steps and associate it to deployment or even in each pod deployed with this process
+		</div>
+
+		<br><h2 class="titles">DBClients UI (webserver)</h2>
+		<br>
+		<img src="../img/webserver.png" width="60%">
+		<br>
+
+		<br><h2 class="titles">Kubernetes Logs</h2>
+		<br>
+		<img src="../img/consumer-logs.png" width="60%">
+		<br>
+		<img src="../img/full-log.png" width="60%">
+		<br>
+
+		<br><h2 class="titles">Alerts and Messages</h2>
+		<br>
+		<img src="../img/slack-build-msg.png" width="60%">
+		<br>
+
+
+    <br><hr><br>
+    <br><h2 class="titles">Techs</h2>
+    <img src="https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white">
+    <img src="https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white">
+    <img src="https://img.shields.io/badge/ansible-%231A1918.svg?style=for-the-badge&logo=ansible&logoColor=white">
+    <img src="https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white">
+    <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54">
+    <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white">
+    <img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white">
+    <img src="https://img.shields.io/badge/Rabbitmq-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white">
+    <img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=Prometheus&logoColor=white">
+    <img src="https://img.shields.io/badge/grafana-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white">
+    <img src="https://img.shields.io/badge/Loki-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white">
+    <img src="https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white">
+    <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white">
+    <img src="https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white">
+    <br>
+    <img src="https://img.shields.io/badge/espressif-E7352C.svg?style=for-the-badge&logo=espressif&logoColor=white">
+    <img src="https://img.shields.io/badge/-Arduino-00979D?style=for-the-badge&logo=Arduino&logoColor=white">
+
+
+
+
+
+		</div>
+	</div>
+</body>
+</html>
