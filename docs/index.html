@@ -88,9 +88,11 @@
 
 		<div class="section">
 		<h2 class="titles">💡 Main idea</h2>
-		A simple excuse learn and use Python as Pub/Sub and a message broker, in this case RabbitMQ,  to provisioning infrastructure triggered by event like "buy a small module" and finally monitoring all infrastructure. <br>
-		I love IoT, for this reason, this PoC is designed to simulate a  "SasS Product". <br>
-		At the end of all this, it will provision my small IoT modules. 👾 <br>
+		A simple excuse learn and use Python as Pub/Sub and a message broker, in this case RabbitMQ, to provisioning infrastructure triggered by event like "buy a small module" and finally monitoring all infrastructure. 
+		I love IoT, for this reason, this PoC is designed to simulate a  "SasS Product". At the end of all this, it will provision my small IoT modules. 👾 
+		<br><br>The project has two big "blocks"
+		<br>● <b>First</b>: Base infrastructure. Kubernetes over AWS EC2 and all deployed with Terraform and Ansible. 
+		<br>● <b>Second</b>: Kubernetes architecture, APIs, Services, Databases and more endpoints all deployed in Kubernetes with Helm using my own Helm-charts
 
 		<br>
 		<h2 class="titles">🔥 Supposed problem</h2>
@@ -103,32 +105,35 @@
 
 		<br>
 		<h2 class="titles">🏁 Objetive</h2>
-		<br>✔️ Create a simple api to centralize all "inputs" and organize work-loads by queues.
-		<br>✔️ Each microservice consume his our queue and if need, can consume others to.
-		<br>✔️ Each microservice do a specific tasks, this is to avoid have "JUMBO-Pods".
-		<br>✔️ All microservice generate logs for future monitoring, analysis and make improvements or troubleshoot.
-		<br>✔️ All logs must to be expose in stdout, to avoid write data in the container. This way enable me to use my pods with ReadOnly Filesystem.
-		<br>✔️ Automate All tasks via microservice API-CALL environments.
-		<br>✔️ Generate a big scalability and security isolating each tasks in small actions/calls.
-		<br>✔️ Avoid tech dependences or "human-tech dependence". Each human can enjoy his own Tech/Language.
-		<br>✔️ The standard (input/output) will be <a href="https://www.json.org/json-en.html"  target="_blank"><img src="https://img.shields.io/badge/JSON-blue"></a> because its an open standard and is easy to implement and easy to parse.
-		<br>✔️ To manage version numbers I created a <a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/My_own_Semangit_Version-git_action-lightblue.svg?logo=tag"><a>
+		<br>● The same scenario must be able to be reproduced multiple times.
+		<br>● Full project (or almost all) need to be a code  ( or/and IaaC).
+		<br>● Create a simple api to centralize all "inputs" and organize work-loads by queues.
+		<br>● Each microservice consume his our queue and if need, can consume others to.
+		<br>● Each microservice do a specific tasks, this is to avoid have "JUMBO-Pods".
+		<br>● All microservice generate logs for future monitoring, analysis and make improvements or troubleshoot.
+		<br>● All logs must to be expose in stdout, to avoid write data in the container. This way enable me to use my pods with ReadOnly Filesystem.
+		<br>● Automate All tasks via microservice API-CALL environments.
+		<br>● Generate a big scalability and security isolating each tasks in small actions/calls.
+		<br>● Avoid tech dependences or "human-tech dependence". Each human can enjoy his own Tech/Language.
+		<br>● The standard (input/output) will be <a href="https://www.json.org/json-en.html"  target="_blank"><img src="https://img.shields.io/badge/JSON-blue"></a> because its an open standard and is easy to implement and easy to parse.
+		<br>● To manage version numbers I created a <a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/My_own_Semangit_Version-git_action-lightblue.svg?logo=tag"><a>
 
 
 		<br><h2 class="titles">🛡️ Minimum security</h2>
-		<br>✔️ Safe data: My apps use tokens or passwords, and I need to manage them safely and then I need to commit all data without leaking my secrets.
-		<br>✔️ Vulnerability Scans: Every time a Developer or SRE build a docker image must be scanned to find possible vulnerabilities. If it happen that image have to mark with different tag. 
-		<br>See examples: <a href="https://github.com/jpradoar/event-driven-architecture/tree/main/vuln_scans" target="_blank"><img src="https://img.shields.io/badge/Vulnerability-List_Scans-red"><a> and <b><a href="https://jpradoar.github.io/event-driven-architecture/vuln_scan_demo.html" target="_blank"><img src="https://img.shields.io/badge/EXAMPLE-for_humans_(html)-red"></a></b>
+		<br>● Safe data: My apps use tokens or passwords, and I need to manage them safely and then I need to commit all data without leaking my secrets.
+		<br>● Vulnerability Scans: Every time a Developer or SRE build a docker image must be scanned to find possible vulnerabilities. If it happen that image have to mark with different tag. 
+		<br>➤ See examples: <a href="https://github.com/jpradoar/event-driven-architecture/tree/main/vuln_scans" target="_blank"><img src="https://img.shields.io/badge/Vulnerability-List_Scans-red"><a> and <b><a href="https://jpradoar.github.io/event-driven-architecture/vuln_scan_demo.html" target="_blank"><img src="https://img.shields.io/badge/EXAMPLE-for_humans_(html)-red"></a></b>
 
 
 		<br><h2 class="titles">🔍 Monitoring</h2>
-		<br>✔️ Monitoring: All developers or devops must be see some metrics. (PLG Stack)
+		<br>● Monitoring: All developers or devops must be see some metrics. (PLG Stack)
 		 
 
 		<br><h2 class="titles">🎁 Extra feature</h2>
 
-		<br>✔️ Vendor-neutral: In my case, I prefer have a infrastructure can be used and implemented in any cloud provider that runs a kubernetes cluster, in an "on-premise" client environment or even in a development environment, like my laptop.<br>
-		
+		<br>● Vendor-neutral: In my case, I prefer have a infrastructure can be used and implemented in any cloud provider that runs a kubernetes cluster, in an "on-premise" client environment or even in a development environment, like my laptop.<br>
+			
+
 		</div>
 
 
