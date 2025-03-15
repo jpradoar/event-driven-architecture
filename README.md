@@ -7,7 +7,6 @@
 <br>
 <hr>
 
-    
 :rocket:  <b> Build Status and info project:
 <p></b>
 
@@ -22,9 +21,12 @@
     
 |Link | Desc |
 |---|---|
-| <a href="https://jpradoar.github.io/helm-chart/" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Helm_charts-blue.svg?logo=Helm)</a>  |Personal Helm repo   |
 |<a href="https://github.com/users/jpradoar/projects/2/views/1" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Kanban_project-blue.svg?logo=book)</a>   |here you can see all project roadmap and more info  |
+| <a href="https://jpradoar.github.io/helm-chart/" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Helm_charts-blue.svg?logo=Helm)</a>  |Personal Helm repo   |
 |<a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Semangit_Version-blue.svg?logo=tag)</a>   |Own semantic version Github Action  |
+|Index URL|[https://jpradoar.github.io/event-driven-architecture/](https://jpradoar.github.io/event-driven-architecture/)|
+
+
 
 
 </div>
