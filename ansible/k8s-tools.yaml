@@ -1,0 +1,54 @@
+---
+- name: DEPLOY K8S TOOLS
+  hosts: all
+  become: true
+  become_method: sudo
+  become_user: admin
+
+  tasks:
+
+      - name: Add ArgoCD helm repo 
+        ansible.builtin.shell: |
+            helm repo add argocd https://argoproj.github.io/argo-helm
+            helm repo update
+        args:
+          executable: /bin/bash
+
+      - name: Install ArgoCD
+        ansible.builtin.shell: |
+            helm upgrade -i argocd -n argocd --create-namespace argocd/argo-cd --wait
+        args:
+          executable: /bin/bash
+
+      - name: Get ArgoCD initial-admin-secret
+        register: argocd_initial_admin_secret
+        ansible.builtin.shell: |
+            /snap/bin/kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+        args:
+          executable: /bin/bash
+      - debug: msg="{{ argocd_initial_admin_secret.stdout }}"
+
+      - name: Add Istio helm repo 
+        ansible.builtin.shell: |
+            helm repo add istio https://istio-release.storage.googleapis.com/charts
+            helm repo update
+        args:
+          executable: /bin/bash
+
+      - name: Install istio/base
+        ansible.builtin.shell: |
+            helm upgrade -i istio-base istio/base -n istio-system --create-namespace --set defaultRevision=default --wait
+        args:
+          executable: /bin/bash
+
+      - name: Install istio/istiod
+        ansible.builtin.shell: |
+            helm upgrade -i istiod istio/istiod -n istio-system --wait
+        args:
+          executable: /bin/bash
+
+      - name: Install istio/gateway
+        ansible.builtin.shell: |
+            helm upgrade -i istio-ingress -n istio-ingress --create-namespace istio/gateway --wait
+        args:
+          executable: /bin/bash
