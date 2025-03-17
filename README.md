@@ -76,7 +76,18 @@ At the end of all this, it will provision my small IoT modules. :space_invader: 
 <br><hr><br>
 
 
-### Workflow logic
+### Infrastructure design and workflow
+
+<div algin="center">
+<br><img src="img/infrastructure-diagram.jpg">
+<br>
+<br><img src="img/terraform-workflow.jpg">
+</div>
+
+
+<br><br>
+
+### Docker workflows logic
 <br><img src="img/github-event-driven-architecture-workflow.png">
 
 <br>
