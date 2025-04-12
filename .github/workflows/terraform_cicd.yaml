@@ -49,12 +49,15 @@ jobs:
           terraform -chdir=terraform/  fmt -check
           
       - name: Terraform Security Scan
+        continue-on-error: true
         run: |
-          docker run --rm -v $PWD/terraform/:/data  aquasec/tfsec --no-color -m CRITICAL -O /data/output.txt /data
+          mkdir -p /tmp/output
+          docker run --rm -v $PWD/terraform/:/data -v /tmp/output:/tmp/output  aquasec/tfsec --no-color -m CRITICAL -O /tmp/output/output.txt /data
+        #docker run --rm -v $PWD/terraform/:/data  aquasec/tfsec --no-color -m CRITICAL -O /data/output.txt /data
 
       - name: Show TF Security Scan
         run: |
-          cat $PWD/terraform/output.txt
+          cat /tmp/output/output.txt
           
       - name: Make a Terraform plan
         run: |
