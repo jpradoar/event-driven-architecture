@@ -60,10 +60,10 @@ jobs:
         run: |
           cat /tmp/output/output.txt
           
-      - name: Make a Terraform plan
-        run: |
-          terraform -chdir=terraform/ plan
+      #- name: Make a Terraform plan
+      #  run: |
+      #    terraform -chdir=terraform/ plan
 
       - name: Make a Real Terraform apply (in fake provider)
         run: |
-          terraform -chdir=terraform/ apply --auto-approve
+          terraform -chdir=terraform/ apply -auto-approve
