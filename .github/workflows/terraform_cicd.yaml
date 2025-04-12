@@ -17,7 +17,7 @@ jobs:
       - name: Install docker-compose
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker-compose
+          sudo apt-get install -y docker-compose openssh-client
 
       - name: Start localstack
         run: docker-compose -f localstack/docker-compose.yaml up -d
@@ -25,10 +25,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Create fake AWS provider
+      - name: Configure a fake AWS provider
         run: |
           mv terraform/provider.tf{,_ori}
           cp localstack/localstack_tf_provider.tf terraform/provider.tf
+          ssh-keygen -b 2048 -t rsa -f terraform/kp/demo_sshkey_tf -q -N ''
 
       - name: Terraform init
         run: |
@@ -36,7 +37,7 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=test
           export AWS_DEFAULT_REGION=us-east-1
           export AWS_ENDPOINT_URL=http://localhost:4566
-          terraform -chdir=terraform/ init
+          terraform -chdir=terraform/ init          
 
       - name: Terraform Format and Validate
         run: |
@@ -47,6 +48,14 @@ jobs:
         run: |
           docker run --rm -it -v $PWD/terraform/:/data  aquasec/tfsec --no-color -m CRITICAL -O /data/output.txt /data
 
-      - name: Terraform plan
+      - name: Show TF Security Scan
+        run: |
+          cat $PWD/terraform/output.txt
+          
+      - name: Make a Terraform plan
+        run: |
+          terraform -chdir=terraform/ plan
+
+      - name: Make a Real Terraform apply (in fake provider)
         run: |
           terraform -chdir=terraform/ apply --auto-approve
