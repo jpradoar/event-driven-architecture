@@ -50,7 +50,7 @@ jobs:
           
       - name: Terraform Security Scan
         run: |
-          docker run --rm -it -v $PWD/terraform/:/data  aquasec/tfsec --no-color -m CRITICAL -O /data/output.txt /data
+          docker run --rm -v $PWD/terraform/:/data  aquasec/tfsec --no-color -m CRITICAL -O /data/output.txt /data
 
       - name: Show TF Security Scan
         run: |
