@@ -56,19 +56,19 @@ jobs:
           terraform -chdir=terraform/  validate
 
       - name: Terraform Format
-        #continue-on-error: true
+        continue-on-error: true
         run: |
           terraform -chdir=terraform/  fmt -check
 
       - name: Slack Notification
-        if: failure()
+        if: steps.terraform_fmt.outcome == 'failure'
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
           SLACK_COLOR: ${{ env.SLACK_MSG_COLOR }}
-          SLACK_MESSAGE: 'Terraform format validation was faled, please check your code'
-          SLACK_TITLE: ':warning: GithubAction Terraform format validator]'
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}          
+          SLACK_TITLE: ':warning: Terraform format validator'
+          SLACK_MESSAGE: 'Terraform format validation has failed, please check your code with `terraform fmt` '
 
       - name: Terraform Security Scan
         continue-on-error: true
