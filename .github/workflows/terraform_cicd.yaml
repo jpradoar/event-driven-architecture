@@ -49,19 +49,23 @@ jobs:
 
       - name: Terraform init
         run: |
-          terraform -chdir=terraform/ init          
+          terraform -chdir=terraform/ init        
 
       - name: Terraform Validate
         run: |
           terraform -chdir=terraform/  validate
 
       - name: Terraform Format
-        continue-on-error: true
+        id: terraform_fmt
         run: |
-          terraform -chdir=terraform/  fmt -check
+#          terraform -chdir=terraform/  fmt -check
+          set +e
+          terraform -chdir=terraform/ fmt -check
+          echo "FMT_EXIT_CODE=$?" >> $GITHUB_ENV
+          exit 0
 
       - name: Slack Notification
-        if: steps.terraform_fmt.outcome == 'failure'
+        if: env.FMT_EXIT_CODE != '0'
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
