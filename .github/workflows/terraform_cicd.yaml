@@ -56,7 +56,7 @@ jobs:
           terraform -chdir=terraform/  validate
 
       - name: Terraform Format
-        continue-on-error: true
+        #continue-on-error: true
         run: |
           terraform -chdir=terraform/  fmt -check
 
@@ -69,7 +69,6 @@ jobs:
           SLACK_MESSAGE: 'Terraform format validation was faled, please check your code'
           SLACK_TITLE: ':warning: GithubAction Terraform format validator]'
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-
 
       - name: Terraform Security Scan
         continue-on-error: true
