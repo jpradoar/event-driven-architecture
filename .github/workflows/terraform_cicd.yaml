@@ -7,7 +7,7 @@ on:
     branches:
       - feat/terraform
 jobs:
-  validate-infra:
+  terraform-cicd:
     runs-on: ubuntu-latest
     #
     steps:
@@ -16,7 +16,8 @@ jobs:
       
       - name: Install docker-compose
         run: |
-          apt-get update; apt-get install -y docker-compose
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       - name: Start localstack
         run: docker-compose -f localstack/docker-compose.yaml up -d
