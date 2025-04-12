@@ -55,7 +55,6 @@ jobs:
         run: |
           terraform -chdir=terraform/  validate
 
-
       - name: Terraform Format
         id: terraform_fmt
         run: |
@@ -85,9 +84,9 @@ jobs:
         run: |
           cat /tmp/output/output.txt
           
-      - name: Make a Terraform plan
-        run: |
-          terraform -chdir=terraform/ plan 
+      #- name: Make a Terraform plan
+      #  run: |
+      #    terraform -chdir=terraform/ plan 
 
       - name: Make a Real Terraform apply (in fake provider)
         run: |
