@@ -3,11 +3,18 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'terraform/*.tf'
+      - '.github/workflows/terraform_cicd.yaml'
   push:
     branches:
       - feat/terraform
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terraform_cicd.yaml'
+
 jobs:
-  terraform-cicd:
+  Terraform-CICD:
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: test     # ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -53,6 +60,17 @@ jobs:
         run: |
           terraform -chdir=terraform/  fmt -check
 
+      - name: Slack Notification
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
+          SLACK_COLOR: ${{ env.SLACK_MSG_COLOR }}
+          SLACK_MESSAGE: 'Terraform format validation was faled, please check your code'
+          SLACK_TITLE: ':warning: GithubAction Terraform format validator]'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+
       - name: Terraform Security Scan
         continue-on-error: true
         run: |
@@ -64,9 +82,9 @@ jobs:
         run: |
           cat /tmp/output/output.txt
           
-      #- name: Make a Terraform plan
-      #  run: |
-      #    terraform -chdir=terraform/ plan 
+      - name: Make a Terraform plan
+        run: |
+          terraform -chdir=terraform/ plan 
 
       - name: Make a Real Terraform apply (in fake provider)
         run: |
