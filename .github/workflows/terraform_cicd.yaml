@@ -55,10 +55,10 @@ jobs:
         run: |
           terraform -chdir=terraform/  validate
 
+
       - name: Terraform Format
         id: terraform_fmt
         run: |
-#          terraform -chdir=terraform/  fmt -check
           set +e
           terraform -chdir=terraform/ fmt -check
           echo "FMT_EXIT_CODE=$?" >> $GITHUB_ENV
