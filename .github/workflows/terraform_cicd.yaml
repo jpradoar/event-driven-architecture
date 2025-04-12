@@ -1,0 +1,47 @@
+name: Terraform CI/CD
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - feat/terraform
+jobs:
+  validate-infra:
+    runs-on: ubuntu-latest
+    #
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start localstack
+        run: docker-compose -f localstack/docker-compose.yaml up -d
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Create fake AWS provider
+        run: |
+          mv terraform/provider.tf{,_ori}
+          cp localstack/localstack_tf_provider.tf terraform/provider.tf
+
+      - name: Terraform init
+        run: |
+          export AWS_ACCESS_KEY_ID=test
+          export AWS_SECRET_ACCESS_KEY=test
+          export AWS_DEFAULT_REGION=us-east-1
+          export AWS_ENDPOINT_URL=http://localhost:4566
+          terraform -chdir=terraform/ init
+
+      - name: Terraform Format and Validate
+        run: |
+          terraform -chdir=terraform/  validate
+          terraform -chdir=terraform/  fmt -check
+          
+      - name: Terraform Security Scan
+        run: |
+          docker run --rm -it -v $PWD/terraform/:/data  aquasec/tfsec --no-color -m CRITICAL -O /data/output.txt /data
+
+      - name: Terraform plan
+        run: |
+          terraform -chdir=terraform/ apply --auto-approve
