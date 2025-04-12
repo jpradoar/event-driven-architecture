@@ -36,6 +36,10 @@ jobs:
           cp localstack/localstack_tf_provider.tf terraform/provider.tf
           ssh-keygen -b 2048 -t rsa -f terraform/kp/demo_sshkey_tf -q -N ''
 
+      - name: Replace AMI ID (localstack dont have all real AMI IDs)
+        run: |
+          sed -i 's/ami-064519b8c76274859/ami-1ecc1e67/g' *.tf
+
       - name: Terraform init
         run: |
           terraform -chdir=terraform/ init          
