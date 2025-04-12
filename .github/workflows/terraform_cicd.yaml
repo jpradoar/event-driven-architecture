@@ -48,13 +48,13 @@ jobs:
         continue-on-error: true
         run: |
           terraform -chdir=terraform/  fmt -check
-          
+
       - name: Terraform Security Scan
         continue-on-error: true
         run: |
           mkdir -p /tmp/output && chmod 777 /tmp/output 
-#         como es un runner efimero, no me preocupa usar un 777 en /tmp
           docker run --rm -v $PWD/terraform/:/data -v /tmp/output:/tmp/output  aquasec/tfsec --no-color -m CRITICAL -O /tmp/output/output.txt /data
+#         como es un runner efimero, no me preocupa usar un 777 en /tmp
 
       - name: Show TF Security Scan
         run: |
