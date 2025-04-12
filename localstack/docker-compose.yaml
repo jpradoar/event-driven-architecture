@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  localstack:
+    image: localstack/localstack:4.2.0       # Al momento de ejecutar estoy usando  4.2.1.dev62, prefiero usar una fija y estar seguro que todo fucniona como espero
+    container_name: localstack
+    ports:
+      - "4566:4566"                          # LocalStack Gateway
+      - "4510-4559:4510-4559"                # external services port range
+    environment:
+      - SERVICES=s3,ec2,sns,cloudwatch,iam,sts
+      - DEBUG=${DEBUG-0}                     # Lo dejo para ver con que más me encuentro...
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${TMPDIR:-/volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
