@@ -51,7 +51,7 @@ jobs:
       - name: Terraform Security Scan
         continue-on-error: true
         run: |
-          mkdir -p /tmp/output
+          mkdir -p /tmp/output && chmod 777 /tmp/output
           docker run --rm -v $PWD/terraform/:/data -v /tmp/output:/tmp/output  aquasec/tfsec --no-color -m CRITICAL -O /tmp/output/output.txt /data
         #docker run --rm -v $PWD/terraform/:/data  aquasec/tfsec --no-color -m CRITICAL -O /data/output.txt /data
 
