@@ -62,7 +62,7 @@ jobs:
           
       #- name: Make a Terraform plan
       #  run: |
-      #    terraform -chdir=terraform/ plan
+      #    terraform -chdir=terraform/ plan 
 
       - name: Make a Real Terraform apply (in fake provider)
         run: |
