@@ -1,7 +1,8 @@
 version: "3.8"
 services:
   localstack:
-    image: localstack/localstack:4.2.0       # Al momento de ejecutar estoy usando  4.2.1.dev62, prefiero usar una fija y estar seguro que todo fucniona como espero
+    #image: localstack/localstack:4.2.0       # Al momento de ejecutar estoy usando  4.2.1.dev62, prefiero usar una fija y estar seguro que todo fucniona como espero
+    image: localstack/localstack
     container_name: localstack
     ports:
       - "4566:4566"                          # LocalStack Gateway
