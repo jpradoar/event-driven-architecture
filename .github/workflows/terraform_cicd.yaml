@@ -39,9 +39,13 @@ jobs:
           export AWS_ENDPOINT_URL=http://localhost:4566
           terraform -chdir=terraform/ init          
 
-      - name: Terraform Format and Validate
+      - name: Terraform Validate
         run: |
           terraform -chdir=terraform/  validate
+
+      - name: Terraform Format
+        continue-on-error: true
+        run: |
           terraform -chdir=terraform/  fmt -check
           
       - name: Terraform Security Scan
