@@ -9,7 +9,12 @@ on:
 jobs:
   terraform-cicd:
     runs-on: ubuntu-latest
-    #
+    env:
+      AWS_ACCESS_KEY_ID: test     # ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: test #  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL: 'http://localhost:4566'
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,10 +38,6 @@ jobs:
 
       - name: Terraform init
         run: |
-          export AWS_ACCESS_KEY_ID=test
-          export AWS_SECRET_ACCESS_KEY=test
-          export AWS_DEFAULT_REGION=us-east-1
-          export AWS_ENDPOINT_URL=http://localhost:4566
           terraform -chdir=terraform/ init          
 
       - name: Terraform Validate
@@ -51,9 +52,9 @@ jobs:
       - name: Terraform Security Scan
         continue-on-error: true
         run: |
-          mkdir -p /tmp/output && chmod 777 /tmp/output
+          mkdir -p /tmp/output && chmod 777 /tmp/output 
+#         como es un runner efimero, no me preocupa usar un 777 en /tmp
           docker run --rm -v $PWD/terraform/:/data -v /tmp/output:/tmp/output  aquasec/tfsec --no-color -m CRITICAL -O /tmp/output/output.txt /data
-        #docker run --rm -v $PWD/terraform/:/data  aquasec/tfsec --no-color -m CRITICAL -O /data/output.txt /data
 
       - name: Show TF Security Scan
         run: |
