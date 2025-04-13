@@ -1,0 +1,93 @@
+name: Terraform CI/CD
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/*.tf'
+      - '.github/workflows/terraform_cicd.yaml'
+  push:
+    branches:
+      - feat/terraform
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terraform_cicd.yaml'
+
+jobs:
+  Terraform-CICD:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: test     # ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: test #  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL: 'http://localhost:4566'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install docker-compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose openssh-client
+
+      - name: Start localstack
+        run: docker-compose -f localstack/docker-compose.yaml up -d
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure a fake AWS provider
+        run: |
+          mv terraform/provider.tf{,_ori}
+          cp localstack/localstack_tf_provider.tf terraform/provider.tf
+          ssh-keygen -b 2048 -t rsa -f terraform/kp/demo_sshkey_tf -q -N ''
+
+      - name: Replace AMI ID (localstack dont have all real AMI IDs)
+        run: |
+          sed -i 's/ami-064519b8c76274859/ami-1ecc1e67/g' terraform/*.tf
+
+      - name: Terraform init
+        run: |
+          terraform -chdir=terraform/ init        
+
+      - name: Terraform Validate
+        run: |
+          terraform -chdir=terraform/  validate
+
+      - name: Terraform Format
+        id: terraform_fmt
+        run: |
+          set +e
+          terraform -chdir=terraform/ fmt -check
+          echo "FMT_EXIT_CODE=$?" >> $GITHUB_ENV
+          exit 0
+
+      - name: Slack Notification
+        if: env.FMT_EXIT_CODE != '0'
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: ${{ env.SLACK_CHANNEL }}
+          SLACK_COLOR: ${{ env.SLACK_MSG_COLOR }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}          
+          SLACK_TITLE: ':warning: Terraform format validator'
+          SLACK_MESSAGE: 'Terraform format validation has failed, please check your code with `terraform fmt` '
+
+      - name: Terraform Security Scan
+        continue-on-error: true
+        run: |
+          mkdir -p /tmp/output && chmod 777 /tmp/output 
+          docker run --rm -v $PWD/terraform/:/data -v /tmp/output:/tmp/output  aquasec/tfsec --no-color -m CRITICAL -O /tmp/output/output.txt /data
+#         como es un runner efimero, no me preocupa usar un 777 en /tmp
+
+      - name: Show TF Security Scan
+        run: |
+          cat /tmp/output/output.txt
+          
+      #- name: Make a Terraform plan
+      #  run: |
+      #    terraform -chdir=terraform/ plan 
+
+      - name: Make a Real Terraform apply (in fake provider)
+        run: |
+          terraform -chdir=terraform/ apply -auto-approve
