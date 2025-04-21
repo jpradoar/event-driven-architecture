@@ -1,0 +1,16 @@
+---
+kind: AppProject
+apiVersion: argoproj.io/v1alpha1
+metadata:
+  name: monitoring-project
+  namespace: argocd
+  labels:
+    scope: monitoring
+spec:
+  description: All apps realted with monitoring platform
+  destinations:
+  - name: '*'
+    namespace: '*'
+    server: '*'
+  sourceNamespaces:
+  - monitoring
