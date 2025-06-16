@@ -5,7 +5,6 @@
 #
 # Run with: sh install.sh
 
-sleep_time="160"
 demo_action=$1
 
 # Esto puede estar en tu .bashrc, sino lo descomentas y ya! 
@@ -23,12 +22,15 @@ fi
 
 
 # Function to wait for EC2 instance and anotehr deployments
-sleep_time_4_demo () {
-    for i in $(seq 1 $sleep_time); do
+wait_for_ssh () {
+    echo "Waiting for SSH port to be available on EC2..."
+    ec2_host=$(terraform -chdir=terraform/ output -raw objetive)
+    while ! nc -z -w 3 "$ec2_host" 22 2>/dev/null; do
         echo -n "."
-        sleep 1
+        sleep 2
     done
-    echo;
+    echo
+    echo "SSH port is open. Continuing with Ansible..."
 }
 
 
@@ -40,12 +42,12 @@ if [ "$demo_action" = "deploy" ]; then
     if terraform -chdir=terraform/ apply --auto-approve; then
         echo
         echo "Terraform finish, waiting for AWS EC2..."
-        echo;echo
-        echo "waiting $sleep_time seconds"
+        echo
+        echo
         #-----------------------------------------
         # PENDIENTE DE MEJORA (*)
         #-----------------------------------------
-        sleep_time_4_demo
+        wait_for_ssh
         #-----------------------------------------
         # Copy "template" to use in demo
         cp ansible/inventory.ini ansible/demo-inventory.ini
@@ -81,20 +83,3 @@ else
     echo "sh $0 deploy   # to deploy the demo"
     echo "sh $0 delete   # to delete the demo"
 fi
-
-
-#-------------------------
-# MEJORA (*)
-#-------------------------
-# Problema: La EC2 tarda X tiempo en estar operativa.
-# 
-# Solución:
-# Para evitar tener que esperar siempre el $sleep_time
-# lo ideal seria reemplazar el sleep por una funcion que
-# valide si el puerto está abierto, mientras este cerrado,
-# que se quede loopeando, hasta que el puerto se abra
-# y ejeute el comando de ansible
-# 
-# # Validar el puerto abierto: 
-# "nc -vz $(terraform -chdir=terraform/  output objetive|jq -r .) 22"
-#
