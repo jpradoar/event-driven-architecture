@@ -1,0 +1,3 @@
+global:
+  # -- Overrides the Docker registry globally for all images
+  imageRegistry: null
