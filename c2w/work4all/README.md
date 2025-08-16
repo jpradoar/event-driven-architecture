@@ -5,17 +5,15 @@
 	docker build -t c2w .
 
 
-### Create folder to share between container and your local
-	mkdir -p /tmp/c2w
-
-
 ### Run dokcer container
-	docker run \
-	--rm \
-	-itd \
-	--name c2w \
-	-v /tmp/c2w:/data \
-	c2w:latest
+	docker run --rm -itd --name c2w \
+	-p 10022:22 \
+	-v /home/$(whoami)/.github:/root/.ssh  c2w
 
-### Work in container
-	docker exec -it c2w:latest bash
+
+### Access as normal remote linux 
+	ssh root@localhost -p 10022
+
+
+### Delete container
+    docker rm -f c2w
