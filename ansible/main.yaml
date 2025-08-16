@@ -219,6 +219,7 @@
             Content-Type: "application/json"
           body: '{"text":"Deployment finished, infrastructure will be ready in a few minutes..."}'
           body_format: json
+        ignore_errors: yes
 
       - name: Open ports for demo
         become_user: "{{ OS_USER }}"
