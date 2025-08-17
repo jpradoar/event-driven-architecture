@@ -1,46 +1,87 @@
 ---
-- name: Deploy EDA Demo
+- name: FULL INSTRASTRUCTURE DEPLOY
   hosts: all
   become: true
   become_method: sudo
-  become_user: admin
 
   vars:
-    OS_USER: 'admin'
+    OS_USER: "admin"
+    KUBECONFIG_PATH: "/home/{{ OS_USER }}/.kube/config"
+    HELM_URL: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
     OPEN_PORTS_FOR_DEMO: true
     SEND_NOTIFICATIONS: true
-
 
   tasks:
 
       - name: apt update
+        ansible.builtin.apt:
+          update_cache: yes
+
+      - name: Install packages
+        ansible.builtin.apt:
+          pkg:
+          - wget 
+          - curl 
+          - snapd 
+          - git 
+          - kubecolor
+
+      - name: Install snapd
+        community.general.snap:
+          name:
+            - snapd
+
+      - name: Install microk8s
+        community.general.snap:
+          name: 
+            - microk8s
+          classic: true
+
+      - name: Install helm
         ansible.builtin.shell: |
-            sudo apt-get update 
-            sudo apt-get install -y wget curl snapd git kubecolor
-            sudo snap install snapd
+            curl -fsSL -o get_helm.sh {{ HELM_URL }}
+            chmod 700 get_helm.sh
+            ./get_helm.sh
+            rm get_helm.sh
         args:
           executable: /bin/bash
 
-      #--------------------------
-      # Pending to migrate a community.general.snap
-      #--------------------------
-      - name: Install microk8s and kubectl
+      - name: Install kubectl
         ansible.builtin.shell: |
-            sudo snap install microk8s --classic
-            sudo snap install kubectl --classic
+              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+              chmod +x kubectl
+              mv ./kubectl /usr/local/bin/kubectl 
         args:
           executable: /bin/bash
 
-      - name: Usermod microk8s
-        ansible.builtin.shell: |
-            sudo usermod -a -G microk8s {{ OS_USER }}
-            mkdir -p /home/{{ OS_USER }}/.kube
-        args:
-          executable: /bin/bash
+      - name: Create .kube directory
+        ansible.builtin.file:
+          path: "/home/{{ OS_USER }}/.kube"
+          state: directory
+          owner: "{{ OS_USER }}"
+          group: "{{ OS_USER }}"
+          mode: "0755"
 
-      - name: Chown microk8s
+      - name: Add {{ OS_USER }} to microk8s group
+        ansible.builtin.user:
+          name: "{{ OS_USER }}"
+          groups: microk8s
+          append: yes
+
+#-----------------------------------------------------------------------
+# Acá hay un problema interesante y es que el cambio de grupo (usermod -a -G microk8s admin) 
+# no tiene efecto en la sesión SSH actual que usa Ansible por que usa siempre la misma conexión SSH.
+# Entonces para que tenga efecto, reinicio la conexion y en vez de usar el kubectl y helm de snap 
+# uso los binarios originales,asi me mantiene los comandos como si los usara directamente por consola.
+#    ;)
+#-----------------------------------------------------------------------
+      - name: Reset SSH connection to apply changes
+        meta: reset_connection
+
+      - name: Wait until microk8s is ready
+        register: microk8s_status
         ansible.builtin.shell: |
-            sudo chown -f -R {{ OS_USER }}:{{ OS_USER }} /home/{{ OS_USER }}/.kube
+          /snap/bin/microk8s status --wait-ready
         args:
           executable: /bin/bash
 
@@ -56,91 +97,118 @@
         args:
           executable: /bin/bash
 
-      - name: Enable helm
+      - name: Export kubeconfig for admin
         ansible.builtin.shell: |
-            sudo /snap/bin/microk8s enable helm
+          sudo /snap/bin/microk8s config > "{{ KUBECONFIG_PATH }}"
         args:
           executable: /bin/bash
 
-      - name: Configure kubeconfig
-        ansible.builtin.shell: |
-            sudo /snap/bin/microk8s config > /home/{{ OS_USER }}/.kube/config
-        args:
-          executable: /bin/bash
-
-      - name: Chown kube
-        ansible.builtin.shell: |
-            sudo chown -R {{ OS_USER }}:{{ OS_USER }} /home/{{ OS_USER }}/.kube
-        args:
-          executable: /bin/bash
+      - name: Set ownership for use kubeconfig
+        ansible.builtin.file:
+          path: "{{ KUBECONFIG_PATH }}"
+          owner: "{{ OS_USER }}"
+          group: "{{ OS_USER }}"
+          mode: "0644"
 
       - name: Configure kubecolor
+        become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
             echo 'alias kubectl="kubecolor"' >>  /home/{{ OS_USER }}/.bashrc
         args:
           executable: /bin/bash            
 
-      - name: Install helm
-        ansible.builtin.shell: |
-            curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-            chmod 700 get_helm.sh
-            ./get_helm.sh
-            rm get_helm.sh
-        args:
-          executable: /bin/bash
+      - name: Add helm repo jpradoar
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm_repository:
+          name: jpradoar
+          repo_url: https://jpradoar.github.io/helm-chart
 
-      - name: Helm repo add jpradoar
-        ansible.builtin.shell: |
-            helm repo add jpradoar https://jpradoar.github.io/helm-chart
-        args:
-          executable: /bin/bash
+      - name: Add helm repo grafana
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm_repository:
+          name: grafana
+          repo_url: https://grafana.github.io/helm-charts
 
-      - name: Helm repo add grafana
-        ansible.builtin.shell: |
-            helm repo add grafana https://grafana.github.io/helm-charts
-        args:
-          executable: /bin/bash
+      - name: Add helm repo prometheus
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm_repository:
+          name: prometheus-community
+          repo_url: https://prometheus-community.github.io/helm-charts
 
-      - name: Helm repo add prometheus
-        ansible.builtin.shell: |
-            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-        args:
-          executable: /bin/bash
+      - name: Add ArgoCD helm repo
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm_repository:
+          name: argocd
+          repo_url: https://argoproj.github.io/argo-helm
 
-      - name: Update helm repos
-        ansible.builtin.shell: |
-            helm repo update
-        args:
-          executable: /bin/bash
-
-      # ---------------------------------------------------
-      # IMPORTANTE:
-      # uso el --wait para que no "suelte" el deployment como terminado
-      # de esta manera me aseguro que recién cuando termina sin errores puedo continuar
-      # ---------------------------------------------------
       - name: Deploy EDA stack
-        ansible.builtin.shell: |
-          helm upgrade --wait -i --create-namespace -n default mqtt  jpradoar/event-driven-architecture
-        args:
-          executable: /bin/bash
-            
-      - name: Monitoring install loki
-        ansible.builtin.shell: |
-            helm install --wait --create-namespace -n monitoring loki grafana/loki-stack --set loki.image.tag=2.9.1
-        args:
-          executable: /bin/bash
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm:
+          name: mqtt
+          chart_ref: jpradoar/event-driven-architecture
+          release_namespace: default
+          create_namespace: true
+          wait: true
 
-      - name: Monitoring install prometheus
-        ansible.builtin.shell: |
-            helm install --wait --create-namespace -n monitoring prometheus prometheus-community/prometheus
-        args:
-          executable: /bin/bash
+      - name: Install Loki
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm:
+          name: loki
+          chart_ref: grafana/loki-stack
+          release_namespace: monitoring
+          create_namespace: true
+          wait: true
 
-      - name: Monitoring install grafana
+      - name: Install Prometheus
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm:
+          name: prometheus
+          chart_ref: prometheus-community/prometheus
+          release_namespace: monitoring
+          create_namespace: true
+          wait: true
+
+      - name: Install Grafana
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm:
+          name: grafana
+          chart_ref: grafana/grafana
+          release_namespace: monitoring
+          create_namespace: true
+          wait: true
+          values_files:
+            - https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/monitoring/grafana-values.yaml
+
+      - name: Install ArgoCD
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm:
+          name: argocd
+          chart_ref: argocd/argo-cd
+          release_namespace: argocd
+          create_namespace: true
+          wait: true
+
+      - name: Get ArgoCD initial-admin-secret
+        become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
-            helm install --wait --create-namespace -n monitoring grafana grafana/grafana -f https://raw.githubusercontent.com/jpradoar/test/refs/heads/main/grafana-values.yaml
+            kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
         args:
           executable: /bin/bash
+        register: argocd_initial_admin_secret
+        environment:
+
+      - debug:
+          msg: "ArgoCD admin password: {{ argocd_initial_admin_secret.stdout }}"
+
+      # - name: Configure ArgoCD
+      #   ansible.builtin.shell: |
+      #       kubectl apply -f https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/feat/argocd/argocd/repos.yaml
+      #       kubectl apply -f https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/feat/argocd/argocd/projects.yaml
+      #       kubectl apply -f https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/feat/argocd/argocd/apps.yaml
+      #       kubectl apply -f https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/feat/argocd/argocd/demo-app/demo-argocd-nginx.yaml
+      #   args:
+      #     executable: /bin/bash
+
 
       - name: Send Slack notificación
         when: SEND_NOTIFICATIONS
@@ -151,23 +219,30 @@
             Content-Type: "application/json"
           body: '{"text":"Deployment finished, infrastructure will be ready in a few minutes..."}'
           body_format: json
+        ignore_errors: yes
 
       - name: Open ports for demo
+        become_user: "{{ OS_USER }}"
         when: OPEN_PORTS_FOR_DEMO
         ansible.builtin.shell: |
-            nohup /snap/bin/kubectl port-forward --address 0.0.0.0 deployment/producer 5000:5000 > /tmp/kubectl_producer.log 2>&1 &
+            nohup kubectl port-forward --address 0.0.0.0 deployment/producer 5000:5000 > /tmp/kubectl_producer.log 2>&1 &
             sleep 1
-            nohup /snap/bin/kubectl port-forward --address 0.0.0.0 deployment/webserver 8080:80 > /tmp/kubectl_webserver.log 2>&1 &
+            nohup kubectl port-forward --address 0.0.0.0 deployment/webserver 8080:80 > /tmp/kubectl_webserver.log 2>&1 &
             sleep 1
-            nohup /snap/bin/kubectl port-forward --address 0.0.0.0 service/mqtt-rabbitmq 15672:15672 > /tmp/kubectl_rabbitmq.log 2>&1 &
+            nohup kubectl port-forward --address 0.0.0.0 service/mqtt-rabbitmq 15672:15672 > /tmp/kubectl_rabbitmq.log 2>&1 &
+            sleep 1
+            nohup kubectl -n argocd  port-forward --address 0.0.0.0 service/argocd-server 8081:80 > /tmp/kubectl_argocd.log 2>&1 &
             sleep 3
-            nohup /snap/bin/kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
+            nohup kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
         args:
           executable: /bin/bash
 
       - name: Show process
         when: OPEN_PORTS_FOR_DEMO
+        register: show_process
         ansible.builtin.shell: |
-            ps aux |grep -i forwa
+            ps aux |grep -i forwa |grep -v grep
         args:
           executable: /bin/bash
+      - debug:
+         msg: "{{ show_process.stdout }}"

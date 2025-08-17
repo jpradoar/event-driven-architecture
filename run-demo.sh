@@ -13,7 +13,7 @@ demo_action=$1
 
 FILE=terraform/kp/demo_sshkey_tf
 if [ -f "$FILE" ]; then
-    echo "ssh-key	[OK]"
+    echo "ssh-key   [OK]"
 else 
     echo "$FILE does not exist. Create it first"
     echo "  Example: ssh-keygen -b 2048 -t rsa -f terraform/kp/demo_sshkey_tf -q -N '' "
@@ -66,6 +66,7 @@ if [ "$demo_action" = "deploy" ]; then
             echo "Webserver: http://$(terraform -chdir=terraform/ output objetive |jq -r ):8080"
             echo "Grafana: http://$(terraform -chdir=terraform/ output objetive |jq -r ):3000"
             echo "RabbitMQ: http://$(terraform -chdir=terraform/ output objetive |jq -r ):15672"
+            echo "ArgoCD: http://$(terraform -chdir=terraform/ output objetive |jq -r ):8081"
             echo
         else
             echo "Ansible failed. Exiting script."
@@ -80,6 +81,6 @@ elif [ "$demo_action" = "delete" ]; then
     terraform -chdir=terraform/ destroy --auto-approve
 else
     echo "Please use: "
-    echo "sh $0 deploy   # to deploy the demo"
-    echo "sh $0 delete   # to delete the demo"
+    echo "sh $0 deploy"
+    echo "sh $0 delete"
 fi
