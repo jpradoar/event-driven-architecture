@@ -254,16 +254,26 @@
         debug:
           msg: "ArgoCD admin password: {{ argocd_initial_admin_secret.stdout }}"
 
-     # - name: Configure ArgoCD
-     #   when: ENABLE_ARGOCD
-     #   ansible.builtin.shell: |
-     #       kubectl apply \
-     #         -f https://raw.githubusercontent.com/jpradoar/gitops/refs/heads/main/argocd/projects/base-projects.yaml \
-     #         -f https://raw.githubusercontent.com/jpradoar/gitops/refs/heads/main/argocd/projects/demo-projects.yaml \
-     #         -f https://raw.githubusercontent.com/jpradoar/gitops/refs/heads/main/argocd/repos/gitops-jpradoar.yaml \
-     #         -f https://raw.githubusercontent.com/jpradoar/gitops/refs/heads/main/argocd/repos/helm-charts-jpradoar.yaml
-     #   args:
-     #     executable: /bin/bash
+      - name: Clone gitops repo
+        when: ENABLE_ARGOCD
+        ansible.builtin.git:
+          repo: 'https://github.com/jpradoar/gitops.git'
+          dest: /tmp/gitops
+
+      - name: ArgoCD base config
+        when: ENABLE_ARGOCD
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            kubectl apply -Rf /tmp/gitops/argocd/
+        args:
+          executable: /bin/bash          
+
+      - name: ArgoCD base apps
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            kubectl apply -Rf /tmp/gitops/applicationsets/
+        args:
+          executable: /bin/bash  
 
       - name: Open ports ArgoCD
         become_user: "{{ OS_USER }}"
