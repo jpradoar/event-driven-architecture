@@ -8,10 +8,18 @@
     OS_USER: "admin"
     KUBECONFIG_PATH: "/home/{{ OS_USER }}/.kube/config"
     HELM_URL: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
-    OPEN_PORTS_FOR_DEMO: true
-    SEND_NOTIFICATIONS: true
+    SEND_NOTIFICATIONS:   true
+    ENABLE_EDA_STACK:     true
+    ENABLE_MONITORING:    true
+    OPEN_PORT_GRAFANA:    true
+    ENABLE_ARGOCD:        true
+    OPEN_PORT_ARGOCD:     true
 
   tasks:
+
+# -----------------------------------------
+# BASE PACKAGE AND KUBERNETES
+# -----------------------------------------
 
       - name: apt update
         ansible.builtin.apt:
@@ -117,49 +125,19 @@
         args:
           executable: /bin/bash            
 
-      - name: Add helm repo jpradoar
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm_repository:
-          name: jpradoar
-          repo_url: https://jpradoar.github.io/helm-chart
-
-      - name: Add helm repo grafana
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm_repository:
-          name: grafana
-          repo_url: https://grafana.github.io/helm-charts
+# -----------------------------------------
+# MONITORING STACK
+# -----------------------------------------
 
       - name: Add helm repo prometheus
+        when: ENABLE_MONITORING
         become_user: "{{ OS_USER }}"
         kubernetes.core.helm_repository:
           name: prometheus-community
           repo_url: https://prometheus-community.github.io/helm-charts
 
-      - name: Add ArgoCD helm repo
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm_repository:
-          name: argocd
-          repo_url: https://argoproj.github.io/argo-helm
-
-      - name: Deploy EDA stack
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm:
-          name: mqtt
-          chart_ref: jpradoar/event-driven-architecture
-          release_namespace: default
-          create_namespace: true
-          wait: true
-
-      - name: Install Loki
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm:
-          name: loki
-          chart_ref: grafana/loki-stack
-          release_namespace: monitoring
-          create_namespace: true
-          wait: true
-
-      - name: Install Prometheus
+      - name: Install Prometheus.
+        when: ENABLE_MONITORING
         become_user: "{{ OS_USER }}"
         kubernetes.core.helm:
           name: prometheus
@@ -168,7 +146,28 @@
           create_namespace: true
           wait: true
 
+
+      - name: Add helm repo grafana
+        when: ENABLE_MONITORING
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm_repository:
+          name: grafana
+          repo_url: https://grafana.github.io/helm-charts
+
+
+      - name: Install Loki
+        when: ENABLE_MONITORING
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm:
+          name: loki
+          chart_ref: grafana/loki-stack
+          release_namespace: monitoring
+          create_namespace: true
+          wait: true
+
+
       - name: Install Grafana
+        when: ENABLE_MONITORING
         become_user: "{{ OS_USER }}"
         kubernetes.core.helm:
           name: grafana
@@ -179,7 +178,59 @@
           values_files:
             - https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/monitoring/grafana-values.yaml
 
+      - name: Open grafana port
+        when: OPEN_PORT_GRAFANA
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            nohup kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
+        args:
+          executable: /bin/bash
+
+
+# -----------------------------------------
+# EDA STACK
+# -----------------------------------------
+      - name: Add helm repo jpradoar
+        when: ENABLE_EDA_STACK
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm_repository:
+          name: jpradoar
+          repo_url: https://jpradoar.github.io/helm-chart
+
+      - name: Deploy EDA stack
+        when: ENABLE_EDA_STACK
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm:
+          name: mqtt
+          chart_ref: jpradoar/event-driven-architecture
+          release_namespace: default
+          create_namespace: true
+          wait: true
+
+      - name: Open ports EDA stack
+        when: ENABLE_EDA_STACK
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            nohup kubectl port-forward --address 0.0.0.0 deployment/producer 5000:5000 > /tmp/kubectl_producer.log 2>&1 &
+            sleep 1
+            nohup kubectl port-forward --address 0.0.0.0 deployment/webserver 8080:80 > /tmp/kubectl_webserver.log 2>&1 &
+            sleep 1
+            nohup kubectl port-forward --address 0.0.0.0 service/mqtt-rabbitmq 15672:15672 > /tmp/kubectl_rabbitmq.log 2>&1 &
+        args:
+          executable: /bin/bash
+
+# -----------------------------------------
+# ARGOCD
+# -----------------------------------------
+      - name: Add ArgoCD helm repo
+        when: ENABLE_ARGOCD
+        become_user: "{{ OS_USER }}"
+        kubernetes.core.helm_repository:
+          name: argocd
+          repo_url: https://argoproj.github.io/argo-helm
+
       - name: Install ArgoCD
+        when: ENABLE_ARGOCD
         become_user: "{{ OS_USER }}"
         kubernetes.core.helm:
           name: argocd
@@ -189,6 +240,7 @@
           wait: true
 
       - name: Get ArgoCD initial-admin-secret
+        when: ENABLE_ARGOCD
         become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
             kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
@@ -197,18 +249,33 @@
         register: argocd_initial_admin_secret
         environment:
 
-      - debug:
+      - name: Show ArgoCD secret
+        when: ENABLE_ARGOCD
+        debug:
           msg: "ArgoCD admin password: {{ argocd_initial_admin_secret.stdout }}"
 
-      # - name: Configure ArgoCD
-      #   ansible.builtin.shell: |
-      #       kubectl apply -f https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/feat/argocd/argocd/repos.yaml
-      #       kubectl apply -f https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/feat/argocd/argocd/projects.yaml
-      #       kubectl apply -f https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/feat/argocd/argocd/apps.yaml
-      #       kubectl apply -f https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/feat/argocd/argocd/demo-app/demo-argocd-nginx.yaml
-      #   args:
-      #     executable: /bin/bash
+     # - name: Configure ArgoCD
+     #   when: ENABLE_ARGOCD
+     #   ansible.builtin.shell: |
+     #       kubectl apply \
+     #         -f https://raw.githubusercontent.com/jpradoar/gitops/refs/heads/main/argocd/projects/base-projects.yaml \
+     #         -f https://raw.githubusercontent.com/jpradoar/gitops/refs/heads/main/argocd/projects/demo-projects.yaml \
+     #         -f https://raw.githubusercontent.com/jpradoar/gitops/refs/heads/main/argocd/repos/gitops-jpradoar.yaml \
+     #         -f https://raw.githubusercontent.com/jpradoar/gitops/refs/heads/main/argocd/repos/helm-charts-jpradoar.yaml
+     #   args:
+     #     executable: /bin/bash
 
+      - name: Open ports ArgoCD
+        become_user: "{{ OS_USER }}"
+        when: OPEN_PORT_ARGOCD
+        ansible.builtin.shell: |
+            nohup kubectl -n argocd  port-forward --address 0.0.0.0 service/argocd-server 8081:80 > /tmp/kubectl_argocd.log 2>&1 &
+        args:
+          executable: /bin/bash
+
+# -----------------------------------------
+# GLOBAL AND GENERALS
+# -----------------------------------------
 
       - name: Send Slack notificación
         when: SEND_NOTIFICATIONS
@@ -221,24 +288,9 @@
           body_format: json
         ignore_errors: yes
 
-      - name: Open ports for demo
-        become_user: "{{ OS_USER }}"
-        when: OPEN_PORTS_FOR_DEMO
-        ansible.builtin.shell: |
-            nohup kubectl port-forward --address 0.0.0.0 deployment/producer 5000:5000 > /tmp/kubectl_producer.log 2>&1 &
-            sleep 1
-            nohup kubectl port-forward --address 0.0.0.0 deployment/webserver 8080:80 > /tmp/kubectl_webserver.log 2>&1 &
-            sleep 1
-            nohup kubectl port-forward --address 0.0.0.0 service/mqtt-rabbitmq 15672:15672 > /tmp/kubectl_rabbitmq.log 2>&1 &
-            sleep 1
-            nohup kubectl -n argocd  port-forward --address 0.0.0.0 service/argocd-server 8081:80 > /tmp/kubectl_argocd.log 2>&1 &
-            sleep 3
-            nohup kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
-        args:
-          executable: /bin/bash
+
 
       - name: Show process
-        when: OPEN_PORTS_FOR_DEMO
         register: show_process
         ansible.builtin.shell: |
             ps aux |grep -i forwa |grep -v grep
