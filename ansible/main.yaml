@@ -9,9 +9,9 @@
     KUBECONFIG_PATH: "/home/{{ OS_USER }}/.kube/config"
     HELM_URL: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
     SEND_NOTIFICATIONS:   false
+    ENABLE_MONITORING:    false
+    OPEN_PORT_GRAFANA:    false
     ENABLE_EDA_STACK:     true
-    ENABLE_MONITORING:    true
-    OPEN_PORT_GRAFANA:    true
     ENABLE_ARGOCD:        true
     OPEN_PORT_ARGOCD:     true
 
@@ -146,14 +146,12 @@
           create_namespace: true
           wait: true
 
-
       - name: Add helm repo grafana
         when: ENABLE_MONITORING
         become_user: "{{ OS_USER }}"
         kubernetes.core.helm_repository:
           name: grafana
           repo_url: https://grafana.github.io/helm-charts
-
 
       - name: Install Loki
         when: ENABLE_MONITORING
@@ -164,7 +162,6 @@
           release_namespace: monitoring
           create_namespace: true
           wait: true
-
 
       - name: Install Grafana
         when: ENABLE_MONITORING
@@ -185,7 +182,6 @@
             nohup kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
         args:
           executable: /bin/bash
-
 
 # -----------------------------------------
 # EDA STACK
@@ -297,8 +293,6 @@
           body: '{"text":"Deployment finished, infrastructure will be ready in a few minutes..."}'
           body_format: json
         ignore_errors: yes
-
-
 
       - name: Show process
         register: show_process
