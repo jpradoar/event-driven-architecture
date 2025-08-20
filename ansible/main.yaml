@@ -8,7 +8,7 @@
     OS_USER: "admin"
     KUBECONFIG_PATH: "/home/{{ OS_USER }}/.kube/config"
     HELM_URL: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
-    SEND_NOTIFICATIONS:   true
+    SEND_NOTIFICATIONS:   false
     ENABLE_EDA_STACK:     true
     ENABLE_MONITORING:    true
     OPEN_PORT_GRAFANA:    true
