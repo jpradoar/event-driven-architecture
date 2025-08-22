@@ -9,8 +9,6 @@
     KUBECONFIG_PATH: "/home/{{ OS_USER }}/.kube/config"
     HELM_URL: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
     SEND_NOTIFICATIONS:   false
-    ENABLE_MONITORING:    false
-    OPEN_PORT_GRAFANA:    false
     ENABLE_EDA_STACK:     true
     ENABLE_ARGOCD:        true
     OPEN_PORT_ARGOCD:     true
@@ -28,11 +26,12 @@
       - name: Install packages
         ansible.builtin.apt:
           pkg:
-          - wget 
-          - curl 
-          - snapd 
-          - git 
+          - wget
+          - curl
+          - snapd
+          - git
           - kubecolor
+          - jq
 
       - name: Install snapd
         community.general.snap:
@@ -41,7 +40,7 @@
 
       - name: Install microk8s
         community.general.snap:
-          name: 
+          name:
             - microk8s
           classic: true
 
@@ -58,7 +57,7 @@
         ansible.builtin.shell: |
               curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
               chmod +x kubectl
-              mv ./kubectl /usr/local/bin/kubectl 
+              mv ./kubectl /usr/local/bin/kubectl
         args:
           executable: /bin/bash
 
@@ -123,64 +122,6 @@
         ansible.builtin.shell: |
             echo 'alias kubectl="kubecolor"' >>  /home/{{ OS_USER }}/.bashrc
         args:
-          executable: /bin/bash            
-
-# -----------------------------------------
-# MONITORING STACK
-# -----------------------------------------
-
-      - name: Add helm repo prometheus
-        when: ENABLE_MONITORING
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm_repository:
-          name: prometheus-community
-          repo_url: https://prometheus-community.github.io/helm-charts
-
-      - name: Install Prometheus.
-        when: ENABLE_MONITORING
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm:
-          name: prometheus
-          chart_ref: prometheus-community/prometheus
-          release_namespace: monitoring
-          create_namespace: true
-          wait: true
-
-      - name: Add helm repo grafana
-        when: ENABLE_MONITORING
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm_repository:
-          name: grafana
-          repo_url: https://grafana.github.io/helm-charts
-
-      - name: Install Loki
-        when: ENABLE_MONITORING
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm:
-          name: loki
-          chart_ref: grafana/loki-stack
-          release_namespace: monitoring
-          create_namespace: true
-          wait: true
-
-      - name: Install Grafana
-        when: ENABLE_MONITORING
-        become_user: "{{ OS_USER }}"
-        kubernetes.core.helm:
-          name: grafana
-          chart_ref: grafana/grafana
-          release_namespace: monitoring
-          create_namespace: true
-          wait: true
-          values_files:
-            - https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/monitoring/grafana-values.yaml
-
-      - name: Open grafana port
-        when: OPEN_PORT_GRAFANA
-        become_user: "{{ OS_USER }}"
-        ansible.builtin.shell: |
-            nohup kubectl -n monitoring port-forward --address 0.0.0.0 service/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
-        args:
           executable: /bin/bash
 
 # -----------------------------------------
@@ -226,7 +167,6 @@
           repo_url: https://argoproj.github.io/argo-helm
 
       - name: Install ArgoCD
-        when: ENABLE_ARGOCD
         become_user: "{{ OS_USER }}"
         kubernetes.core.helm:
           name: argocd
@@ -234,6 +174,27 @@
           release_namespace: argocd
           create_namespace: true
           wait: true
+          values:
+            configs:
+              cm:
+                statusbadge.enabled: "true"  # habilitar el statusbadge para poder ver las apps deployadas sin loguear a argocd
+                accounts.showappsapi: apiKey,login
+              rbac:
+                policy.csv: |
+                  # Rol de solo lectura sobre todas las aplicaciones
+                  p, role:readonly, applications, get, */*, allow
+                  p, role:readonly, applications, list, *, allow
+                  # Asigna el usuario showappsapi al rol readonly
+                  g, showappsapi, role:readonly
+                scopes: "[groups]"
+
+      - name: Install ArgoCD CLI
+        ansible.builtin.shell: |
+            curl -sSL -o /tmp/argocd-v3.1.0 https://github.com/argoproj/argo-cd/releases/download/v3.1.0/argocd-linux-amd64
+            chmod +x /tmp/argocd-v3.1.0
+            mv /tmp/argocd-v3.1.0 /usr/local/bin/argocd
+        args:
+          executable: /bin/bash
 
       - name: Get ArgoCD initial-admin-secret
         when: ENABLE_ARGOCD
@@ -262,14 +223,14 @@
         ansible.builtin.shell: |
             kubectl apply -Rf /tmp/gitops/argocd/
         args:
-          executable: /bin/bash          
+          executable: /bin/bash
 
       - name: ArgoCD base apps
         become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
             kubectl apply -Rf /tmp/gitops/applicationsets/
         args:
-          executable: /bin/bash  
+          executable: /bin/bash
 
       - name: Open ports ArgoCD
         become_user: "{{ OS_USER }}"
@@ -279,10 +240,59 @@
         args:
           executable: /bin/bash
 
+      - name: Show process
+        become_user: "{{ OS_USER }}"
+        register: show_process
+        ansible.builtin.shell: |
+            ps aux |grep -i forwa |grep -v grep
+        args:
+          executable: /bin/bash
+      - debug:
+         msg: "{{ show_process.stdout }}"
+
+      - name: Install ArgoCD CLI
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            argocd login {{ ansible_ssh_host }}:8081 --username admin --password {{ argocd_initial_admin_secret.stdout }} --insecure
+        args:
+          executable: /bin/bash
+
+      - name: Install ArgoCD CLI
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            argocd account generate-token --account showappsapi
+        args:
+          executable: /bin/bash
+        register: argocd_user_token
+
+      - name: Curl Test
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            curl -s -k -H "Authorization: Bearer {{ argocd_user_token.stdout }}" \
+            "https://{{ ansible_ssh_host }}:8081/api/v1/applications" | jq -r .
+        args:
+          executable: /bin/bash
+        register: test_curl
+
+      - name: Show ArgoCD secret
+        debug:
+          msg: "Responde: {{ test_curl.stdout }}"
+
+      - name: Create kubernetes secret from argo-token
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            kubectl -n argocd create secret generic showappsapi-secret --from-literal=showappsapi-secret={{ argocd_user_token.stdout }}
+        args:
+          executable: /bin/bash
+
+      - name: Show github api token
+        debug:
+         msg: "{{ argocd_user_token.stdout }}"
+
+
 # -----------------------------------------
 # GLOBAL AND GENERALS
 # -----------------------------------------
-
       - name: Send Slack notificación
         when: SEND_NOTIFICATIONS
         uri:
@@ -293,12 +303,3 @@
           body: '{"text":"Deployment finished, infrastructure will be ready in a few minutes..."}'
           body_format: json
         ignore_errors: yes
-
-      - name: Show process
-        register: show_process
-        ansible.builtin.shell: |
-            ps aux |grep -i forwa |grep -v grep
-        args:
-          executable: /bin/bash
-      - debug:
-         msg: "{{ show_process.stdout }}"
