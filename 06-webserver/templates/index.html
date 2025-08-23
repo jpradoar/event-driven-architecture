@@ -1,0 +1,68 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Running Apps</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+        h1 { 
+            color: #2c3e50; 
+            text-align: center;
+        }
+        .apps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 15px;
+        }
+        .app {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .app h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #34495e;
+        }
+        .app .meta {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0;
+        }
+        .badge {
+            margin: 10px 0;
+        }
+        .status {
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .status.synced { background: #2ecc71; color: white; }
+        .status.outofsync { background: #e74c3c; color: white; }
+        .status.healthy { background: #3498db; color: white; }
+        .status.degraded { background: #f39c12; color: white; }
+        .images {
+            font-family: monospace;
+            font-size: 13px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Real time status Apps</h1>
+    <div class="apps-container">
+        {% for app in apps %}
+        <div class="app">
+            <h2>{{ app.metadata.name }}</h2>  
+            <div class="badge">
+                <img src="{{ argocd_server }}/api/badge?name={{ app.metadata.name }}&showAppName=false&keepFullRevision=true"> 
+            </div>
+        <div class="meta">
+            <b>Deployed At</b>: {{ app.status.history[0].deployedAt if app.status.history }}</div>
+        </div>
+        {% endfor %}
+    </div>
+        <br>
+    <a href="/detailed" target="_blank"  ><button type="button">Detailed</button> </a>
+</body>
+</html>

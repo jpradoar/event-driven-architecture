@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ArgoCD Apps - Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f6fa; margin: 0; padding: 20px; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .card h2 { margin-top: 0; font-size: 20px; color: #34495e; }
+        .status { font-weight: bold; padding: 4px 8px; border-radius: 6px; display: inline-block; margin: 4px 0; }
+        .status.synced { background: #27ae60; color: white; }
+        .status.outofsync { background: #e67e22; color: white; }
+        .status.healthy { background: #2ecc71; color: white; }
+        .status.degraded { background: #c0392b; color: white; }
+        .status.unknown { background: #7f8c8d; color: white; }
+        .section { margin: 10px 0; font-size: 14px; color: #2c3e50; }
+        .label { font-weight: bold; }
+        ul { padding-left: 18px; margin: 5px 0; }
+        .badge-img { margin: 10px 0; }
+        a { color: #2980b9; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* collapsible */
+        .collapsible {
+            background: #ecf0f1;
+            color: #2c3e50;
+            cursor: pointer;
+            padding: 8px 12px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 14px;
+            border-radius: 6px;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .collapsible:hover { background: #dcdde1; }
+        .content {
+            display: none;
+            margin-top: 6px;
+            padding: 8px 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .content ul { margin: 0; }
+    </style>
+</head>
+<body>
+    <h1>Real time status Apps (detailed view)</h1>
+    <div class="grid">
+        {% for app in apps %}
+        <div class="card">
+            <h2>{{ app.metadata.name }}</h2>
+            
+            <div class="badge-img">
+                <img src="{{ argocd_server }}/api/badge?name={{ app.metadata.name }}&showAppName=true&keepFullRevision=true">
+            </div>
+            
+            <div class="section">
+                <span class="label">Project:</span> {{ app.spec.project }}
+            </div>
+            <div class="section">
+                <span class="label">Cluster:</span> {{ app.spec.destination.server }}<br>
+                <span class="label">Namespace:</span> {{ app.spec.destination.namespace }}
+            </div>
+            
+            <div class="section">
+                <span class="label">Sync:</span>
+                <span class="status {{ app.status.sync.status|lower }}">{{ app.status.sync.status }}</span>
+                <span class="label">Health:</span>
+                <span class="status {{ app.status.health.status|lower }}">{{ app.status.health.status }}</span>
+            </div>
+            
+            <div class="section">
+                <span class="label">Commit:</span> {{ app.status.sync.revisions[1] or "N/A" }}<br>
+                <span class="label">Target:</span> {{ app.spec.destination.targetRevision or "N/A" }}<br>
+            </div>        
+
+
+            <button class="collapsible">Repositories</button>
+            <div class="content">
+                <ul>
+                    {% for src in app.spec.sources %}
+                        <li>
+                            <span class="label">Repo:</span> 
+                            <a href="{{ src.repoURL }}" target="_blank">{{ src.repoURL }}</a><br>
+                            {% if src.chart %}
+                                <span class="label">Chart:</span> {{ src.chart }}<br>
+                            {% endif %}
+                            <span class="label">Revision:</span> {{ src.targetRevision }}<br>
+                            {% if src.ref %}
+                                <span class="label">Ref:</span> {{ src.ref }}<br>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Collapsible Resources -->
+            <button class="collapsible">Resources</button>
+            <div class="content">
+                <ul>
+                    {% for res in app.status.resources %}
+                        <li>{{ res.kind }}: {{ res.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Collapsible Images -->
+            <button class="collapsible">Images</button>
+            <div class="content">
+                <ul>
+                    {% for img in app.status.summary.images %}
+                        <li>{{ img }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="section">
+                <a href="{{ argocd_server }}/applications/{{ app.spec.project }}/{{ app.metadata.name }}" target="_blank">Ver en ArgoCD UI</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        document.querySelectorAll(".collapsible").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const content = btn.nextElementSibling;
+                content.style.display = content.style.display === "block" ? "none" : "block";
+            });
+        });
+    </script>
+</body>
+</html>
