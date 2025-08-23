@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: argocd-badges-api
-          image: jpradoar/argocd-badges:latest
+          image: jpradoar/argocd-badges-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -27,7 +27,7 @@ spec:
             # Endpoint del servicio de ArgoCD. uso el alias 'argocd-server' para abstraer el nombre real.
             - name: ARGOCD_SERVER
               value: "https://argocd-server.argocd.svc.cluster.local:443"     # alias al servicio de ArgoCD
-            
+
             # Token de acceso al usuario showappsapi. Obtenido desde un Secret en el mismo namespace.
             - name: ARGOCD_TOKEN
               valueFrom:

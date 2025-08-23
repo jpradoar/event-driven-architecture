@@ -1,3 +1,4 @@
+
 <html>
 <head>
     <meta charset="utf-8">
@@ -17,12 +18,14 @@
             background: #fff;
             border-radius: 8px;
             padding: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
         .app h2 {
             margin: 0;
             font-size: 18px;
-            color: #34495e;
+            color: #ffffff;
+            text-align: left;
+            background: #7283c2;
         }
         .app .meta {
             font-size: 14px;
@@ -37,10 +40,13 @@
             padding: 2px 6px;
             border-radius: 4px;
         }
-        .status.synced { background: #2ecc71; color: white; }
-        .status.outofsync { background: #e74c3c; color: white; }
-        .status.healthy { background: #3498db; color: white; }
+        .status.synced { background: #398f36; color: white; }
+        .status.healthy { background: #398f36; color: white; }
+        .status.outofsync { background: #e74c3c; color: white;}
         .status.degraded { background: #f39c12; color: white; }
+        .status.missing { background: #d703fc; color: white; }
+        .status.progressing { background: #3498db; color: white; }
+        .status.unknown { background: #7f8c8d; color: white; }
         .images {
             font-family: monospace;
             font-size: 13px;
@@ -53,12 +59,40 @@
     <div class="apps-container">
         {% for app in apps %}
         <div class="app">
-            <h2>{{ app.metadata.name }}</h2>  
-            <div class="badge">
-                <img src="{{ argocd_server }}/api/badge?name={{ app.metadata.name }}&showAppName=false&keepFullRevision=true"> 
+            <h2>                
+              {% if app.status.sync.status == "OutOfSync" %}
+                  😱
+              {% elif app.status.sync.status == "Synced" %}
+                  ✅
+              {% elif app.status.sync.status == "Progressing" %}
+                  🔄
+              {% elif app.status.sync.status == "Degraded" %}
+                  ⚠️
+              {% elif app.status.sync.status == "Missing" %}
+                  ❌
+              {% elif app.status.sync.status == "Unknown" %}
+                  🤔
+              {% endif %}
+              {{ app.metadata.name }} 
+            </h2>
+            <br>
+            <div class="section">
+                <span class="label">Sync:</span>
+                <span class="status {{ app.status.sync.status|lower }}">{{ app.status.sync.status }}</span>
+                <span class="label">Health:</span>
+                <span class="status {{ app.status.health.status|lower }}">
+                    {{ app.status.health.status }}
+                    {% if app.status.health.status == "OutOfSync" %} 😱
+                    {% elif app.status.health.status == "Progressing" %} 🔄
+                    {% elif app.status.health.status == "Degraded" %} ⚠️
+                    {% elif app.status.health.status == "Missing" %} ❌
+                    {% elif app.status.health.status == "Unknown" %} 🤔
+                    {% endif %}
+                </span>
             </div>
-        <div class="meta">
-            <b>Deployed At</b>: {{ app.status.history[0].deployedAt if app.status.history }}</div>
+            <div class="meta">
+                <b>Deployed At</b>: {{ app.status.history[0].deployedAt if app.status.history }}
+            </div>
         </div>
         {% endfor %}
     </div>

@@ -177,15 +177,14 @@
           values:
             configs:
               cm:
-                statusbadge.enabled: "true"  # habilitar el statusbadge para poder ver las apps deployadas sin loguear a argocd
-                accounts.showappsapi: apiKey,login
+                statusbadge.enabled: "false"  # habilitar el statusbadge para poder ver las apps deployadas sin loguear a argocd
+                accounts.showappsapi: apiKey  # habilitar al usuario showappsapi a crear un token
+# accounts.showappsapi: apiKey,login
               rbac:
                 policy.csv: |
-                  # Rol de solo lectura sobre todas las aplicaciones
-                  p, role:readonly, applications, get, */*, allow
+                  p, role:readonly, applications, get, */*, allow   # Rol de solo lectura sobre todas las aplicaciones
                   p, role:readonly, applications, list, *, allow
-                  # Asigna el usuario showappsapi al rol readonly
-                  g, showappsapi, role:readonly
+                  g, showappsapi, role:readonly                     # Asigna el usuario showappsapi al rol readonly
                 scopes: "[groups]"
 
       - name: Install ArgoCD CLI
@@ -205,11 +204,6 @@
           executable: /bin/bash
         register: argocd_initial_admin_secret
         environment:
-
-      - name: Show ArgoCD secret
-        when: ENABLE_ARGOCD
-        debug:
-          msg: "ArgoCD admin password: {{ argocd_initial_admin_secret.stdout }}"
 
       - name: Clone gitops repo
         when: ENABLE_ARGOCD
@@ -232,7 +226,7 @@
         args:
           executable: /bin/bash
 
-      - name: Open ports ArgoCD
+      - name: Open ports ArgoCD (for demos)
         become_user: "{{ OS_USER }}"
         when: OPEN_PORT_ARGOCD
         ansible.builtin.shell: |
@@ -240,15 +234,17 @@
         args:
           executable: /bin/bash
 
-      - name: Show process
+      - name: Get process
         become_user: "{{ OS_USER }}"
         register: show_process
         ansible.builtin.shell: |
             ps aux |grep -i forwa |grep -v grep
         args:
           executable: /bin/bash
-      - debug:
-         msg: "{{ show_process.stdout }}"
+
+#      - name: Show process          
+#       debug:
+#         msg: "{{ show_process.stdout }}"
 
       - name: Install ArgoCD CLI
         become_user: "{{ OS_USER }}"
@@ -274,9 +270,9 @@
           executable: /bin/bash
         register: test_curl
 
-      - name: Show ArgoCD secret
-        debug:
-          msg: "Responde: {{ test_curl.stdout }}"
+#      - name: Show ArgoCD secret
+#        debug:
+#          msg: "Responde: {{ test_curl.stdout }}"
 
       - name: Create kubernetes secret from argo-token
         become_user: "{{ OS_USER }}"
@@ -284,11 +280,6 @@
             kubectl -n default create secret generic showappsapi-secret --from-literal=showappsapi-secret={{ argocd_user_token.stdout }}
         args:
           executable: /bin/bash
-
-      - name: Show github api token
-        debug:
-         msg: "{{ argocd_user_token.stdout }}"
-
 
 # -----------------------------------------
 # GLOBAL AND GENERALS
@@ -303,3 +294,20 @@
           body: '{"text":"Deployment finished, infrastructure will be ready in a few minutes..."}'
           body_format: json
         ignore_errors: yes
+
+# -----------------------------------------
+# FINAL OUTPUTS
+# -----------------------------------------
+
+      - name: Show ArgoCD secret
+        when: ENABLE_ARGOCD
+        debug:
+          msg: "ArgoCD admin password: {{ argocd_initial_admin_secret.stdout }}"
+
+      - name: Show github api token
+        debug:
+         msg: "ArgoCD api token: {{ argocd_user_token.stdout }}"
+
+      - name: ArgoCD URL
+        debug:
+         msg: "ArgoCD URL: https://{{ ansible_ssh_host }}:8081"

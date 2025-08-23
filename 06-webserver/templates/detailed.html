@@ -6,19 +6,31 @@
     <style>
         body { font-family: Arial, sans-serif; background: #f5f6fa; margin: 0; padding: 20px; }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
+            gap: 20px; 
+        }
         .card {
             background: white;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
         }
-        .card h2 { margin-top: 0; font-size: 20px; color: #34495e; }
+        .card h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #ffffff;
+            text-align: left;
+            background: #7283c2;
+         }
         .status { font-weight: bold; padding: 4px 8px; border-radius: 6px; display: inline-block; margin: 4px 0; }
-        .status.synced { background: #27ae60; color: white; }
-        .status.outofsync { background: #e67e22; color: white; }
-        .status.healthy { background: #2ecc71; color: white; }
-        .status.degraded { background: #c0392b; color: white; }
+        .status.synced { background: #398f36; color: white; }
+        .status.healthy { background: #398f36; color: white; }
+        .status.outofsync { background: #e74c3c; color: white;}
+        .status.degraded { background: #f39c12; color: white; }
+        .status.missing { background: #d703fc; color: white; }
+        .status.progressing { background: #3498db; color: white; }
         .status.unknown { background: #7f8c8d; color: white; }
         .section { margin: 10px 0; font-size: 14px; color: #2c3e50; }
         .label { font-weight: bold; }
@@ -52,6 +64,7 @@
             font-size: 13px;
         }
         .content ul { margin: 0; }
+
     </style>
 </head>
 <body>
@@ -59,12 +72,23 @@
     <div class="grid">
         {% for app in apps %}
         <div class="card">
-            <h2>{{ app.metadata.name }}</h2>
-            
-            <div class="badge-img">
-                <img src="{{ argocd_server }}/api/badge?name={{ app.metadata.name }}&showAppName=true&keepFullRevision=true">
-            </div>
-            
+                <h2>                
+                  {% if app.status.sync.status == "OutOfSync" %}
+                      😱
+                  {% elif app.status.sync.status == "Synced" %}
+                      ✅
+                  {% elif app.status.sync.status == "Progressing" %}
+                      🔄
+                  {% elif app.status.sync.status == "Degraded" %}
+                      ⚠️
+                  {% elif app.status.sync.status == "Missing" %}
+                      ❌
+                  {% elif app.status.sync.status == "Unknown" %}
+                      🤔
+                  {% endif %}
+                  {{ app.metadata.name }} 
+                </h2>
+
             <div class="section">
                 <span class="label">Project:</span> {{ app.spec.project }}
             </div>
@@ -77,7 +101,15 @@
                 <span class="label">Sync:</span>
                 <span class="status {{ app.status.sync.status|lower }}">{{ app.status.sync.status }}</span>
                 <span class="label">Health:</span>
-                <span class="status {{ app.status.health.status|lower }}">{{ app.status.health.status }}</span>
+                <span class="status {{ app.status.health.status|lower }}">
+                    {{ app.status.health.status }}
+                    {% if app.status.health.status == "OutOfSync" %} 😱
+                    {% elif app.status.health.status == "Progressing" %} 🔄
+                    {% elif app.status.health.status == "Degraded" %} ⚠️
+                    {% elif app.status.health.status == "Missing" %} ❌
+                    {% elif app.status.health.status == "Unknown" %} 🤔
+                    {% endif %}
+                </span>
             </div>
             
             <div class="section">
@@ -126,7 +158,7 @@
             </div>
             
             <div class="section">
-                <a href="{{ argocd_server }}/applications/{{ app.spec.project }}/{{ app.metadata.name }}" target="_blank">Ver en ArgoCD UI</a>
+                <a href="{{ argocd_server }}/applications/{{ app.spec.project }}/{{ app.metadata.name }}" target="_blank">🔍 Ver en ArgoCD UI</a>
             </div>
         </div>
         {% endfor %}
