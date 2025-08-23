@@ -1,195 +1,73 @@
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: webserver
-  namespace: default
-  labels:
-    app: webserver
-    app.depends: mariadb         
-    environment: development
-  annotations:
-    prometheus.io/scrape: 'true'
-    filter.by.port.name: 'true'
-    app: webserver
-    app.depends: mariadb         
-    app.business.client: 'client-001'
-    app.mqtt.event.trigger: '1234567890'    
-    app.owner: 'jpradoar'
-    app.imageregistry: 'https://hub.docker.com/repository/docker/jpradoar/mqtt-webserver/'   
-spec:
-  selector:
-    app: webserver
-  ports:
-    - name: http
-      protocol: TCP     
-      port: 8080
-      targetPort: 80
-
-
-##########################
-#
-# to make local test uncommet it
-#
-#########################
-# ---
-# apiVersion: v1
-# kind: ConfigMap
-# metadata: 
-#   name: webserver-cm
-#   namespace: default
-#   labels:
-#     app: webserver
-#     environment: development
-#   annotations:
-#     app: webserver
-#     app.business.client: 'client-001'
-#     app.mqtt.event.trigger: '1234567890'    
-# data:
-#   # /var/www/html
-#   index.php: |-
-#       <?php
-#       $db_host = getenv('MARIADB_HOST');
-#       $db_name = getenv('MARIADB_DATABASE');
-#       $db_user = getenv('MARIADB_USER');
-#       $db_pass = getenv('MARIADB_PASSWORD');
-#       try{
-#         $db_con = new PDO("mysql:host={$db_host};dbname={$db_name}",$db_user,$db_pass);
-#         $db_con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-#       }
-#       catch(PDOException $e){
-#         echo $e->getMessage();
-#       }
-#       $stmt = $db_con->prepare("SELECT * FROM clients");
-#       $stmt->execute();
-#       ?>  
-#       <!DOCTYPE html>
-#       <html>
-#       <head>
-#           <meta charset="UTF-8">
-#           <title>Database clients created by MQTT-Event</title>
-#           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-#           <style>
-#               body {
-#                   font-family: Arial, sans-serif;
-#                   background-color: #f2f2f2;
-#               }
-#               .container {
-#                   max-width: 95%;
-#                   margin: 20px auto;
-#                   background-color: #e0e5e8;
-#                   border-radius: 8px;
-#                   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-#                   padding: 20px;
-#               }
-#               table {
-#                   border-collapse: collapse;
-#                   margin: 25px 0;
-#                   font-family: Arial, sans-serif;
-#                   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-#               }
-#               th, td {
-#                   padding: 12px 15px;
-#                   text-align: left;
-#                   border-bottom: 1px solid #ddd;
-#               }
-#               th {
-#                   background-color: #4CAF50;
-#                   color: white;
-#               }
-#           </style>
-#       </head>
-#       <body>
-#       <div class="container">
-#           <div align="center">
-#               <img src="it-infrastructure-icon-28.jpg" height="60" width="60">
-#               <h3>Database clients created by MQTT-Event v1</h3>
-#               <table>
-#                   <thead>
-#                       <tr>
-#                           <th>ID</th>
-#                           <th>Client</th>
-#                           <th>ArchType</th>
-#                           <th>Hardware</th>
-#                           <th>Product</th>
-#                           <th>Deployed</th>
-#                           <th>License type</th>
-#                       </tr>
-#                   </thead>
-#                   <tbody>
-#                       <?php while($row = $stmt->fetch(PDO::FETCH_ASSOC)) { ?>
-#                           <tr>
-#                               <td><?php echo $row['id']; ?></td>
-#                               <td><?php echo $row['client']; ?></td>
-#                               <td><?php echo $row['archtype']; ?></td>
-#                               <td><?php echo $row['hardware']; ?></td>
-#                               <td><?php echo $row['product']; ?></td>
-#                               <td><?php echo $row['xdate']; ?></td>
-#                               <td><?php echo $row['license']; ?></td>
-#                           </tr>
-#                       <?php } ?>
-#                   </tbody>
-#               </table>
-#           </div>
-#       </div>
-#       </body>
-#       </html>
-
-
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webserver
+  name: argocd-badges-api
   namespace: default
   labels:
-    app: webserver
-    environment: development
-    app.depends: mariadb         
-  annotations:
-    prometheus.io/scrape: 'true'
-    app: webserver
-    app.depends: mariadb         
-    app.business.client: 'client-001'
-    app.mqtt.event.trigger: '1234567890'    
+    app: argocd-badges-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: webserver
+      app: argocd-badges-api
   template:
     metadata:
       labels:
-        app: webserver
+        app: argocd-badges-api
     spec:
       containers:
-        - name: webserver
-          image: jpradoar/mqtt-webserver:1.1.1 #2023.05
+        - name: argocd-badges-api
+          image: jpradoar/argocd-badges:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 80 
-          env:   
-          - name: MARIADB_USER
-            value: "admin"
-          - name: MARIADB_PASSWORD
-            value: "admin" 
-          - name: MARIADB_DATABASE
-            value: "clients"        
-          - name: MARIADB_HOST
-            value: "mariadb"      
-##########################
-#
-# to make local test uncommet it
-#
-#########################              
-      #     volumeMounts:
-      #       - name: webserver-cm
-      #         mountPath: /var/www/html
-      # volumes:
-      #   #-------------------------        
-      #   - name: webserver-cm
-      #     configMap:
-      #       name: webserver-cm            
+            - containerPort: 8080
+          env:
+
+            # Endpoint del servicio de ArgoCD. uso el alias 'argocd-server' para abstraer el nombre real.
+            - name: ARGOCD_SERVER
+              value: "https://argocd-server.argocd.svc.cluster.local:443"     # alias al servicio de ArgoCD
+            
+            # Token de acceso al usuario showappsapi. Obtenido desde un Secret en el mismo namespace.
+            - name: ARGOCD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: showappsapi-secret
+                  key: token
 
 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-badges-api
+  namespace: default
+  labels:
+    app: argocd-badges-api
+spec:
+  selector:
+    app: argocd-badges-api
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+
+# Este servicio es un alias, para evitar que si el nombre de ArgoCD es deployado con otro nombre, 
+# el "alias local" siempre resuelve el mismo nombre del servicio.
+# de esta manera en la api siempre puedo usar el mismo nombre de servicio sin importar que nombre tenga argocd-server
+# acá si uso un nombre "custom" para argocd lo puedo cambiar sin depender de argocd 
+# ejemplo:
+#   cicd-argocd-server.argocd.svc.cluster.local
+#   abcd-argocd-server.argocd.svc.cluster.local
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: argocd-server.argocd.svc.cluster.local
