@@ -281,7 +281,7 @@
       - name: Create kubernetes secret from argo-token
         become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
-            kubectl -n argocd create secret generic showappsapi-secret --from-literal=showappsapi-secret={{ argocd_user_token.stdout }}
+            kubectl -n default create secret generic showappsapi-secret --from-literal=showappsapi-secret={{ argocd_user_token.stdout }}
         args:
           executable: /bin/bash
 
