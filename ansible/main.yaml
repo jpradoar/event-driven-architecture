@@ -11,7 +11,7 @@
     SEND_NOTIFICATIONS:   false
     ENABLE_EDA_STACK:     true
     ENABLE_ARGOCD:        true
-    OPEN_PORT_ARGOCD:     true
+    OPEN_PORT_FOR_DEMO:   true
 
   tasks:
 
@@ -92,15 +92,39 @@
         args:
           executable: /bin/bash
 
+      - name: Enable ingress
+        ansible.builtin.shell: |
+            sudo /snap/bin/microk8s enable ingress
+        args:
+          executable: /bin/bash
+
+      - name: Enable cert-manager
+        ansible.builtin.shell: |
+            sudo /snap/bin/microk8s enable cert-manager
+        args:
+          executable: /bin/bash          
+
       - name: Enable storage
         ansible.builtin.shell: |
             sudo /snap/bin/microk8s enable storage
         args:
           executable: /bin/bash
 
+      - name: Enable dns
+        ansible.builtin.shell: |
+            sudo /snap/bin/microk8s enable dns
+        args:
+          executable: /bin/bash
+
       - name: Enable hostpath-storage
         ansible.builtin.shell: |
             sudo /snap/bin/microk8s enable hostpath-storage
+        args:
+          executable: /bin/bash
+
+      - name: Enable rbac
+        ansible.builtin.shell: |
+            sudo /snap/bin/microk8s enable rbac
         args:
           executable: /bin/bash
 
@@ -167,6 +191,7 @@
           repo_url: https://argoproj.github.io/argo-helm
 
       - name: Install ArgoCD
+        when: ENABLE_ARGOCD
         become_user: "{{ OS_USER }}"
         kubernetes.core.helm:
           name: argocd
@@ -189,6 +214,7 @@
                 scopes: "[groups]"
 
       - name: Install ArgoCD CLI
+        when: ENABLE_ARGOCD
         ansible.builtin.shell: |
             curl -sSL -o /tmp/argocd-v3.1.0 https://github.com/argoproj/argo-cd/releases/download/v3.1.0/argocd-linux-amd64
             chmod +x /tmp/argocd-v3.1.0
@@ -226,6 +252,7 @@
           executable: /bin/bash
 
       - name: ArgoCD base apps
+        when: ENABLE_ARGOCD
         become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
             kubectl apply -Rf /tmp/gitops/applicationsets/
@@ -234,7 +261,7 @@
 
       - name: Open ports ArgoCD
         become_user: "{{ OS_USER }}"
-        when: OPEN_PORT_ARGOCD
+        when: ENABLE_ARGOCD
         ansible.builtin.shell: |
             nohup kubectl -n argocd  port-forward --address 0.0.0.0 service/argocd-server 8081:80 > /tmp/kubectl_argocd.log 2>&1 &
         args:
@@ -247,10 +274,12 @@
             ps aux |grep -i forwa |grep -v grep
         args:
           executable: /bin/bash
+        ignore_errors: yes
       - debug:
          msg: "{{ show_process.stdout }}"
 
       - name: Install ArgoCD CLI
+        when: ENABLE_ARGOCD
         become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
             argocd login {{ ansible_ssh_host }}:8081 --username admin --password {{ argocd_initial_admin_secret.stdout }} --insecure
@@ -258,6 +287,7 @@
           executable: /bin/bash
 
       - name: Install ArgoCD CLI
+        when: ENABLE_ARGOCD
         become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
             argocd account generate-token --account showappsapi
@@ -266,6 +296,7 @@
         register: argocd_user_token
 
       - name: Curl Test
+        when: ENABLE_ARGOCD
         become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
             curl -s -k -H "Authorization: Bearer {{ argocd_user_token.stdout }}" \
@@ -275,10 +306,12 @@
         register: test_curl
 
       - name: Show ArgoCD secret
+        when: ENABLE_ARGOCD
         debug:
           msg: "Responde: {{ test_curl.stdout }}"
 
       - name: Create kubernetes secret from argo-token
+        when: ENABLE_ARGOCD
         become_user: "{{ OS_USER }}"
         ansible.builtin.shell: |
             kubectl -n default create secret generic showappsapi-secret --from-literal=showappsapi-secret={{ argocd_user_token.stdout }}
@@ -286,9 +319,34 @@
           executable: /bin/bash
 
       - name: Show github api token
+        when: ENABLE_ARGOCD
         debug:
          msg: "{{ argocd_user_token.stdout }}"
 
+      - name: Get grafana password
+        register: grafana_password
+        when: OPEN_PORT_FOR_DEMO
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            kubectl -n monitoring get secret grafana -o json |jq -r '.data["admin-password"]'|base64 -d
+        args:
+          executable: /bin/bash
+        ignore_errors: yes
+
+      - name: Show grafana password
+        when: OPEN_PORT_FOR_DEMO
+        debug:
+         msg: "{{ grafana_password.stdout }}"
+
+      - name: OPEN PORTS FOR DEMO
+        when: OPEN_PORT_FOR_DEMO
+        become_user: "{{ OS_USER }}"
+        ansible.builtin.shell: |
+            sleep 5  
+            nohup kubectl -n monitoring port-forward --address 0.0.0.0 svc/grafana 3000:80 > /tmp/kubectl_grafana.log 2>&1 &
+        args:
+          executable: /bin/bash
+        ignore_errors: yes
 
 # -----------------------------------------
 # GLOBAL AND GENERALS
