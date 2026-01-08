@@ -1,0 +1,25 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-argocd-nginx
+  namespace: argocd
+spec:
+  project: default
+  source:
+    path: argocd/demo-app/
+    repoURL: https://github.com/jpradoar/event-driven-architecture.git
+    targetRevision: HEAD
+    directory:
+      recurse: true
+      jsonnet: {}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+  destination:
+    namespace: demo-argocd-nginx
+    server: https://kubernetes.default.svc

@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-argocd-nginx
+  
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-index
+  namespace: demo-argocd-nginx
+  labels:
+    app: nginx
+    version: "1"
+data:
+  index.html: |
+    <html>
+    <head>
+      <title>NGINX</title>
+    </head>
+    <body>
+      <div align="center">
+        <h1>DEMO ARGOCD NGINX</h1>
+      </div>
+    </body>
+    </html>
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: demo-argocd-nginx
+  labels:
+    app: nginx
+    version: "1"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+      version: "1"
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: "1"
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          volumeMounts:
+            - name: nginx-index-volume
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: nginx-index-volume
+          configMap:
+            name: nginx-index
+            
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: demo-argocd-nginx
+  labels:
+    app: nginx
+    version: "1"
+spec:
+  selector:
+    app: nginx
+    version: "1"
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
