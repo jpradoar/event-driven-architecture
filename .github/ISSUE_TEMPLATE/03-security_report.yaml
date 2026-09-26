@@ -1,0 +1,127 @@
+---
+name: 🚨 Security report
+description: Report a security finding (hardening gap, misconfiguration, vulnerable dependency, exposed secret)
+title: "🚨 [security] ..."
+labels: ["security"]
+assignees:
+  - jpradoar
+
+body:
+
+- type: markdown
+  attributes:
+    value: |
+      This template is for security findings in the code, manifests, pipelines or images of this repository.
+      If you found an exploitable vulnerability in a running environment, please do not post details here:
+      use GitHub private vulnerability reporting (Security tab) or the contact in SECURITY.md.
+
+- type: checkboxes
+  attributes:
+    label: Before you start
+    options:
+    - label: I have searched the [existing issues](https://github.com/jpradoar/event-driven-architecture/issues?q=is%3Aissue+label%3Asecurity)
+      required: true
+    - label: This report does not contain real credentials, tokens or private data
+      required: true
+
+- type: dropdown
+  attributes:
+    label: Severity
+    description: Maps 1:1 to the project Priority field (Critical = Highest, High = High, Medium = Med, Low = Low, Informational = Lowest).
+    options:
+      - Critical
+      - High
+      - Medium
+      - Low
+      - Informational
+  validations:
+    required: true
+
+- type: dropdown
+  attributes:
+    label: Category
+    options:
+      - Exposed secret or credential
+      - Excessive permissions (RBAC, IAM, security group)
+      - Injection (command, SQL, template)
+      - Container image (base image, CVE, running as root)
+      - Kubernetes hardening (securityContext, resources, probes, NetworkPolicy)
+      - CI/CD pipeline (permissions, unpinned actions, scan order)
+      - Infrastructure as Code (Terraform, Ansible)
+      - Dependency vulnerability
+      - Other
+  validations:
+    required: true
+
+- type: dropdown
+  attributes:
+    label: Affected component
+    multiple: true
+    options:
+      - 01-generic-pub_sub
+      - 02-customer-portal
+      - 03-producer
+      - 04-consumer
+      - 05-dbwriter
+      - 06-webserver
+      - 12-k8s-event-exporter
+      - Kubernetes manifests
+      - terraform
+      - ansible
+      - .github/workflows
+      - docker-compose
+      - Other
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: Location
+    description: File and line, image tag, or workflow name.
+    placeholder: Kubernetes/04-consumer.yaml:39
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Description
+    description: What is wrong and why it matters. Include the impact if it were exploited.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: How to verify
+    description: Steps or command that show the problem. Do not include working exploits.
+    placeholder: |
+      1. kubectl get clusterrole consumer-cr -o yaml
+      2. See verbs: ["*"] on all resources
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: Proposed fix
+    description: What should change. A link to a reference (NSA/CISA hardening guide, CIS Benchmark, OWASP) helps.
+  validations:
+    required: false
+
+- type: dropdown
+  attributes:
+    label: Source
+    options:
+      - Manual review
+      - Trivy
+      - gitleaks
+      - Polaris / kube-score
+      - Dependabot
+      - Other
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: References
+    description: CVE, advisory, scanner output or related issues.
+  validations:
+    required: false
