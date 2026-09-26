@@ -78,6 +78,10 @@
 			margin: 10px 0;
 			font-size: 0.95em;
 		}
+		td:first-child {
+			white-space: nowrap;
+			width: 1%;
+		}
 		th, td {
 			border: 1px solid #ddd;
 			padding: 8px;
@@ -127,11 +131,14 @@
 		<h1>A small SaaS laboratory</h1>
 		<h2 class="subtitle">An end-to-end event-driven architecture for automated app deployments.</h2>
 
-		<div class="badges toCenter">
-			<a href="https://github.com/users/jpradoar/projects/2/views/1" target="_blank"><img src="https://img.shields.io/badge/Roadmap_(like_Jira)-black?logo=github" alt="Roadmap (like Jira)"></a>
-			<a href="https://github.com/jpradoar/event-driven-architecture" target="_blank"><img src="https://img.shields.io/badge/Source-code-gray?logo=github" alt="Source code"></a>
-			<a href="https://jpradoar.github.io/helm-chart/" target="_blank"><img src="https://img.shields.io/badge/Helm-charts-0F1689?logo=helm" alt="Helm charts"></a>
-			<a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank"><img src="https://img.shields.io/badge/GitHub_Action-Semantic_Version-2088FF?logo=githubactions" alt="Semantic Version Action"></a>
+		<div class="section">
+			<table>
+				<tr><th>Link</th><th>What you will find</th></tr>
+				<tr><td><a href="https://github.com/users/jpradoar/projects/2/views/1" target="_blank"><img src="https://img.shields.io/badge/Roadmap_(like_Jira)-green?logo=github" alt="Roadmap (like Jira)"></a></td><td>Full project roadmap: what is done, in progress and pending, with the reasoning behind each item</td></tr>
+				<tr><td><a href="https://github.com/jpradoar/event-driven-architecture" target="_blank"><img src="https://img.shields.io/badge/Source-code-gray?logo=github" alt="Source code"></a></td><td>The repository on GitHub: code, manifests, pipelines and the README this page mirrors</td></tr>
+				<tr><td><a href="https://jpradoar.github.io/helm-chart/" target="_blank"><img src="https://img.shields.io/badge/Helm-charts-0F1689?logo=helm" alt="Helm charts"></a></td><td>My Helm repository. The chart that Ansible deploys lives there</td></tr>
+				<tr><td><a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank"><img src="https://img.shields.io/badge/GitHub_Action-Semantic_Version-2088FF?logo=githubactions" alt="Semantic Version Action"></a></td><td>My GitHub Action on the Marketplace. It computes the next image tag from the commit message</td></tr>
+			</table>
 		</div>
 		<hr>
 
