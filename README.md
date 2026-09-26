@@ -1,161 +1,116 @@
 <div align="center">
 
-# Event Driven Architecture
+# A small SaaS laboratory
 
-### 🏠 A small SaaS project for IoT
+### An end-to-end event-driven architecture for automated app deployments.
 
-<br>
+[![Roadmap (like Jira)](https://img.shields.io/badge/Roadmap_(like_Jira)-green?logo=github)](https://github.com/users/jpradoar/projects/2/views/1)
+[![Project page](https://img.shields.io/badge/Project-page-blue?logo=githubpages)](https://jpradoar.github.io/event-driven-architecture/)
+[![Helm charts](https://img.shields.io/badge/Helm-charts-0F1689?logo=helm)](https://jpradoar.github.io/helm-chart/)
+[![Semantic Version Action](https://img.shields.io/badge/GitHub_Action-Semantic_Version-2088FF?logo=githubactions)](https://github.com/marketplace/actions/genericsemanticversion)
+
+</div>
+
 <hr>
 
-:rocket:  <b> Build Status and info project:
-<p></b>
+## What this is
+
+A personal lab to learn and practice event-driven architecture: a web form publishes an event to RabbitMQ, a chain of small Python services consumes it, deploys a Helm release for that "client", stores the record in MariaDB and shows it in a web UI. Everything around it (EC2, Kubernetes, ArgoCD, Grafana, CI, image scanning, versioning) is code.
+
+It is a proof of concept, not a product. There are a few things that are wrong and have not been fixed yet. Do not expose this stack to the internet as is
 
 
+## Where it comes from
 
-![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/producer-ci.yaml/badge.svg) 
-![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/consumer-ci.yaml/badge.svg)
-![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/dbwriter-ci.yaml/badge.svg) 
-![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/webserver-ci.yaml/badge.svg) 
-![](https://github.com/jpradoar/event-driven-architecture/actions/workflows/k8s-event-exporter-ci.yaml/badge.svg) 
-</p>
-    
-|Link | Desc |
-|---|---|
-|Project (summary)|[https://jpradoar.github.io/event-driven-architecture/](https://jpradoar.github.io/event-driven-architecture/)|
-|<a href="https://github.com/users/jpradoar/projects/2/views/1" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Kanban_project-blue.svg?logo=book)</a>   |Here you can see the full project roadmap and more info  |
-| <a href="https://jpradoar.github.io/helm-chart/" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Helm_charts-blue.svg?logo=Helm)</a>  |Personal Helm repo   |
-|<a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank">![](https://custom-icon-badges.demolab.com/badge/Semantic_Version-blue.svg?logo=tag)</a>   |My own semantic version GitHub Action  |
-|Github|[https://github.com/jpradoar/event-driven-architecture/](https://github.com/jpradoar/event-driven-architecture/)|
+It started as a backend to receive events from home sensors through custom HomeAssistant over MQTT. That is why RabbitMQ has the MQTT plugin enabled and why half of the repo is still named `mqtt-*`. The IoT part never landed; the project mutated into what you see here: an excuse to build the full path from "someone buys a product" to "a workload is running, tracked and monitored".
 
-
-
-
-</div>
-
-<b></b>   
-    
-
-
-
-<hr><br><br>
-
-
-### :bulb: My idea
-A simple excuse to learn and use Python as Pub/Sub with a message broker, in this case RabbitMQ, to provision infrastructure triggered by events like "buy a small module" and, finally, to monitor all that infrastructure. <br>
-I love IoT. For this reason, this PoC is designed to simulate a "SaaS product". <br>
-At the end of all this, it will provision my small IoT modules. :space_invader: <br>
-
-<br>
-
-### :fire: Supposed problem
-💀 I need to manage a lot of inputs, and each of them will trigger different tasks, like messages, deployments, and more. Obviously I will reuse that data so other jobs can generate custom events, and finally I will use Grafana for analysis and trends.
-<br>💀 Some apps have to get information, but a common problem is having or developing a lot of products with different technologies, like Node.js, Python or PHP.
-<br>💀 I would like to have a shared source of data, to avoid rebuilding or writing connectors or APIs to connect components written in different technologies/languages.
-<br>💀 All developers need to know which version must be fixed, or I need a person to manage the version numbers. (I would like to avoid managing them manually.)
-
-<br>
-
-### :checkered_flag: Objective
-:heavy_check_mark: Create a simple API to centralize all "inputs" and organize workloads by queues. 
-<br>:heavy_check_mark: Each microservice consumes its own queue and, if needed, can consume others too. 
-<br>:heavy_check_mark: Each microservice does a specific task, <b>to avoid having "JUMBO-Pods"</b>.
-<br>:heavy_check_mark: All microservices generate logs for future monitoring, analysis, improvements and troubleshooting.
-<br>:heavy_check_mark: All logs must be exposed on stdout, to avoid writing data inside the container. This lets me run my pods with a read-only filesystem.
-<br>:heavy_check_mark: Automate all tasks via API calls between microservices.
-<br>:heavy_check_mark: Gain scalability and security by isolating each task in small actions/calls.
-<br>:heavy_check_mark: Avoid tech dependencies or "human-tech dependence". Everyone can enjoy their own tech/language  *(...No, no Java, please!  :joy: )*.
-<br>:heavy_check_mark: The standard (input/output) will be  [JSON](https://www.json.org/json-en.html) because it is an open standard and is easy to implement and parse.
-<br>:heavy_check_mark: To manage version numbers I created a [Semantic Version GitHub Action](https://github.com/marketplace/actions/genericsemanticversion)  
-
-
-### Extra features 
-<br>:heavy_check_mark: <b>Safe data</b>:  My apps use tokens and passwords. I need to manage them safely and commit all the code without leaking my secrets.   ;) 
-<br>:heavy_check_mark: <b>Vendor lock-in</b>: In my case, I prefer an infrastructure that can be used and implemented in any cloud provider that runs a Kubernetes cluster, in an "on-premise" client environment, or even in a development environment like my laptop.
-<br>:heavy_check_mark: <b>Vulnerability Scans</b>: Every time a developer or SRE builds a Docker image, it must be scanned to find possible vulnerabilities. If any are found, that image has to be marked with a different tag. [Vulnerability Scans](vuln_scans/)  and  [HTML format](https://jpradoar.github.io/event-driven-architecture/vuln_scans/vuln_scan_demo.html)
-<br>:heavy_check_mark: <b>Monitoring</b>: All developers and DevOps engineers must be able to see some metrics.
-<br><hr><br>
-
-
-### Infrastructure design and workflow
+## Architecture
 
 <div align="center">
-<br><img src="img/infrastructure-diagram.jpg">
-<br>
-<br><img src="img/terraform-workflow.jpg">
+<img src="img/event-driven-architecture.jpg" width="900">
 </div>
 
+The real flow, service by service:
 
-<br><br>
+| # | Service | Tech | Does |
+|---|---|---|---|
+| 1 | `03-producer` | Python / Flask | Serves the "buy a product" form on port 5000. On submit builds a JSON event with a fresh `trace_id` and publishes it to the `infra` queue. Also publishes a status message to `event-status`. |
+| 2 | `04-consumer` | Python | Consumes `infra`. Publishes a reduced message to `clients`, then runs `helm upgrade --install` of a Bitnami chart in a namespace named after the client, stamping the `trace_id` as pod label and annotation. Finally publishes "Finished" to `event-status`. |
+| 3 | `05-dbwriter` | Python | Consumes `clients` and inserts the record into the `clients` table in MariaDB. |
+| 4 | `06-webserver` | PHP / Apache | Reads the `clients` table and lists every provisioned client. |
+| 5 | `12-k8s-event-exporter` | kubectl | Streams cluster events to stdout so they end up in the log pipeline. |
+| - | `01-generic-pub_sub` | Python | Template to create a new consumer/producer pair in minutes. |
 
-### Docker workflows logic
-<br><img src="img/github-event-driven-architecture-workflow.png">
+Broker: RabbitMQ (AMQP 0-9-1 through `pika`, one durable queue per task). Database: MariaDB. Every service exposes a Prometheus `/metrics` endpoint on port 9090 and logs only to stdout.
 
-<br>
+### Event model
 
-### For automatic semantic release logic
-```mermaid
-graph LR
-    A(git push) --> B>GitHub Action]
-    B --> C[Get old version ]
-    C --> D[1.0.0]
-    B --> | git commit -m text: ...| E{Parse Trigger}
-    E --> |patch: ...| F((1.0.1))
-    E --> |minor: ...| G((1.1.0))
-    E --> |major: ...| H((2.0.0))
-    E --> |test: ... | I((1.0.0-wbp9lays))
-    E --> |alpine ...| J((1.0.0-alpine))
+This is the exact payload the producer emits today:
 
+```json
+{
+  "client": "cliente02",
+  "namespace": "cliente02-ns",
+  "environment": "Development",
+  "archtype": "SaaS",
+  "hardware": "Dedicated",
+  "product": "Product-A",
+  "MessageAttributes": {
+    "event_type": { "Type": "String", "Value": "mycompany.<producer-pod>.event.cliente02.published" },
+    "published_on": "2025-09-05",
+    "trace_id": "9a2ae9de-3f82-4f55-966b-47df50ff51ff",
+    "retrace_intent": "0"
+  },
+  "Metadata": {
+    "host": "<producer-pod>@<pod-ip>",
+    "origing": "Cloud",
+    "publisher": "<producer-pod>"
+  }
+}
 ```
 
+Yes, `origing` is a typo, and it is also in the code. `retrace_intent` is reserved for a retry counter that is not implemented yet. Both are on the list.
 
-# Architecture design
-<br>
-<img src="img/event-driven-architecture.jpg">
+### One trace_id from the form to the pod
 
-<br>
+<div align="center">
+<img src="img/client-pod-trace_id.png" width="900">
+</div>
 
-### JSON data model (example)
-    {                                              /* Possible inputs */ 
-    "client":"cliente02",                          /* Client name / identification */ 
-    "namespace":"cliente02",                       /* Kubernetes namespace = client */
-    "environment":"Development",                   /* Dev / Stage / Prod */
-    "archtype":"SaaS",                             /* SaaS / Edge / On-Prem */
-    "hardware":"Dedicated",                        /* Classic (No extra cost allocated) / Dedicated (Extra cost allocated) */
-    "product":"Product-A",                         /* Product-A / -B / -C / -N */ 
-    "MessageAttributes": { 
-      "event_type": { 
-        "Type": "String",     
-        "Value": "mycompany.producer.event.client.published"   /* (Dynamic) Company.App.messageType.client.EventAction */
-        }, 
-      "published_on": "2023.01.2.23.02.642883101",         /* +%Y.%m.%d.%H.%M.%N */ 
-      "trace_id": "9a2ae9de-3f82-4f55-966b-47df50ff51ff",  /* unique random string  */
-      "retrace_intent": "0"                                /* how many retries */
-      }, 
-      "Metadata": { 
-        "host": "hostname",                       /* microservice */
-        "origing": "Cloud",                       /* Cloud / On-Prem */
-        "publisher": "producer"                   /* publisherType */
-      } 
-    } 
+The `trace_id` is generated on the first call (the form submit) and travels inside every message. The consumer writes it as a label and annotation on every pod it deploys, so in Grafana or with a plain `kubectl get pods -l trace_id=...` you can follow one purchase across queues, logs and workloads. This is the piece of the lab I use the most when troubleshooting.
 
-### TraceID from deployment workflow to pod annotations
-<br>
-<img src="img/client-pod-trace_id.png"> 
+## Infrastructure
 
-_This trace_id is super useful when you need to see the deployment trace, and I also use it as a reference tag and/or annotation in pods.
-The trace_id is generated on the first API call of the deployment process and is attached to all the pods. If you use Grafana or similar, you can trace all the steps and associate them with the deployment, or even with each pod deployed by this process._
+<div align="center">
+<img src="img/infrastructure-diagram.jpg" width="900">
+</div>
 
+Two blocks, both code:
 
-<br><br>
+1. **Base platform**: Terraform creates one EC2 instance (t2.medium, two encrypted gp3 volumes) and a security group. Ansible then installs MicroK8s, Helm, kubectl, ArgoCD, and deploys the application stack from my [Helm chart repository](https://jpradoar.github.io/helm-chart/). ArgoCD is bootstrapped from the [gitops](https://github.com/jpradoar/gitops) repo.
+2. **Application stack**: the services above, deployed as a Helm release. The manifests under `Kubernetes/` are the original hand-written version and lag behind the chart; the chart is the source of truth.
 
-### Producer (client portal)
-<br>
-<img src="img/producer.png"><img src="img/producer-2.png">
-<br>
+## Quick start
 
-### DBClients UI (webserver)
-<br>
-<img src="img/webserver.png">
+### Option A: everything on AWS with one script
+
+Requirements: Terraform 1.9.x, Ansible core 2.17.x with the `community.general` and `kubernetes.core` collections, `jq`, `nc`, an AWS profile named `development` (or edit `terraform/variables.tf`), and a VPC and subnet to deploy into.
+
+```bash
+# 1. SSH key used by Terraform and Ansible
+ssh-keygen -b 2048 -t rsa -f terraform/kp/demo_sshkey_tf -q -N ''
+
+# 2. Where to deploy
+export TF_VAR_vpc_id="vpc-xxxxxxxx"
+export TF_VAR_subnet_id="subnet-xxxxxxxx"
+
+# 3. Deploy (terraform apply + wait for SSH + ansible-playbook)
+sh run-demo.sh deploy
+
+# 4. Tear down
+sh run-demo.sh delete
+```
+
 <br>
 
 ### Kubernetes Logs
@@ -169,3 +124,81 @@ The trace_id is generated on the first API call of the deployment process and is
 <br>
 <img src="img/slack-build-msg.png">
 <br>
+
+
+
+When the playbook finishes it prints the public endpoints. On the EC2 host, for the demo only, they are exposed with `kubectl port-forward` on `0.0.0.0`:
+
+| Port | Service |
+|---|---|
+| 5000 | Producer (the form) |
+| 8080 | Webserver (clients list) |
+| 3000 | Grafana |
+| 15672 | RabbitMQ management |
+| 8081 | ArgoCD |
+
+Feature flags live at the top of `ansible/main.yaml`: `ENABLE_EDA_STACK`, `ENABLE_ARGOCD`, `OPEN_PORT_FOR_DEMO`, `SEND_NOTIFICATIONS`.
+
+### Option B: the application only, on your laptop
+
+```bash
+cd docker-compose
+docker compose up -d
+```
+
+Producer on http://localhost:5000, webserver on http://localhost:8080, RabbitMQ management on http://localhost:15672. Credentials are in the compose file. This option runs the message flow and the database, but not the Helm deployment step (there is no cluster).
+
+## CI, versioning and image scanning
+
+<div align="center">
+<img src="img/github-event-driven-architecture-workflow.png" width="900">
+</div>
+
+Each service has its own GitHub Actions workflow, triggered only when its folder changes. Every run:
+
+1. Reads the latest tag from Docker Hub.
+2. Computes the next version with my [Semantic Version GitHub Action](https://github.com/marketplace/actions/genericsemanticversion), driven by the commit message prefix.
+3. Builds and pushes the image.
+4. Scans it with Trivy (vulnerabilities, secrets, misconfigurations, licenses). The report is committed to [`vuln_scans/`](vuln_scans/) and, if CRITICAL findings exist, a GitHub issue is opened and Slack is notified.
+
+```mermaid
+graph LR
+    A(git push) --> B>GitHub Action]
+    B --> C[Read last tag from Docker Hub]
+    C --> D[1.0.0]
+    B --> | commit message | E{Parse prefix}
+    E --> |patch: ...| F((1.0.1))
+    E --> |minor: ...| G((1.1.0))
+    E --> |major: ...| H((2.0.0))
+    E --> |test: ... | I((1.0.0-wbp9lays))
+```
+
+Terraform has its own pipeline: `validate`, `fmt`, `tfsec` and a real `apply` against [LocalStack](localstack/), so the code is exercised on every pull request without touching AWS.
+
+## Repository layout
+
+```
+01-generic-pub_sub/   template for new services
+02-customer-portal/   static landing page (nginx)
+03-producer/          Flask form -> RabbitMQ
+04-consumer/          RabbitMQ -> helm deploy
+05-dbwriter/          RabbitMQ -> MariaDB
+06-webserver/         PHP UI over the clients table
+11-jobs/              Kubernetes Jobs (Slack notifications)
+12-k8s-event-exporter/
+Kubernetes/           original manifests (see note above)
+docker-compose/       local run
+terraform/            EC2 + security group
+ansible/              MicroK8s, Helm, ArgoCD, app stack
+localstack/           fake AWS for the Terraform pipeline
+monitoring/           Grafana values and dashboards
+vuln_scans/           Trivy reports committed by CI
+c2w/                  "code to work": self-hosted runner and dev container
+deb_packages/         side exercise: building .deb packages with lintian and trivy
+```
+
+
+
+## License
+
+MIT. See [LICENSE](LICENSE).
