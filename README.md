@@ -4,10 +4,13 @@
 
 ### An end-to-end event-driven architecture for automated app deployments.
 
-[![Roadmap (like Jira)](https://img.shields.io/badge/Roadmap_(like_Jira)-green?logo=github)](https://github.com/users/jpradoar/projects/2/views/1)
-[![Project page](https://img.shields.io/badge/Project-page-blue?logo=githubpages)](https://jpradoar.github.io/event-driven-architecture/)
-[![Helm charts](https://img.shields.io/badge/Helm-charts-0F1689?logo=helm)](https://jpradoar.github.io/helm-chart/)
-[![Semantic Version Action](https://img.shields.io/badge/GitHub_Action-Semantic_Version-2088FF?logo=githubactions)](https://github.com/marketplace/actions/genericsemanticversion)
+| Link | What you will find |
+|---|---|
+| [![Roadmap](https://img.shields.io/badge/Roadmap-green?logo=github)](https://github.com/users/jpradoar/projects/2/views/1) | Full project roadmap: what is done, in progress and pending, with the reasoning behind each item  (Like Jira) |
+| [![Project page](https://img.shields.io/badge/Project-page-blue?logo=githubpages)](https://jpradoar.github.io/event-driven-architecture/) | This README as a web page, plus the HTML vulnerability report |
+| [![Helm charts](https://img.shields.io/badge/Helm-charts-0F1689?logo=helm)](https://jpradoar.github.io/helm-chart/) | My Helm repository. The chart that Ansible deploys lives there |
+| [![Semantic Version Action](https://img.shields.io/badge/GitHub_Action-Semantic_Version-2088FF?logo=githubactions)](https://github.com/marketplace/actions/genericsemanticversion) | My GitHub Action on the Marketplace. It computes the next image tag from the commit message |
+
 
 </div>
 
