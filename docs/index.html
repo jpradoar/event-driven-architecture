@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
-	<title>Event Driven Architecture</title>
+	<title>A small SaaS laboratory</title>
 	<style>
 		body {
 			font-family: Arial, sans-serif;
@@ -12,14 +12,22 @@
 			background-color: #f4f4f4;
 			margin: 0;
 			padding: 0;
+			color: #222;
 		}
 		.container {
 			width: 80%;
+			max-width: 1100px;
 			margin: auto;
 			padding: 20px;
 		}
 		h1 {
 			color: #333;
+			margin-bottom: 5px;
+		}
+		h2.subtitle {
+			font-weight: normal;
+			color: #555;
+			margin-top: 0;
 		}
 		.titles {
 			text-align: center;
@@ -29,232 +37,289 @@
 		}
 		.section {
 			background: white;
-			padding: 10px;
-			margin: 10px 0;
+			padding: 15px 25px;
+			margin: 15px 0;
 			border-radius: 10px;
 			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 			text-align: left;
-		}
-		.button {
-		   background-color: #008CBA;
-		   border-radius: 8px;
-		   border: none;
-		   color: black;
-		   padding: 8px 15px;
-		   text-align: center;
-		   text-decoration: none;
-		   display: inline-block;
-		   font-size: 16px;
+			line-height: 1.5;
 		}
 		.toCenter {
 			text-align: center;
 		}
-        code {
-            display: block;
-            background: #272822;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            white-space: pre;
-        }
-	.github-fork-ribbon:before {
-	    background-color: #090;
-	}
-	.support-me {
-		display: inline-block;
-		position: fixed;
-		bottom: 10px;
-		left: 10px;
-		width: 20vw;
-		max-width: 250px;
-		min-width: 200px;
-		z-index: 9;
-		img {
+		.section img.wide {
+			max-width: 100%;
+			height: auto;
+			display: block;
+			margin: 10px auto;
+		}
+		pre {
+			background: #272822;
+			color: #f8f8f2;
+			padding: 15px;
+			border-radius: 5px;
+			overflow-x: auto;
+			text-align: left;
+		}
+		pre code {
+			background: none;
+			color: inherit;
+			padding: 0;
+		}
+		code {
+			background: #eee;
+			padding: 1px 5px;
+			border-radius: 4px;
+			font-size: 0.95em;
+		}
+		table {
+			border-collapse: collapse;
+			width: 100%;
+			margin: 10px 0;
+			font-size: 0.95em;
+		}
+		th, td {
+			border: 1px solid #ddd;
+			padding: 8px;
+			text-align: left;
+			vertical-align: top;
+		}
+		th {
+			background-color: #0A5D6E;
+			color: white;
+		}
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+		.warning {
+			border-left: 5px solid #d9534f;
+			background: #fff5f5;
+			padding: 10px 15px;
+		}
+		.mermaid {
+			background: white;
+			border-radius: 10px;
+			padding: 10px;
+		}
+		.github-fork-ribbon:before {
+			background-color: #090;
+		}
+		.support-me {
+			display: inline-block;
+			position: fixed;
+			bottom: 10px;
+			left: 10px;
+			width: 20vw;
+			max-width: 250px;
+			min-width: 200px;
+			z-index: 9;
+		}
+		.support-me img {
 			width: 100%;
 			height: auto;
 		}
-	}
 	</style>
 </head>
 <body>
 	<a class="github-fork-ribbon" href="https://github.com/jpradoar/event-driven-architecture" data-ribbon="Fork me on GitHub" title="Fork me on GitHub" target="_blank">Fork me on GitHub</a>
-	
+
 	<div class="container">
-		<h1>Event Driven Architecture</h1>
-		<h2>🏠 A small SaaS project for IoT</h2>
+		<h1>A small SaaS laboratory</h1>
+		<h2 class="subtitle">An end-to-end event-driven architecture for automated app deployments.</h2>
+
+		<div class="badges toCenter">
+			<a href="https://github.com/users/jpradoar/projects/2/views/1" target="_blank"><img src="https://img.shields.io/badge/Roadmap_(like_Jira)-black?logo=github" alt="Roadmap (like Jira)"></a>
+			<a href="https://github.com/jpradoar/event-driven-architecture" target="_blank"><img src="https://img.shields.io/badge/Source-code-gray?logo=github" alt="Source code"></a>
+			<a href="https://jpradoar.github.io/helm-chart/" target="_blank"><img src="https://img.shields.io/badge/Helm-charts-0F1689?logo=helm" alt="Helm charts"></a>
+			<a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank"><img src="https://img.shields.io/badge/GitHub_Action-Semantic_Version-2088FF?logo=githubactions" alt="Semantic Version Action"></a>
+		</div>
 		<hr>
 
+		<!-- ============================================================ -->
+		<h2 class="titles">What this is</h2>
+		<div class="section">
+			<p>A personal lab to learn and practice event-driven architecture: a web form publishes an event to RabbitMQ, a chain of small Python services consumes it, deploys a Helm release for that "client", stores the record in MariaDB and shows it in a web UI. Everything around it (EC2, Kubernetes, ArgoCD, Grafana, CI, image scanning, versioning) is code.</p>
+			<p class="warning">It is a proof of concept, not a product. There are a few things that are wrong and have not been fixed yet. Do not expose this stack to the internet as is.</p>
+		</div>
+
+		<!-- ============================================================ -->
+		<h2 class="titles">Where it comes from</h2>
+		<div class="section">
+			<p>It started as a backend to receive events from home sensors through custom HomeAssistant over MQTT. That is why RabbitMQ has the MQTT plugin enabled and why half of the repo is still named <code>mqtt-*</code>. The IoT part never landed; the project mutated into what you see here: an excuse to build the full path from "someone buys a product" to "a workload is running, tracked and monitored".</p>
+		</div>
+
+		<!-- ============================================================ -->
+		<h2 class="titles">Architecture</h2>
+		<div class="section">
+			<img class="wide" src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/event-driven-architecture.jpg" alt="Architecture design">
+
+			<p>The real flow, service by service:</p>
+			<table>
+				<tr><th>#</th><th>Service</th><th>Tech</th><th>Does</th></tr>
+				<tr><td>1</td><td><code>03-producer</code></td><td>Python / Flask</td><td>Serves the "buy a product" form on port 5000. On submit builds a JSON event with a fresh <code>trace_id</code> and publishes it to the <code>infra</code> queue. Also publishes a status message to <code>event-status</code>.</td></tr>
+				<tr><td>2</td><td><code>04-consumer</code></td><td>Python</td><td>Consumes <code>infra</code>. Publishes a reduced message to <code>clients</code>, then runs <code>helm upgrade --install</code> of a Bitnami chart in a namespace named after the client, stamping the <code>trace_id</code> as pod label and annotation. Finally publishes "Finished" to <code>event-status</code>.</td></tr>
+				<tr><td>3</td><td><code>05-dbwriter</code></td><td>Python</td><td>Consumes <code>clients</code> and inserts the record into the <code>clients</code> table in MariaDB.</td></tr>
+				<tr><td>4</td><td><code>06-webserver</code></td><td>PHP / Apache</td><td>Reads the <code>clients</code> table and lists every provisioned client.</td></tr>
+				<tr><td>5</td><td><code>12-k8s-event-exporter</code></td><td>kubectl</td><td>Streams cluster events to stdout so they end up in the log pipeline.</td></tr>
+				<tr><td>-</td><td><code>01-generic-pub_sub</code></td><td>Python</td><td>Template to create a new consumer/producer pair in minutes.</td></tr>
+			</table>
+
+			<p>Broker: RabbitMQ (AMQP 0-9-1 through <code>pika</code>, one durable queue per task). Database: MariaDB. Every service exposes a Prometheus <code>/metrics</code> endpoint on port 9090 and logs only to stdout.</p>
+
+			<h3>Event model</h3>
+			<p>This is the exact payload the producer emits today:</p>
+<pre><code>{
+  "client": "cliente02",
+  "namespace": "cliente02-ns",
+  "environment": "Development",
+  "archtype": "SaaS",
+  "hardware": "Dedicated",
+  "product": "Product-A",
+  "MessageAttributes": {
+    "event_type": { "Type": "String", "Value": "mycompany.&lt;producer-pod&gt;.event.cliente02.published" },
+    "published_on": "2025-09-05",
+    "trace_id": "9a2ae9de-3f82-4f55-966b-47df50ff51ff",
+    "retrace_intent": "0"
+  },
+  "Metadata": {
+    "host": "&lt;producer-pod&gt;@&lt;pod-ip&gt;",
+    "origing": "Cloud",
+    "publisher": "&lt;producer-pod&gt;"
+  }
+}</code></pre>
+			<p>Yes, <code>origing</code> is a typo, and it is also in the code. <code>retrace_intent</code> is reserved for a retry counter that is not implemented yet. Both are on the list.</p>
+
+			<h3>One trace_id from the form to the pod</h3>
+			<img class="wide" src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/client-pod-trace_id.png" alt="trace_id as pod label and annotation">
+			<p>The <code>trace_id</code> is generated on the first call (the form submit) and travels inside every message. The consumer writes it as a label and annotation on every pod it deploys, so in Grafana or with a plain <code>kubectl get pods -l trace_id=...</code> you can follow one purchase across queues, logs and workloads. This is the piece of the lab I use the most when troubleshooting.</p>
+		</div>
+
+		<!-- ============================================================ -->
+		<h2 class="titles">Infrastructure</h2>
+		<div class="section">
+			<img class="wide" src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/infrastructure-diagram.jpg" alt="Infrastructure diagram">
+			<p>Two blocks, both code:</p>
+			<ol>
+				<li><b>Base platform</b>: Terraform creates one EC2 instance (t2.medium, two encrypted gp3 volumes) and a security group. Ansible then installs MicroK8s, Helm, kubectl, ArgoCD, and deploys the application stack from my <a href="https://jpradoar.github.io/helm-chart/" target="_blank">Helm chart repository</a>. ArgoCD is bootstrapped from the <a href="https://github.com/jpradoar/gitops" target="_blank">gitops</a> repo.</li>
+				<li><b>Application stack</b>: the services above, deployed as a Helm release. The manifests under <code>Kubernetes/</code> are the original hand-written version and lag behind the chart; the chart is the source of truth.</li>
+			</ol>
+		</div>
+
+		<!-- ============================================================ -->
+		<h2 class="titles">Quick start</h2>
+		<div class="section">
+			<h3>Option A: everything on AWS with one script</h3>
+			<p>Requirements: Terraform 1.9.x, Ansible core 2.17.x with the <code>community.general</code> and <code>kubernetes.core</code> collections, <code>jq</code>, <code>nc</code>, an AWS profile named <code>development</code> (or edit <code>terraform/variables.tf</code>), and a VPC and subnet to deploy into.</p>
+<pre><code># 1. SSH key used by Terraform and Ansible
+ssh-keygen -b 2048 -t rsa -f terraform/kp/demo_sshkey_tf -q -N ''
+
+# 2. Where to deploy
+export TF_VAR_vpc_id="vpc-xxxxxxxx"
+export TF_VAR_subnet_id="subnet-xxxxxxxx"
+
+# 3. Deploy (terraform apply + wait for SSH + ansible-playbook)
+sh run-demo.sh deploy
+
+# 4. Tear down
+sh run-demo.sh delete</code></pre>
+			<p>When the playbook finishes it prints the public endpoints. On the EC2 host, for the demo only, they are exposed with <code>kubectl port-forward</code> on <code>0.0.0.0</code>:</p>
+			<table>
+				<tr><th>Port</th><th>Service</th></tr>
+				<tr><td>5000</td><td>Producer (the form)</td></tr>
+				<tr><td>8080</td><td>Webserver (clients list)</td></tr>
+				<tr><td>3000</td><td>Grafana</td></tr>
+				<tr><td>15672</td><td>RabbitMQ management</td></tr>
+				<tr><td>8081</td><td>ArgoCD</td></tr>
+			</table>
+			<p>Feature flags live at the top of <code>ansible/main.yaml</code>: <code>ENABLE_EDA_STACK</code>, <code>ENABLE_ARGOCD</code>, <code>OPEN_PORT_FOR_DEMO</code>, <code>SEND_NOTIFICATIONS</code>.</p>
+
+			<h3>Option B: the application only, on your laptop</h3>
+<pre><code>cd docker-compose
+docker compose up -d</code></pre>
+			<p>Producer on <code>http://localhost:5000</code>, webserver on <code>http://localhost:8080</code>, RabbitMQ management on <code>http://localhost:15672</code>. Credentials are in the compose file. This option runs the message flow and the database, but not the Helm deployment step (there is no cluster).</p>
+		</div>
+
+		<!-- ============================================================ -->
+		<h2 class="titles">CI, versioning and image scanning</h2>
+		<div class="section">
+			<img class="wide" src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/github-event-driven-architecture-workflow.png" alt="Docker image workflow">
+			<p>Each service has its own GitHub Actions workflow, triggered only when its folder changes. Every run:</p>
+			<ol>
+				<li>Reads the latest tag from Docker Hub.</li>
+				<li>Computes the next version with my <a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank">Semantic Version GitHub Action</a>, driven by the commit message prefix.</li>
+				<li>Builds and pushes the image.</li>
+				<li>Scans it with Trivy (vulnerabilities, secrets, misconfigurations, licenses). The report is committed to <a href="https://github.com/jpradoar/event-driven-architecture/tree/main/vuln_scans" target="_blank"><code>vuln_scans/</code></a> (<a href="vuln_scan_demo.html" target="_blank">HTML example</a>) and, if CRITICAL findings exist, a GitHub issue is opened and Slack is notified.</li>
+			</ol>
+
+			<div class="badges toCenter">
+				<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/producer-ci.yaml/badge.svg" alt="Producer (CI)">
+				<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/consumer-ci.yaml/badge.svg" alt="Consumer (CI)">
+				<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/dbwriter-ci.yaml/badge.svg" alt="DB Writer (CI)">
+				<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/webserver-ci.yaml/badge.svg" alt="Webserver (CI)">
+				<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/k8s-event-exporter-ci.yaml/badge.svg" alt="K8s Event Exporter (CI)">
+			</div>
+
+			<pre class="mermaid">
+graph LR
+    A(git push) --> B>GitHub Action]
+    B --> C[Read last tag from Docker Hub]
+    C --> D[1.0.0]
+    B --> | commit message | E{Parse prefix}
+    E --> |patch: ...| F((1.0.1))
+    E --> |minor: ...| G((1.1.0))
+    E --> |major: ...| H((2.0.0))
+    E --> |test: ... | I((1.0.0-wbp9lays))
+			</pre>
+
+			<p>Terraform has its own pipeline: <code>validate</code>, <code>fmt</code>, <code>tfsec</code> and a real <code>apply</code> against <a href="https://github.com/jpradoar/event-driven-architecture/tree/main/localstack" target="_blank">LocalStack</a>, so the code is exercised on every pull request without touching AWS.</p>
+		</div>
+
+		<!-- ============================================================ -->
+		<h2 class="titles">Repository layout</h2>
+		<div class="section">
+<pre><code>01-generic-pub_sub/   template for new services
+02-customer-portal/   static landing page (nginx)
+03-producer/          Flask form -> RabbitMQ
+04-consumer/          RabbitMQ -> helm deploy
+05-dbwriter/          RabbitMQ -> MariaDB
+06-webserver/         PHP UI over the clients table
+11-jobs/              Kubernetes Jobs (Slack notifications)
+12-k8s-event-exporter/
+Kubernetes/           original manifests (see note above)
+docker-compose/       local run
+terraform/            EC2 + security group
+ansible/              MicroK8s, Helm, ArgoCD, app stack
+localstack/           fake AWS for the Terraform pipeline
+monitoring/           Grafana values and dashboards
+vuln_scans/           Trivy reports committed by CI
+c2w/                  "code to work": self-hosted runner and dev container
+deb_packages/         side exercise: building .deb packages with lintian and trivy</code></pre>
+		</div>
+
+		<!-- ============================================================ -->
+		<h2 class="titles">Screenshots</h2>
+		<div class="section">
+			<h3>Kubernetes logs</h3>
+			<img class="wide" src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/consumer-logs.png" alt="Consumer logs">
+			<img class="wide" src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/full-log.png" alt="Full log">
+			<h3>Alerts and messages</h3>
+			<img class="wide" src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/slack-build-msg.png" alt="Slack build message">
+		</div>
+
+		<!-- ============================================================ -->
+		<h2 class="titles">License</h2>
 		<div class="section toCenter">
-			<h2>📌 About This Project </h2> 
-			<p>This is a personal project and a proof of concept to learn and implement Event Driven Architecture using Python, RabbitMQ, and Kubernetes.</p>
-			<a href="https://github.com/users/jpradoar/projects/2/views/1" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/Kanban_project_(see_all_roadmap)-black.svg?logo=book"></a>
-			<a href="https://jpradoar.github.io/helm-chart/" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/Helm_charts_(personal_repo)-blue.svg?logo=Helm"></a>
-			<a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/My_own_Semantic_Version-git_action-lightblue.svg?logo=tag"></a>
-		</div>
-		<div class="section toCenter">
-			<h2>Builds and workflow status</h2>
-		<div class="badges toCenter">
-			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/producer-ci.yaml/badge.svg" alt="Producer (CI)">
-			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/consumer-ci.yaml/badge.svg" alt="Consumer (CI)">
-			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/dbwriter-ci.yaml/badge.svg" alt="DB Writer (CI)">
-			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/webserver-ci.yaml/badge.svg" alt="Webserver (CI)">
-			<img src="https://github.com/jpradoar/event-driven-architecture/actions/workflows/k8s-event-exporter-ci.yaml/badge.svg" alt="K8s Event Exporter (CI)">
-		</div>
-				
-
-		</div>
-		
-
-		<div class="section">
-		<h2 class="titles">💡 Main idea</h2>
-		A simple excuse to learn and use Python as Pub/Sub with a message broker, in this case RabbitMQ, to provision infrastructure triggered by events like "buy a small module" and, finally, to monitor all that infrastructure. 
-		I love IoT. For this reason, this PoC is designed to simulate a "SaaS product". At the end of all this, it will provision my small IoT modules. 👾 
-		<br><br>The project has two big "blocks":
-		<br>● <b>First</b>: Base infrastructure. Kubernetes on AWS EC2, all deployed with Terraform and Ansible. 
-		<br>● <b>Second</b>: Kubernetes architecture: APIs, services, databases and other endpoints, all deployed in Kubernetes with Helm using my own <a href="https://jpradoar.github.io/helm-chart/" target="_blank"> Helm-charts </a>
-
-		<br>
-		<h2 class="titles">🔥 Supposed problem</h2>
-
-		<br>💀 I need to manage a lot of inputs, and each of them will trigger different tasks, like messages, deployments, and more. Obviously I will reuse that data so other jobs can generate custom events, and finally I will use Grafana for analysis and trends.
-		<br>💀 Some apps have to get information, but a common problem is having or developing a lot of products with different technologies, like Node.js, Python or PHP.
-		<br>💀 I would like to have a shared source of data, to avoid rebuilding or writing connectors or APIs to connect components written in different technologies/languages.
-		<br>💀 All developers need to know which version must be fixed, or I need a person to manage the version numbers. (I would like to avoid managing them manually.)
-
-
-		<br>
-		<h2 class="titles">🏁 Objective</h2>
-		<br>● The same scenario must be able to be reproduced multiple times.
-		<br>● The full project (or almost all of it) must be code (and/or IaC).
-		<br>● Create a simple API to centralize all "inputs" and organize workloads by queues.
-		<br>● Each microservice consumes its own queue and, if needed, can consume others too.
-		<br>● Each microservice does a specific task, to avoid having "JUMBO-Pods".
-		<br>● All microservices generate logs for future monitoring, analysis, improvements and troubleshooting.
-		<br>● All logs must be exposed on stdout, to avoid writing data inside the container. This lets me run my pods with a read-only filesystem.
-		<br>● Automate all tasks via API calls between microservices.
-		<br>● Gain scalability and security by isolating each task in small actions/calls.
-		<br>● Avoid tech dependencies or "human-tech dependence". Everyone can enjoy their own tech/language.
-		<br>● The standard (input/output) will be <a href="https://www.json.org/json-en.html"  target="_blank"><img src="https://img.shields.io/badge/JSON-blue"></a> because it is an open standard and is easy to implement and parse.
-		<br>● To manage version numbers I created a <a href="https://github.com/marketplace/actions/genericsemanticversion" target="_blank"><img src="https://custom-icon-badges.demolab.com/badge/My_own_Semantic_Version-git_action-lightblue.svg?logo=tag"></a>
-
-
-		<br><h2 class="titles">🛡️ Minimum security</h2>
-		<br>● Safe data: My apps use tokens and passwords. I need to manage them safely and commit all the code without leaking my secrets.
-		<br>● Vulnerability scans: Every time a developer or SRE builds a Docker image, it must be scanned to find possible vulnerabilities. If any are found, that image has to be marked with a different tag. 
-		<br>➤ See examples: <a href="https://github.com/jpradoar/event-driven-architecture/tree/main/vuln_scans" target="_blank"><img src="https://img.shields.io/badge/Vulnerability-List_Scans-red"></a> and <b><a href="https://jpradoar.github.io/event-driven-architecture/vuln_scan_demo.html" target="_blank"><img src="https://img.shields.io/badge/EXAMPLE-for_humans_(html)-red"></a></b>
-
-
-		<br><h2 class="titles">🔍 Monitoring</h2>
-		<br>● Monitoring: All developers and DevOps engineers must be able to see some metrics. (PLG stack)
-		 
-
-		<br><h2 class="titles">🎁 Extra feature</h2>
-
-		<br>● Vendor-neutral: In my case, I prefer an infrastructure that can be used and implemented in any cloud provider that runs a Kubernetes cluster, in an "on-premise" client environment, or even in a development environment like my laptop.<br>
-			
-
+			MIT. See <a href="https://github.com/jpradoar/event-driven-architecture/blob/main/LICENSE" target="_blank">LICENSE</a>.
 		</div>
 
+		<br><hr><br>
 
-		<br><br>
-		<h2 class="titles">Infrastructure design and workflow</h2>
-
-		<div align="center">
-		<br><img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/infrastructure-diagram.jpg">
-		<br>
-		<br><img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/terraform-workflow.jpg">
-		</div>
-		
-		
-		<br><br>
-			
-
-		<br>
-		<div align="center">
-		<br>
-		<h2 class="titles"Docker images workflows logic</h2>
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/github-event-driven-architecture-workflow.png" width="60%">
-
-		<br>
-		<br><h2 class="titles">Architecture</h2>
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/event-driven-architecture.jpg" alt="Architecture Design" width="60%">
-
-
-		<br><h2 class="titles">JSON data model (example)</h2>
-		<div class="section">
-		<code>
-		{
-		"client":"cliente02",                          /* Client name or identification */ 
-		"namespace":"cliente02",                       /* Kubernetes namespace = client */
-		"environment":"Development",                   /* Dev / Stage / Prod */
-		"archtype":"SaaS",                             /* SaaS / Edge / On-Prem */
-		"hardware":"Dedicated",                        /* Classic (No extra cost allocated) / Dedicated (Extra cost allocated) */
-		"product":"Product-A",                         /* Product-A / -B / -C / -N */ 
-		"MessageAttributes": { 
-		  "event_type": { 
-			"Type": "String",     
-			"Value": "mycompany.producer.event.client.published"   /* (Dynamic) Company.App.messageType.client.EventAction */
-			}, 
-		  "published_on": "2023.01.2.23.02.642883101",         /* +%Y.%m.%d.%H.%M.%N */ 
-		  "trace_id": "9a2ae9de-3f82-4f55-966b-47df50ff51ff",  /* unique random string  */
-		  "retrace_intent": "0"                                /* how many retries */
-		  }, 
-		  "Metadata": { 
-			"host": "hostname",                    /* microservice */
-			"origing": "Cloud",                    /* Cloud / On-Prem */
-			"publisher": "producer"                /* publisherType */
-		  } 
-		} 
-		</code>
-		</div>
-
-		<br><h2 class="titles">TraceID from deployment workflow to pod annotations</h2>
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/client-pod-trace_id.png" width="40%"> 
-
-		<br>
-		<div class="section">
-		This <b>trace_id</b> is super useful when you need to see the deployment trace, and I also use it as a reference tag and/or annotation in pods.
-		The trace_id is generated on the first API call of the deployment process and is attached to all the pods. If you use Grafana or similar, you can trace all the steps and associate them with the deployment, or even with each pod deployed by this process.
-		</div>
-
-		<br><h2 class="titles">DBClients UI (webserver)</h2>
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/webserver.png" width="60%">
-		<br>
-
-		<br><h2 class="titles">Kubernetes Logs</h2>
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/consumer-logs.png" width="60%">
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/full-log.png" width="60%">
-		<br>
-
-		<br><h2 class="titles">Grafana Dashboards</h2>
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/mqtt_message.png" width="60%">
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/trace_grafana.png" width="60%">
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/trace2_grafana.png" width="60%">
-		<br>			
-
-		<br><h2 class="titles">Alerts and Messages</h2>
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/slack-build-msg.png" width="60%">
-		<br>
-		<img src="https://raw.githubusercontent.com/jpradoar/event-driven-architecture/refs/heads/main/img/tf-slack-alerts.png" width="60%">
-		<br>
-
-
-    <br><hr><br>
-
-<a class="support-me" href="https://buymeacoffee.com/jpradoar" target="_blank"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a Coffee&nbsp&emoji=&slug=jpradoar&button_colour=FF5F5F&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00"></a>
-
-		</div>
+		<a class="support-me" href="https://buymeacoffee.com/jpradoar" target="_blank"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a Coffee&nbsp&emoji=&slug=jpradoar&button_colour=FF5F5F&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" alt="Buy me a coffee"></a>
 	</div>
+
+	<script type="module">
+		import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+		mermaid.initialize({ startOnLoad: true });
+	</script>
 </body>
 </html>
